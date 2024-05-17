@@ -1,0 +1,172 @@
+import { TOKEN_TYPE } from "../constants";
+import { initializeContentstackSdk } from "../sdk/utils";
+import { GenerateTS, GenerateTSFromContentTypes } from "../types";
+import { DocumentationGenerator } from "./docgen/doc";
+import JSDocumentationGenerator from "./docgen/jsdoc";
+import NullDocumentationGenerator from "./docgen/nulldoc";
+import tsgenFactory from "./factory";
+import { defaultInterfaces } from "./stack/builtins";
+import { getGlobalFields } from "./stack/client";
+import { format } from "../format/index";
+import { ContentType } from "../types/schema";
+
+const validRegions = ["US", "EU", "AZURE_NA", "AZURE_EU", "GCP_NA"];
+
+export const generateTS = async ({
+  token,
+  tokenType,
+  apiKey,
+  environment,
+  region,
+  branch,
+  prefix,
+  includeDocumentation,
+  systemFields,
+}: GenerateTS) => {
+  try {
+    if (!token || !tokenType || !apiKey || !environment || !region) {
+      throw {
+        type: "validation",
+        error_message:
+          "Please provide all the required params (token, tokenType, apiKey, environment, region)",
+      };
+    }
+
+    if (!validRegions.includes(region)) {
+      throw {
+        type: "validation",
+        error_message:
+          "Please provide a valid region, supported regions are :  (US, EU, AZURE_NA, AZURE_EU, GCP_NA)",
+      };
+    }
+    if (tokenType === TOKEN_TYPE.DELIVERY) {
+      const Stack = initializeContentstackSdk({
+        apiKey,
+        token,
+        environment,
+        region,
+        branch,
+      });
+      // TODO: check this in run time. This is not the right type
+      const contentTypes =
+        (await Stack.getContentTypes()) as unknown as ContentType[];
+      const { content_types }: any = contentTypes;
+
+      if (!content_types.length) {
+        throw {
+          type: "validation",
+          error_message:
+            "There are no Content Types in the Stack, please create Content Models to generate type definitions",
+        };
+      }
+
+      const global_fields = await getGlobalFields({
+        apiKey,
+        token,
+        region,
+        environment,
+        branch,
+      });
+
+      let schemas: ContentType[] = [];
+      if (content_types?.length) {
+        if ((global_fields as any)?.global_fields?.length) {
+          schemas = schemas.concat(
+            (global_fields as any).global_fields as ContentType
+          );
+          schemas = schemas.map((schema) => ({
+            ...schema,
+            schema_type: "global_field",
+          }));
+        }
+        schemas = schemas.concat(content_types);
+
+        const generatedTS = generateTSFromContentTypes({
+          contentTypes: schemas,
+          prefix,
+          includeDocumentation,
+          systemFields,
+        });
+        return generatedTS;
+      }
+    }
+  } catch (error: any) {
+    if (error.type === "validation") {
+      throw {
+        error_message: error.error_message,
+      };
+    } else {
+      let errorMessage = "Something went wrong";
+      if (error.status) {
+        switch (error.status) {
+          case 401:
+            errorMessage =
+              "Unauthorized: The apiKey, token or region is not valid.";
+            break;
+          case 412:
+            errorMessage =
+              "Invalid Credentials: Please check the provided apiKey, token and region.";
+            break;
+          default:
+            errorMessage = `${errorMessage}, ${error.error_message}`;
+        }
+      }
+      throw {
+        error_message: errorMessage,
+      };
+    }
+  }
+};
+
+export const generateTSFromContentTypes = async ({
+  contentTypes,
+  prefix = "",
+  includeDocumentation = true,
+  systemFields = false,
+}: GenerateTSFromContentTypes) => {
+  try {
+    const docgen: DocumentationGenerator = includeDocumentation
+      ? new JSDocumentationGenerator()
+      : new NullDocumentationGenerator();
+    const globalFields = new Set();
+    const definitions = [];
+
+    const tsgen = tsgenFactory({
+      docgen,
+      naming: {
+        prefix,
+      },
+      systemFields,
+    });
+
+    for (const contentType of contentTypes) {
+      const tsgenResult = tsgen(contentType);
+
+      if (tsgenResult.isGlobalField) {
+        globalFields.add(tsgenResult.definition);
+      } else {
+        definitions.push(tsgenResult.definition);
+
+        tsgenResult.metadata.types.globalFields.forEach((field: string) => {
+          globalFields.add(
+            tsgenResult.metadata.dependencies.globalFields[field].definition
+          );
+        });
+      }
+    }
+
+    const output = await format(
+      [
+        defaultInterfaces(prefix, systemFields).join("\n\n"),
+        [...globalFields].join("\n\n"),
+        definitions.join("\n\n"),
+      ].join("\n\n")
+    );
+
+    return output;
+  } catch (err: any) {
+    throw {
+      error_message: "Something went wrong, " + err.message,
+    };
+  }
+};

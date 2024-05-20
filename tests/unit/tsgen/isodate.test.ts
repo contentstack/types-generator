@@ -1,7 +1,7 @@
 const testData = require("./isodate.ct");
 
-import NullDocumentationGenerator from "../../src/generateTS/docgen/nulldoc";
-import tsgenFactory from "../../src/generateTS/factory";
+import NullDocumentationGenerator from "../../../src/generateTS/docgen/nulldoc";
+import tsgenFactory from "../../../src/generateTS/factory";
 
 const tsgen = tsgenFactory({
   docgen: new NullDocumentationGenerator(),

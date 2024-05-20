@@ -1,7 +1,7 @@
 const testData = require("./jsdoc.ct");
 
-import JSDocumentationGenerator from "../../src/generateTS/docgen/jsdoc";
-import tsgenFactory from "../../src/generateTS/factory";
+import JSDocumentationGenerator from "../../../src/generateTS/docgen/jsdoc";
+import tsgenFactory from "../../../src/generateTS/factory";
 
 const tsgen = tsgenFactory({
   docgen: new JSDocumentationGenerator(),

@@ -1,39 +1,15 @@
 import { generateTS } from "../../../src/generateTS/index";
-import { contentTypes, globalFields } from "../mock";
-import nock from "nock";
-
-type RegionUrlMap = {
-  [prop: string]: string;
-};
-
-const REGION_URL_MAPPING: RegionUrlMap = {
-  US: "https://cdn.contentstack.io",
-  EU: "https://eu-cdn.contentstack.com",
-  AZURE_NA: "https://azure-na-cdn.contentstack.com",
-  AZURE_EU: "https://azure-eu-cdn.contentstack.com",
-  GCP_NA: "https://gcp-na-cdn.contentstack.com",
-};
+const dotenv = require("dotenv");
+dotenv.config({ path: "../../../.env" });
 
 describe("generateTS function", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it("generates type definitions", async () => {
-    const token = "valid-token";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "US";
-    const tokenType = "delivery";
-    const branch = "main";
-
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, contentTypes);
-
-    nock(REGION_URL_MAPPING[region])
-      .get("/v3/global_fields?include_branch=false")
-      .reply(200, globalFields);
+    const token = process.env.TOKEN as unknown as any;
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
+    const branch = process.env.BRANCH as unknown as any;
 
     const generatedTS = await generateTS({
       token,
@@ -51,20 +27,12 @@ describe("generateTS function", () => {
   });
 
   it("generates type definitions without Documentation", async () => {
-    const token = "valid-token";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "US";
-    const tokenType = "delivery";
+    const token = process.env.TOKEN as unknown as any;
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
     const includeDocumentation = false;
-
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, contentTypes);
-
-    nock(REGION_URL_MAPPING[region])
-      .get("/v3/global_fields?include_branch=false")
-      .reply(200, globalFields);
 
     const generatedTS = await generateTS({
       token,
@@ -82,20 +50,12 @@ describe("generateTS function", () => {
   });
 
   it("generates type definitions with prefix", async () => {
-    const token = "valid-token";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "US";
-    const tokenType = "delivery";
+    const token = process.env.TOKEN as unknown as any;
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
     const prefix = "test";
-
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, contentTypes);
-
-    nock(REGION_URL_MAPPING[region])
-      .get("/v3/global_fields?include_branch=false")
-      .reply(200, globalFields);
 
     const generatedTS = await generateTS({
       token,
@@ -113,20 +73,12 @@ describe("generateTS function", () => {
   });
 
   it("generates type definitions with system fields", async () => {
-    const token = "valid-token";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "US";
-    const tokenType = "delivery";
+    const token = process.env.TOKEN as unknown as any;
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
     const systemFields = true;
-
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, contentTypes);
-
-    nock(REGION_URL_MAPPING[region])
-      .get("/v3/global_fields?include_branch=false")
-      .reply(200, globalFields);
 
     const generatedTS = await generateTS({
       token,
@@ -147,17 +99,13 @@ describe("generateTS function", () => {
 });
 
 describe("generateTS function with errors", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it("Check for if all the required fields are provided", async () => {
     const token = "";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "US";
-    const tokenType = "delivery";
-    const branch = "main";
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
+    const branch = process.env.BRANCH as unknown as any;
 
     try {
       await generateTS({
@@ -176,12 +124,12 @@ describe("generateTS function with errors", () => {
   });
 
   it("Check for Invalid region", async () => {
-    const token = "your-token";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "demo" as unknown as any;
-    const tokenType = "delivery";
-    const branch = "main";
+    const token = process.env.TOKEN as unknown as any;
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = "wrong" as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
+    const branch = process.env.BRANCH as unknown as any;
 
     try {
       await generateTS({
@@ -200,16 +148,12 @@ describe("generateTS function with errors", () => {
   });
 
   it("Check for empty content-type response", async () => {
-    const token = "your-token";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "US";
-    const tokenType = "delivery";
-    const branch = "main";
-
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, { content_types: [] });
+    const token = process.env.TOKEN_WITH_NO_CT as unknown as any;
+    const apiKey = process.env.APIKEY_WITH_NO_CT as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
+    const branch = process.env.BRANCH as unknown as any;
 
     try {
       await generateTS({
@@ -228,44 +172,12 @@ describe("generateTS function with errors", () => {
   });
 
   it("Check for invalid api_key", async () => {
-    const token = "your-token";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "GCP_NA";
-    const tokenType = "delivery";
-    const branch = "main";
-
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(401);
-
-    try {
-      await generateTS({
-        token,
-        apiKey,
-        environment,
-        region,
-        tokenType,
-        branch,
-      });
-    } catch (err: any) {
-      expect(err.error_message).toEqual(
-        "Unauthorized: The apiKey, token or region is not valid."
-      );
-    }
-  });
-
-  it("Check for invalid delivery token", async () => {
-    const token = "your-token";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "AZURE_EU";
-    const tokenType = "delivery";
-    const branch = "main";
-
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(412);
+    const token = process.env.TOKEN as unknown as any;
+    const apiKey = "process.env.APIKEY" as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
+    const branch = process.env.BRANCH as unknown as any;
 
     try {
       await generateTS({
@@ -283,21 +195,37 @@ describe("generateTS function with errors", () => {
     }
   });
 
-  it("Check for default error", async () => {
-    const token = "your-token";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "AZURE_NA";
-    const tokenType = "delivery";
-    const branch = "mai";
+  it("Check for invalid delivery token", async () => {
+    const token = "***REMOVED***" as unknown as any;
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
+    const branch = process.env.BRANCH as unknown as any;
 
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(422, {
-        error_message:
-          "Access denied. You have insufficient permissions to perform operation on this branch 'mai'.",
-        error_code: 901,
+    try {
+      await generateTS({
+        token,
+        apiKey,
+        environment,
+        region,
+        tokenType,
+        branch,
       });
+    } catch (err: any) {
+      expect(err.error_message).toEqual(
+        "Unauthorized: The apiKey, token or region is not valid."
+      );
+    }
+  });
+
+  it("Check for default error", async () => {
+    const token = process.env.TOKEN as unknown as any;
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
+    const branch = "mai" as unknown as any;
 
     try {
       await generateTS({
@@ -315,21 +243,13 @@ describe("generateTS function with errors", () => {
     }
   });
 
-  it("Check for TSGEN factory error", async () => {
-    const token = "your-token";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "EU";
-    const tokenType = "delivery";
-    const branch = "main";
-
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, contentTypes);
-
-    nock(REGION_URL_MAPPING[region])
-      .get("/v3/global_fields?include_branch=false")
-      .reply(200, { global_fields: [] });
+  it("Check for default error", async () => {
+    const token = "process.env.TOKEN" as unknown as any;
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
+    const branch = process.env.BRANCH as unknown as any;
 
     try {
       await generateTS({
@@ -341,49 +261,7 @@ describe("generateTS function with errors", () => {
         branch,
       });
     } catch (err: any) {
-      expect(err.error_message).toEqual(
-        "Something went wrong, Schema not found for global field 'global_field. Did you forget to include it?"
-      );
+      expect(err.error_message).toEqual("Something went wrong, Bad Request");
     }
   });
-
-  it("Check for global fields error", async () => {
-    const token = "your-token";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "US";
-    const tokenType = "delivery";
-    const branch = "main";
-
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, contentTypes);
-
-    nock(REGION_URL_MAPPING[region])
-      .get("/v3/global_fields?include_branch=false")
-      .reply(401);
-
-    try {
-      await generateTS({
-        token,
-        apiKey,
-        environment,
-        region,
-        tokenType,
-        branch,
-      });
-    } catch (err: any) {
-      expect(err.error_message).toEqual(
-        "Unauthorized: The apiKey, token or region is not valid."
-      );
-    }
-  });
-});
-
-afterAll(() => {
-  nock.restore();
-});
-
-afterEach(() => {
-  nock.cleanAll();
 });

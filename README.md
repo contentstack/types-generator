@@ -34,7 +34,7 @@ This is an asynchronous method which generates Typescript type definition of the
 | tokenType            | Type of token being provided (Currently we are supporting only delivery token)     | String    | delivery                           | Yes       |               |
 | apiKey               | Stack API key                                                                      | String    |                                    | Yes       |               |
 | environment          | Name of the environment (example: development, staging, production)                | String    |                                    | Yes       |               |
-| region               | Contentstack API region                                                            | String    | US, EU, AZURE_NA, AZURE_EU, GCP_NA | Yes       |               |
+| region               | Contentstack API region                                                            | String    | US (for AWS NA), EU, AZURE_NA, AZURE_EU, GCP_NA | Yes       |               |
 | branch               | Stack branch name                                                                  | String    |                                    | No        |               |
 | prefix               | Optional prefix to add for each interface                                          | String    |                                    | No        |               |
 | includeDocumentation | To add content type documentation in the generated file                            | boolean   | true, false                        | No        | true          |
@@ -48,7 +48,7 @@ Returns a Promise that resolves with data or rejects with an error.
 
 Type: String
 
-Data: Generated Typescript
+Data: Generated Typescript type definition
 
 **_If rejected:_**
 
@@ -62,26 +62,28 @@ Data: An object with `error_message`
 import { generateTS } from "tsgen-lib"; // Import statement for NodeJS
 import { generateTS } from "tsgen-lib/dist/web"; // Import statement for Web application
 
-const typeDefRequest = await generateTS({
-  token: "<< your_token >>",
-  tokenType: "delivery", // Currently we are supporting only delivery token
-  apiKey: "<< your_stack_api_key >>",
-  environment: "development",
-  region: "na",
-  branch: "main",
-  prefix: "CS",
-  includeDocumentation: true,
-  systemFields: false,
-});
-
-typeDefRequest
-  .then((typeDef: string) => {
-    // Handle resolved promise
-  })
-  .catch((error) => {
-    // Handle rejected promise
+async function getTypeDef() {
+  try {
+    const typeDef = await generateTS({
+      token: "<< your_delivery_token >>",
+      tokenType: "delivery", // Currently we are supporting only delivery token
+      apiKey: "<< your_stack_api_key >>",
+      environment: "development",
+      region: "US",
+      branch: "main",
+      prefix: "CS",
+      includeDocumentation: true,
+      systemFields: false,
+    });
+    
+    // Handle the resolved promise, e.g., process the typeDef
+  } catch (error) {
+    // Handle the rejected promise
     // error: { error_message: "Unauthorized! Please check the given token and api key" }
-  });
+  }
+}
+
+getTypeDef();
 ```
 
 **Example output:**
@@ -177,7 +179,7 @@ This is an asynchronous method which generates Typescript type definition of the
 | token         | Unique identifier used for authorization. This should be the delivery token of the stack. | String    |                                        | Yes       |
 | apiKey        | Stack API key                                                                             | String    |                                        | Yes       |
 | environment   | Name of the environment (example: development, staging, production)                       | String    |                                        | Yes       |
-| region        | Contentstack API region                                                                   | String    | na, us, eu, azure-na, azure-eu, gcp-na | Yes       |
+| region        | Contentstack API region                                                                   | String    | US (for AWS NA), EU, AZURE_NA, AZURE_EU, GCP_NA | Yes       |
 | branch        | Stack branch name                                                                         | String    |                                        | No        |
 | namespace     | Identifies the specific namespace within schema                                           | String    |                                        | No        |
 
@@ -189,7 +191,7 @@ Returns a Promise that resolves with data or rejects with an error.
 
 Type: String
 
-Data: Generated Typescript
+Data: Generated Typescript type definition
 
 **_If rejected:_**
 
@@ -202,21 +204,23 @@ Data: An object with `error_message`
 ```typescript
 import { graphqlTS } from "tsgen-lib"; // Import statement for NodeJS
 
-const typeDefRequest = await graphqlTS({
-  token: "<< your_delivery_token >>",
-  apiKey: "<< your_stack_api_key >>",
-  environment: "development",
-  region: "na",
-  branch: "main",
-  namespace: "<< your_name_space >>",
-});
-
-typeDefRequest
-  .then((typeDef: string) => {
-    // Handle resolved promise
-  })
-  .catch((error) => {
-    // Handle rejected promise
+async function getTypeDef() {
+  try {
+    const typeDef = await graphqlTS({
+      token: "<< your_delivery_token >>", // Currently we are supporting only delivery token
+      apiKey: "<< your_stack_api_key >>",
+      environment: "development",
+      region: "US",
+      branch: "main",
+      namespace: "<< your_name_space >>",
+    });
+    
+    // Handle the resolved promise, e.g., process the typeDef
+  } catch (error) {
+    // Handle the rejected promise
     // error: { error_message: "Unauthorized! Please check the given token and api key" }
-  });
+  }
+}
+
+getTypeDef();
 ```

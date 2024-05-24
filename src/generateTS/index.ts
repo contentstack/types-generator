@@ -6,9 +6,9 @@ import JSDocumentationGenerator from "./docgen/jsdoc";
 import NullDocumentationGenerator from "./docgen/nulldoc";
 import tsgenFactory from "./factory";
 import { defaultInterfaces } from "./stack/builtins";
-import { getGlobalFields } from "./stack/client";
 import { format } from "../format/index";
 import { ContentType } from "../types/schema";
+import { exit } from "process";
 
 const validRegions = ["US", "EU", "AZURE_NA", "AZURE_EU", "GCP_NA"];
 
@@ -47,9 +47,13 @@ export const generateTS = async ({
         region,
         branch,
       });
-      // TODO: check this in run time. This is not the right type
-      const contentTypes =
-        (await Stack.getContentTypes()) as unknown as ContentType[];
+
+      const contentTypeQuery = Stack.contentType();
+      const globalFieldsQuery = Stack.globalField();
+      const contentTypes = await contentTypeQuery.find();
+      const global_fields = await globalFieldsQuery.find();
+      // console.log(contentTypes);
+      // exit(0);
       const { content_types }: any = contentTypes;
 
       if (!content_types.length) {
@@ -59,14 +63,6 @@ export const generateTS = async ({
             "There are no Content Types in the Stack, please create Content Models to generate type definitions",
         };
       }
-
-      const global_fields = await getGlobalFields({
-        apiKey,
-        token,
-        region,
-        environment,
-        branch,
-      });
 
       let schemas: ContentType[] = [];
       if (content_types?.length) {
@@ -91,31 +87,34 @@ export const generateTS = async ({
       }
     }
   } catch (error: any) {
-    if (error.type === "validation") {
-      throw {
-        error_message: error.error_message,
-      };
-    } else {
-      let errorMessage = "Something went wrong";
-      if (error.status) {
-        switch (error.status) {
-          case 401:
-            errorMessage =
-              "Unauthorized: The apiKey, token or region is not valid.";
-            break;
-          case 412:
-            errorMessage =
-              "Invalid Credentials: Please check the provided apiKey, token and region.";
-            break;
-          default:
-            errorMessage = `${errorMessage}, ${error.error_message}`;
-        }
-      }
-      throw {
-        error_message: errorMessage,
-      };
-    }
+    throw error;
   }
+  // } catch (error: any) {
+  //   if (error.type === "validation") {
+  //     throw {
+  //       error_message: error.error_message,
+  //     };
+  //   } else {
+  //     let errorMessage = "Something went wrong";
+  //     if (error.status) {
+  //       switch (error.status) {
+  //         case 401:
+  //           errorMessage =
+  //             "Unauthorized: The apiKey, token or region is not valid.";
+  //           break;
+  //         case 412:
+  //           errorMessage =
+  //             "Invalid Credentials: Please check the provided apiKey, token and region.";
+  //           break;
+  //         default:
+  //           errorMessage = `${errorMessage}, ${error.error_message}`;
+  //       }
+  //     }
+  //     throw {
+  //       error_message: errorMessage,
+  //     };
+  //   }
+  // }
 };
 
 export const generateTSFromContentTypes = async ({

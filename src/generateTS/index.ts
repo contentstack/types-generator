@@ -50,7 +50,7 @@ export const generateTS = async ({
       const contentTypeQuery = Stack.contentType();
       const globalFieldsQuery = Stack.globalField();
       const contentTypes = await contentTypeQuery.find();
-      const global_fields = await globalFieldsQuery.find();
+      const globalFields = await globalFieldsQuery.find();
 
       const { content_types }: any = contentTypes;
 
@@ -64,9 +64,9 @@ export const generateTS = async ({
 
       let schemas: ContentType[] = [];
       if (content_types?.length) {
-        if ((global_fields as any)?.global_fields?.length) {
+        if ((globalFields as any)?.global_fields?.length) {
           schemas = schemas.concat(
-            (global_fields as any).global_fields as ContentType
+            (globalFields as any).global_fields as ContentType
           );
           schemas = schemas.map((schema) => ({
             ...schema,

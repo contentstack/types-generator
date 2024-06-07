@@ -36,7 +36,7 @@
   "dependencies": {
     "@gql2ts/from-schema": "^2.0.0-4",
     "axios": "^1.6.8",
-    "contentstack": "^3.19.2",
+    "contentstack": "^3.19.3",
     "lodash": "^4.17.21",
     "prettier": "^3.2.5"
   }

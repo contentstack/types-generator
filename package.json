@@ -38,6 +38,6 @@
     "axios": "^1.6.8",
     "contentstack": "^3.19.2",
     "lodash": "^4.17.21",
-    "prettier": "^3.2.5"
+    "prettier": "^3.3.0"
   }
 }

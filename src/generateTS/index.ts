@@ -90,9 +90,10 @@ export const generateTS = async ({
         error_message: error.error_message,
       };
     } else {
+      const errorObj = JSON.parse(error.message.replace("Error: ", ""));
       let errorMessage = "Something went wrong";
-      if (error.status) {
-        switch (error.status) {
+      if (errorObj.status) {
+        switch (errorObj.status) {
           case 401:
             errorMessage =
               "Unauthorized: The apiKey, token or region is not valid.";
@@ -102,8 +103,11 @@ export const generateTS = async ({
               "Invalid Credentials: Please check the provided apiKey, token and region.";
             break;
           default:
-            errorMessage = `${errorMessage}, ${error.error_message}`;
+            errorMessage = `${errorMessage}, ${errorObj.error_message}`;
         }
+      }
+      if (errorObj.error_message && !errorObj.status) {
+        errorMessage = `${errorMessage}, ${errorObj.error_message}`;
       }
       throw {
         error_message: errorMessage,

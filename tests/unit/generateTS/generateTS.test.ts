@@ -224,87 +224,87 @@ describe("generateTS function with errors", () => {
     }
   });
 
-  // it("Check for invalid api_key", async () => {
-  //   const token = "your-token";
-  //   const apiKey = "your-api-key";
-  //   const environment = "development";
-  //   const region = "GCP_NA";
-  //   const tokenType = "delivery";
-  //   const branch = "main";
+  it("Check for invalid api_key", async () => {
+    const token = "your-token";
+    const apiKey = "your-api-key";
+    const environment = "development";
+    const region = "GCP_NA";
+    const tokenType = "delivery";
+    const branch = "main";
 
-  //   mockClient.onGet(`/content_types`).reply(401);
+    mockClient.onGet(`/content_types`).reply(401);
 
-  //   try {
-  //     await generateTS({
-  //       token,
-  //       apiKey,
-  //       environment,
-  //       region,
-  //       tokenType,
-  //       branch,
-  //     });
-  //   } catch (err: any) {
-  //     expect(err.error_message).toEqual(
-  //       "Unauthorized: The apiKey, token or region is not valid."
-  //     );
-  //   }
-  // });
+    try {
+      await generateTS({
+        token,
+        apiKey,
+        environment,
+        region,
+        tokenType,
+        branch,
+      });
+    } catch (err: any) {
+      expect(err.error_message).toEqual(
+        "Unauthorized: The apiKey, token or region is not valid."
+      );
+    }
+  });
 
-  // it("Check for invalid delivery token", async () => {
-  //   const token = "your-token";
-  //   const apiKey = "your-api-key";
-  //   const environment = "development";
-  //   const region = "AZURE_EU";
-  //   const tokenType = "delivery";
-  //   const branch = "main";
+  it("Check for invalid delivery token", async () => {
+    const token = "your-token";
+    const apiKey = "your-api-key";
+    const environment = "development";
+    const region = "AZURE_EU";
+    const tokenType = "delivery";
+    const branch = "main";
 
-  //   mockClient.onGet(`/content_types`).reply(412);
+    mockClient.onGet(`/content_types`).reply(401);
 
-  //   try {
-  //     await generateTS({
-  //       token,
-  //       apiKey,
-  //       environment,
-  //       region,
-  //       tokenType,
-  //       branch,
-  //     });
-  //   } catch (err: any) {
-  //     expect(err.error_message).toEqual(
-  //       "Invalid Credentials: Please check the provided apiKey, token and region."
-  //     );
-  //   }
-  // });
+    try {
+      await generateTS({
+        token,
+        apiKey,
+        environment,
+        region,
+        tokenType,
+        branch,
+      });
+    } catch (err: any) {
+      expect(err.error_message).toEqual(
+        "Unauthorized: The apiKey, token or region is not valid."
+      );
+    }
+  });
 
-  // it("Check for default error", async () => {
-  //   const token = "your-token";
-  //   const apiKey = "your-api-key";
-  //   const environment = "development";
-  //   const region = "AZURE_NA";
-  //   const tokenType = "delivery";
-  //   const branch = "mai";
+  it("Check for default error", async () => {
+    const token = "your-token";
+    const apiKey = "your-api-key";
+    const environment = "development";
+    const region = "AZURE_NA";
+    const tokenType = "delivery";
+    const branch = "mai";
 
-  //   mockClient.onGet(`/content_types`).reply(422, {
-  //     error_message:
-  //       "Access denied. You have insufficient permissions to perform operation on this branch 'mai'.",
-  //     error_code: 901,
-  //   });
+    mockClient.onGet(`/content_types`).reply(422, {
+      error_message:
+        "Access denied. You have insufficient permissions to perform operation on this branch 'mai'.",
+      error_code: 901,
+    });
 
-  //   try {
-  //     await generateTS({
-  //       token,
-  //       apiKey,
-  //       environment,
-  //       region,
-  //       tokenType,
-  //       branch,
-  //     });
-  //   } catch (err: any) {
-  //     expect(err.error_message).toEqual(
-  //       "Something went wrong, Access denied. You have insufficient permissions to perform operation on this branch 'mai'."
-  //     );
-  //   }
-  // });
+    try {
+      await generateTS({
+        token,
+        apiKey,
+        environment,
+        region,
+        tokenType,
+        branch,
+      });
+    } catch (err: any) {
+      expect(err.error_message).toEqual(
+        "Something went wrong, Access denied. You have insufficient permissions to perform operation on this branch 'mai'."
+      );
+    }
+  });
 
   it("Check for TSGEN factory error", async () => {
     const token = "your-token";
@@ -334,31 +334,31 @@ describe("generateTS function with errors", () => {
     }
   });
 
-  // it("Check for global fields error", async () => {
-  //   const token = "your-token";
-  //   const apiKey = "your-api-key";
-  //   const environment = "development";
-  //   const region = "US";
-  //   const tokenType = "delivery";
-  //   const branch = "main";
+  it("Check for global fields error", async () => {
+    const token = "your-token";
+    const apiKey = "your-api-key";
+    const environment = "development";
+    const region = "US";
+    const tokenType = "delivery";
+    const branch = "main";
 
-  //   mockClient.onGet(`/content_types`).reply(200, contentTypes);
+    mockClient.onGet(`/content_types`).reply(200, contentTypes);
 
-  //   mockClient.onGet(`/global_fields`).reply(401);
+    mockClient.onGet(`/global_fields`).reply(401);
 
-  //   try {
-  //     await generateTS({
-  //       token,
-  //       apiKey,
-  //       environment,
-  //       region,
-  //       tokenType,
-  //       branch,
-  //     });
-  //   } catch (err: any) {
-  //     expect(err.error_message).toEqual(
-  //       "Unauthorized: The apiKey, token or region is not valid."
-  //     );
-  //   }
-  // });
+    try {
+      await generateTS({
+        token,
+        apiKey,
+        environment,
+        region,
+        tokenType,
+        branch,
+      });
+    } catch (err: any) {
+      expect(err.error_message).toEqual(
+        "Unauthorized: The apiKey, token or region is not valid."
+      );
+    }
+  });
 });

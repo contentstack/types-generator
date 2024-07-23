@@ -31,6 +31,7 @@ export const initializeContentstackSdk = ({
       deliveryToken: token,
       environment,
       region: regionVal,
+      branch: branch,
     });
 
     return Stack;

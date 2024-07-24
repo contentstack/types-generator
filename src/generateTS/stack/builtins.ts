@@ -1,4 +1,3 @@
-// File and Link fields are additional, non-scalar, data types within a stack.
 export const defaultInterfaces = (prefix = "", systemFields = false) => {
   const defaultInterfaces = [
     `export interface ${prefix}PublishDetails {
@@ -54,6 +53,8 @@ export const defaultInterfaces = (prefix = "", systemFields = false) => {
             title?: string;
         }`
     );
+    return defaultInterfaces;
+  } else {
+    return defaultInterfaces;
   }
-  return defaultInterfaces;
 };

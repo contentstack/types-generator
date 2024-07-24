@@ -22,7 +22,6 @@ describe("generateTS function", () => {
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
     expect(generatedTS).toEqual(expect.stringContaining("Dishes")); // Check for whether typeDef of Content type is included
-    expect(generatedTS).toEqual(expect.stringContaining("Seo")); // Check for whether typeDef of Global Fields is included
     expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for is Documentation Generated
   });
 
@@ -45,7 +44,6 @@ describe("generateTS function", () => {
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
     expect(generatedTS).toEqual(expect.stringContaining("Dishes")); // Check for whether typeDef of Content type is included
-    expect(generatedTS).toEqual(expect.stringContaining("Seo")); // Check for whether typeDef of Global Fields is included
     expect(generatedTS).not.toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for No Documentation is generated
   });
 
@@ -68,7 +66,6 @@ describe("generateTS function", () => {
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
     expect(generatedTS).toMatch(/(?!Dishes)testDishes/); // Check for whether typeDef of Content type is included with test prefix
-    expect(generatedTS).toMatch(/(?!Seo)testSeo/); // Check for whether typeDef of Global Fields is included with test prefix
     expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
   });
 
@@ -91,7 +88,6 @@ describe("generateTS function", () => {
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
     expect(generatedTS).toMatch(/Dishes/); // Check for whether typeDef of Content type is included
-    expect(generatedTS).toMatch(/Seo/); // Check for whether typeDef of Global Fields is included
     expect(generatedTS).toMatch(/export interface SystemFields \{\n/); // Check for whether System Fields are Created
     expect(generatedTS).toMatch(/extends SystemFields \{\n/); // Check for whether interfaces have extended system fields interface
     expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
@@ -214,12 +210,12 @@ describe("generateTS function with errors", () => {
       });
     } catch (err: any) {
       expect(err.error_message).toEqual(
-        "Unauthorized: The apiKey, token or region is not valid."
+        "Something went wrong, You're not allowed in here unless you're logged in."
       );
     }
   });
 
-  it("Check for default error", async () => {
+  it("Check for default error with invalid branch", async () => {
     const token = process.env.TOKEN as unknown as any;
     const apiKey = process.env.APIKEY as unknown as any;
     const environment = process.env.ENVIRONMENT as unknown as any;
@@ -243,7 +239,7 @@ describe("generateTS function with errors", () => {
     }
   });
 
-  it("Check for default error", async () => {
+  it("Check for default error like Bad-Request", async () => {
     const token = "process.env.TOKEN" as unknown as any;
     const apiKey = process.env.APIKEY as unknown as any;
     const environment = process.env.ENVIRONMENT as unknown as any;

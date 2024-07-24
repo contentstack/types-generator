@@ -6,7 +6,6 @@ import JSDocumentationGenerator from "./docgen/jsdoc";
 import NullDocumentationGenerator from "./docgen/nulldoc";
 import tsgenFactory from "./factory";
 import { defaultInterfaces } from "./stack/builtins";
-import { getGlobalFields } from "./stack/client";
 import { format } from "../format/index";
 import { ContentType } from "../types/schema";
 
@@ -47,9 +46,12 @@ export const generateTS = async ({
         region,
         branch,
       });
-      // TODO: check this in run time. This is not the right type
-      const contentTypes =
-        (await Stack.getContentTypes()) as unknown as ContentType[];
+
+      const contentTypeQuery = Stack.contentType();
+      const globalFieldsQuery = Stack.globalField();
+      const contentTypes = await contentTypeQuery.find();
+      const globalFields = await globalFieldsQuery.find();
+
       const { content_types }: any = contentTypes;
 
       if (!content_types.length) {
@@ -60,19 +62,11 @@ export const generateTS = async ({
         };
       }
 
-      const global_fields = await getGlobalFields({
-        apiKey,
-        token,
-        region,
-        environment,
-        branch,
-      });
-
       let schemas: ContentType[] = [];
       if (content_types?.length) {
-        if ((global_fields as any)?.global_fields?.length) {
+        if ((globalFields as any)?.global_fields?.length) {
           schemas = schemas.concat(
-            (global_fields as any).global_fields as ContentType
+            (globalFields as any).global_fields as ContentType
           );
           schemas = schemas.map((schema) => ({
             ...schema,
@@ -96,9 +90,10 @@ export const generateTS = async ({
         error_message: error.error_message,
       };
     } else {
+      const errorObj = JSON.parse(error.message.replace("Error: ", ""));
       let errorMessage = "Something went wrong";
-      if (error.status) {
-        switch (error.status) {
+      if (errorObj.status) {
+        switch (errorObj.status) {
           case 401:
             errorMessage =
               "Unauthorized: The apiKey, token or region is not valid.";
@@ -108,8 +103,11 @@ export const generateTS = async ({
               "Invalid Credentials: Please check the provided apiKey, token and region.";
             break;
           default:
-            errorMessage = `${errorMessage}, ${error.error_message}`;
+            errorMessage = `${errorMessage}, ${errorObj.error_message}`;
         }
+      }
+      if (errorObj.error_message && !errorObj.status) {
+        errorMessage = `${errorMessage}, ${errorObj.error_message}`;
       }
       throw {
         error_message: errorMessage,

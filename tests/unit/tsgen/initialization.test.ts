@@ -1,7 +1,7 @@
 const testData = require("./initialization.ct");
 
-import NullDocumentationGenerator from "../../src/generateTS/docgen/nulldoc";
-import tsgenFactory from "../../src/generateTS/factory";
+import NullDocumentationGenerator from "../../../src/generateTS/docgen/nulldoc";
+import tsgenFactory from "../../../src/generateTS/factory";
 
 describe("initialization", () => {
   test("default naming convention", () => {

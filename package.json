@@ -7,8 +7,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --testPathPattern=tests",
-    "start": "ts-node demo.ts"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --testPathPattern=tests"
   },
   "repository": {
     "type": "git",
@@ -39,8 +38,8 @@
   "dependencies": {
     "@contentstack/delivery-sdk": "^4.0.5",
     "@gql2ts/from-schema": "^2.0.0-4",
-    "axios": "^1.6.8",
+    "axios": "^1.7.2",
     "lodash": "^4.17.21",
-    "prettier": "^3.2.5"
+    "prettier": "^3.3.3"
   }
 }

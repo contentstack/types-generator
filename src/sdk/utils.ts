@@ -1,4 +1,4 @@
-import Contentstack from "contentstack";
+import Contentstack, { Region } from "@contentstack/delivery-sdk";
 import { StackConnectionConfig } from "../types";
 
 export const initializeContentstackSdk = ({
@@ -9,31 +9,29 @@ export const initializeContentstackSdk = ({
   branch,
 }: StackConnectionConfig) => {
   try {
-    const regionVal: Contentstack.Region | undefined = (function (
-      regionValue: string
-    ) {
+    const regionVal: Region | undefined = (function (regionValue: string) {
       switch (regionValue) {
         case "US":
-          return Contentstack.Region.US;
+          return Region.US;
         case "EU":
-          return Contentstack.Region.EU;
+          return Region.EU;
         case "AZURE_NA":
-          return Contentstack.Region.AZURE_NA;
+          return Region.AZURE_NA;
         case "AZURE_EU":
-          return Contentstack.Region.AZURE_EU;
+          return Region.AZURE_EU;
         case "GCP_NA":
-          return Contentstack.Region.GCP_NA;
+          return Region.GCP_NA;
         default:
           return undefined;
       }
     })(region as string);
 
-    const Stack = Contentstack.Stack({
-      api_key: apiKey,
-      delivery_token: token,
+    const Stack = Contentstack.stack({
+      apiKey: apiKey,
+      deliveryToken: token,
       environment,
       region: regionVal,
-      branch,
+      branch: branch,
     });
 
     return Stack;

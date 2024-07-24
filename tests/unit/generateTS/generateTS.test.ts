@@ -1,39 +1,39 @@
 import { generateTS } from "../../../src/generateTS/index";
+import {
+  AxiosInstance,
+  HttpClientParams,
+  httpClient,
+} from "@contentstack/core";
 import { contentTypes, globalFields } from "../mock";
-import nock from "nock";
-
-type RegionUrlMap = {
-  [prop: string]: string;
-};
-
-const REGION_URL_MAPPING: RegionUrlMap = {
-  US: "https://cdn.contentstack.io",
-  EU: "https://eu-cdn.contentstack.com",
-  AZURE_NA: "https://azure-na-cdn.contentstack.com",
-  AZURE_EU: "https://azure-eu-cdn.contentstack.com",
-  GCP_NA: "https://gcp-na-cdn.contentstack.com",
-};
+import axios from "axios";
+import MockAdapter from "axios-mock-adapter";
 
 describe("generateTS function", () => {
+  let client: AxiosInstance;
+  let mockClient: MockAdapter;
+  let clientConfig: HttpClientParams;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    clientConfig = {
+      apiKey: "API_KEY",
+      accessToken: "DELIVERY_TOKEN",
+    };
+    client = httpClient(clientConfig);
+    mockClient = new MockAdapter(axios);
   });
 
   it("generates type definitions", async () => {
-    const token = "valid-token";
-    const apiKey = "your-api-key";
+    const token = "DELIVERY_TOKEN";
+    const apiKey = "API_KEY";
     const environment = "development";
     const region = "US";
     const tokenType = "delivery";
     const branch = "main";
 
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, contentTypes);
+    mockClient.onGet(`/content_types`).reply(200, contentTypes);
 
-    nock(REGION_URL_MAPPING[region])
-      .get("/v3/global_fields?include_branch=false")
-      .reply(200, globalFields);
+    mockClient.onGet(`/global_fields`).reply(200, globalFields);
 
     const generatedTS = await generateTS({
       token,
@@ -58,13 +58,9 @@ describe("generateTS function", () => {
     const tokenType = "delivery";
     const includeDocumentation = false;
 
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, contentTypes);
+    mockClient.onGet(`/content_types`).reply(200, contentTypes);
 
-    nock(REGION_URL_MAPPING[region])
-      .get("/v3/global_fields?include_branch=false")
-      .reply(200, globalFields);
+    mockClient.onGet(`/global_fields`).reply(200, globalFields);
 
     const generatedTS = await generateTS({
       token,
@@ -89,13 +85,9 @@ describe("generateTS function", () => {
     const tokenType = "delivery";
     const prefix = "test";
 
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, contentTypes);
+    mockClient.onGet(`/content_types`).reply(200, contentTypes);
 
-    nock(REGION_URL_MAPPING[region])
-      .get("/v3/global_fields?include_branch=false")
-      .reply(200, globalFields);
+    mockClient.onGet(`/global_fields`).reply(200, globalFields);
 
     const generatedTS = await generateTS({
       token,
@@ -120,13 +112,9 @@ describe("generateTS function", () => {
     const tokenType = "delivery";
     const systemFields = true;
 
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, contentTypes);
+    mockClient.onGet(`/content_types`).reply(200, contentTypes);
 
-    nock(REGION_URL_MAPPING[region])
-      .get("/v3/global_fields?include_branch=false")
-      .reply(200, globalFields);
+    mockClient.onGet(`/global_fields`).reply(200, globalFields);
 
     const generatedTS = await generateTS({
       token,
@@ -147,8 +135,18 @@ describe("generateTS function", () => {
 });
 
 describe("generateTS function with errors", () => {
+  let client: AxiosInstance;
+  let mockClient: MockAdapter;
+  let clientConfig: HttpClientParams;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    clientConfig = {
+      apiKey: "API_KEY",
+      accessToken: "DELIVERY_TOKEN",
+    };
+    client = httpClient(clientConfig);
+    mockClient = new MockAdapter(axios);
   });
 
   it("Check for if all the required fields are provided", async () => {
@@ -207,9 +205,8 @@ describe("generateTS function with errors", () => {
     const tokenType = "delivery";
     const branch = "main";
 
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, { content_types: [] });
+    mockClient.onGet(`/content_types`).reply(200, { content_types: [] });
+    mockClient.onGet(`/global_fields`).reply(200, globalFields);
 
     try {
       await generateTS({
@@ -235,9 +232,7 @@ describe("generateTS function with errors", () => {
     const tokenType = "delivery";
     const branch = "main";
 
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(401);
+    mockClient.onGet(`/content_types`).reply(401);
 
     try {
       await generateTS({
@@ -263,9 +258,7 @@ describe("generateTS function with errors", () => {
     const tokenType = "delivery";
     const branch = "main";
 
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(412);
+    mockClient.onGet(`/content_types`).reply(401);
 
     try {
       await generateTS({
@@ -278,7 +271,7 @@ describe("generateTS function with errors", () => {
       });
     } catch (err: any) {
       expect(err.error_message).toEqual(
-        "Invalid Credentials: Please check the provided apiKey, token and region."
+        "Unauthorized: The apiKey, token or region is not valid."
       );
     }
   });
@@ -291,13 +284,11 @@ describe("generateTS function with errors", () => {
     const tokenType = "delivery";
     const branch = "mai";
 
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(422, {
-        error_message:
-          "Access denied. You have insufficient permissions to perform operation on this branch 'mai'.",
-        error_code: 901,
-      });
+    mockClient.onGet(`/content_types`).reply(422, {
+      error_message:
+        "Access denied. You have insufficient permissions to perform operation on this branch 'mai'.",
+      error_code: 901,
+    });
 
     try {
       await generateTS({
@@ -323,13 +314,9 @@ describe("generateTS function with errors", () => {
     const tokenType = "delivery";
     const branch = "main";
 
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, contentTypes);
+    mockClient.onGet(`/content_types`).reply(200, contentTypes);
 
-    nock(REGION_URL_MAPPING[region])
-      .get("/v3/global_fields?include_branch=false")
-      .reply(200, { global_fields: [] });
+    mockClient.onGet(`/global_fields`).reply(200, { global_fields: [] });
 
     try {
       await generateTS({
@@ -355,13 +342,9 @@ describe("generateTS function with errors", () => {
     const tokenType = "delivery";
     const branch = "main";
 
-    nock(REGION_URL_MAPPING[region])
-      .get(`/v3/content_types/?environment=${environment}`)
-      .reply(200, contentTypes);
+    mockClient.onGet(`/content_types`).reply(200, contentTypes);
 
-    nock(REGION_URL_MAPPING[region])
-      .get("/v3/global_fields?include_branch=false")
-      .reply(401);
+    mockClient.onGet(`/global_fields`).reply(401);
 
     try {
       await generateTS({
@@ -378,12 +361,4 @@ describe("generateTS function with errors", () => {
       );
     }
   });
-});
-
-afterAll(() => {
-  nock.restore();
-});
-
-afterEach(() => {
-  nock.cleanAll();
 });

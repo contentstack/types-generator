@@ -56,7 +56,7 @@ Type: Error Object
 
 Data: An object with `error_message`
 
-**Example usage:**
+**Example usage:** `generateTS()`
 
 ```typescript
 import { generateTS } from "tsgen-lib"; // Import statement for NodeJS
@@ -86,7 +86,7 @@ async function getTypeDef() {
 getTypeDef();
 ```
 
-**Example output:**
+**Example output:** `generateTS()`
 
 ```typescript
 /** This is a description. */
@@ -199,7 +199,7 @@ Type: Error Object
 
 Data: An object with `error_message`
 
-**Example usage:**
+**Example usage:** `graphqlTS()`
 
 ```typescript
 import { graphqlTS } from "tsgen-lib"; // Import statement for NodeJS

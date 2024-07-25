@@ -1,7 +1,9 @@
 {
-  "name": "tsgen-lib",
-  "version": "1.0.3",
+  "name": "contentstack-typescript-generation-library",
+  "version": "1.0.0",
   "description": "Typescript generation library",
+  "private": false,
+  "author": "Contentstack",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -11,17 +13,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/praveen-mohan-cs/tsgen-lib.git"
+    "url": "git+https://github.com/contentstack/contentstack-typescript-generation-library"
   },
   "keywords": [
+    "contentstack",
+    "typescript",
     "tsgen"
   ],
-  "author": "Praveen Mohan",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/praveen-mohan-cs/tsgen-lib/issues"
+    "url": "https://github.com/contentstack/contentstack-typescript-generation-library/issues"
   },
-  "homepage": "https://github.com/praveen-mohan-cs/tsgen-lib#readme",
+  "homepage": "https://github.com/contentstack/contentstack-typescript-generation-library",
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/lodash": "^4.17.0",

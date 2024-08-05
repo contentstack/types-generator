@@ -4,21 +4,21 @@ This library helps to generate TypeScript type definition for the content types 
 
 ## Installation
 
-`$ npm install tsgen-lib`
+`$ npm install @contentstack/types-generator`
 
 ## Usage
 
 ### In NodeJs
 
-`require("tsgen-lib")` for Common JS (CJS)
+`require("@contentstack/types-generator")` for Common JS (CJS)
 
 OR
 
-`import {<< required method >>} from "tsgen-lib"` for ECMAScript Modules (ESM)
+`import {<< required method >>} from "@contentstack/types-generator"` for ECMAScript Modules (ESM)
 
 ### In Web application
 
-`import {<< required method >>} from "tsgen-lib/dist/web"`
+`import {<< required method >>} from "@contentstack/types-generator/dist/web"`
 
 ## Usage Guide
 
@@ -28,17 +28,17 @@ This is an asynchronous method which generates Typescript type definition of the
 
 **Input:**
 
-| Property Name        | Description                                                                        | Data type | Accepted values                    | Mandatory | Default value |
-| -------------------- | ---------------------------------------------------------------------------------- | --------- | ---------------------------------- | --------- | ------------- |
-| token                | Unique identifier used for authorization                                           | String    |                                    | Yes       |               |
-| tokenType            | Type of token being provided (Currently we are supporting only delivery token)     | String    | delivery                           | Yes       |               |
-| apiKey               | Stack API key                                                                      | String    |                                    | Yes       |               |
-| environment          | Name of the environment (example: development, staging, production)                | String    |                                    | Yes       |               |
+| Property Name        | Description                                                                        | Data type | Accepted values                                              | Mandatory | Default value |
+| -------------------- | ---------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------ | --------- | ------------- |
+| token                | Unique identifier used for authorization                                           | String    |                                                              | Yes       |               |
+| tokenType            | Type of token being provided (Currently we are supporting only delivery token)     | String    | delivery                                                     | Yes       |               |
+| apiKey               | Stack API key                                                                      | String    |                                                              | Yes       |               |
+| environment          | Name of the environment (example: development, staging, production)                | String    |                                                              | Yes       |               |
 | region               | Contentstack API region                                                            | String    | US (for AWS NA), EU (for AWS EU), AZURE_NA, AZURE_EU, GCP_NA | Yes       |               |
-| branch               | Stack branch name                                                                  | String    |                                    | No        |               |
-| prefix               | Optional prefix to add for each interface                                          | String    |                                    | No        |               |
-| includeDocumentation | To add content type documentation in the generated file                            | boolean   | true, false                        | No        | true          |
-| systemFields         | Boolean flag indicating whether to include system-generated fields in the response | boolean   | true, false                        | No        | false         |
+| branch               | Stack branch name                                                                  | String    |                                                              | No        |               |
+| prefix               | Optional prefix to add for each interface                                          | String    |                                                              | No        |               |
+| includeDocumentation | To add content type documentation in the generated file                            | boolean   | true, false                                                  | No        | true          |
+| systemFields         | Boolean flag indicating whether to include system-generated fields in the response | boolean   | true, false                                                  | No        | false         |
 
 **Output:**
 
@@ -59,8 +59,8 @@ Data: An object with `error_message`
 **Example usage:** `generateTS()`
 
 ```typescript
-import { generateTS } from "tsgen-lib"; // Import statement for NodeJS
-import { generateTS } from "tsgen-lib/dist/web"; // Import statement for Web application
+import { generateTS } from "@contentstack/types-generator"; // Import statement for NodeJS
+import { generateTS } from "@contentstack/types-generator/dist/web"; // Import statement for Web application
 
 async function getTypeDef() {
   try {
@@ -75,7 +75,7 @@ async function getTypeDef() {
       includeDocumentation: true,
       systemFields: false,
     });
-    
+
     // Handle the resolved promise, e.g., process the typeDef
   } catch (error) {
     // Handle the rejected promise
@@ -174,14 +174,14 @@ This is an asynchronous method which generates Typescript type definition of the
 
 **Input:**
 
-| Property Name | Description                                                                               | Data type | Accepted values                        | Mandatory |
-| ------------- | ----------------------------------------------------------------------------------------- | --------- | -------------------------------------- | --------- |
-| token         | Unique identifier used for authorization. This should be the delivery token of the stack. | String    |                                        | Yes       |
-| apiKey        | Stack API key                                                                             | String    |                                        | Yes       |
-| environment   | Name of the environment (example: development, staging, production)                       | String    |                                        | Yes       |
+| Property Name | Description                                                                               | Data type | Accepted values                                              | Mandatory |
+| ------------- | ----------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------ | --------- |
+| token         | Unique identifier used for authorization. This should be the delivery token of the stack. | String    |                                                              | Yes       |
+| apiKey        | Stack API key                                                                             | String    |                                                              | Yes       |
+| environment   | Name of the environment (example: development, staging, production)                       | String    |                                                              | Yes       |
 | region        | Contentstack API region                                                                   | String    | US (for AWS NA), EU (for AWS EU), AZURE_NA, AZURE_EU, GCP_NA | Yes       |
-| branch        | Stack branch name                                                                         | String    |                                        | No        |
-| namespace     | Identifies the specific namespace within schema                                           | String    |                                        | No        |
+| branch        | Stack branch name                                                                         | String    |                                                              | No        |
+| namespace     | Identifies the specific namespace within schema                                           | String    |                                                              | No        |
 
 **Output:**
 
@@ -202,7 +202,7 @@ Data: An object with `error_message`
 **Example usage:** `graphqlTS()`
 
 ```typescript
-import { graphqlTS } from "tsgen-lib"; // Import statement for NodeJS
+import { graphqlTS } from "@contentstack/types-generator"; // Import statement for NodeJS
 
 async function getTypeDef() {
   try {
@@ -214,7 +214,7 @@ async function getTypeDef() {
       branch: "main",
       namespace: "<< your_name_space >>",
     });
-    
+
     // Handle the resolved promise, e.g., process the typeDef
   } catch (error) {
     // Handle the rejected promise

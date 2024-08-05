@@ -1,7 +1,7 @@
 {
-  "name": "contentstack-typescript-generation-library",
+  "name": "@contentstack/types-generator",
   "version": "1.0.0",
-  "description": "Typescript generation library",
+  "description": "Contentstack type definition generation library",
   "private": false,
   "author": "Contentstack",
   "main": "./dist/index.js",
@@ -18,7 +18,9 @@
   "keywords": [
     "contentstack",
     "typescript",
-    "tsgen"
+    "tsgen",
+    "types",
+    "generator"
   ],
   "license": "MIT",
   "bugs": {

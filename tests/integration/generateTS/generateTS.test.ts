@@ -209,9 +209,7 @@ describe("generateTS function with errors", () => {
         branch,
       });
     } catch (err: any) {
-      expect(err.error_message).toEqual(
-        "Something went wrong, You're not allowed in here unless you're logged in."
-      );
+      expect(err.error_message).toEqual("Something went wrong, Bad Request");
     }
   });
 

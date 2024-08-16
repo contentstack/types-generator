@@ -192,7 +192,7 @@ describe("generateTS function with errors", () => {
   });
 
   it("Check for invalid delivery token", async () => {
-    const token = "***REMOVED***" as unknown as any;
+    const token = "token" as unknown as any;
     const apiKey = process.env.APIKEY as unknown as any;
     const environment = process.env.ENVIRONMENT as unknown as any;
     const region = process.env.REGION as unknown as any;

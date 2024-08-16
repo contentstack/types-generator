@@ -43,7 +43,7 @@
   "dependencies": {
     "@contentstack/delivery-sdk": "^4.0.5",
     "@gql2ts/from-schema": "^2.0.0-4",
-    "axios": "^1.7.2",
+    "axios": "^1.7.4",
     "lodash": "^4.17.21",
     "prettier": "^3.3.3"
   }

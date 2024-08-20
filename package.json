@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/contentstack/contentstack-typescript-generation-library"
+    "url": "git+https://github.com/contentstack/types-generator"
   },
   "keywords": [
     "contentstack",
@@ -24,9 +24,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/contentstack/contentstack-typescript-generation-library/issues"
+    "url": "https://github.com/contentstack/types-generator/issues"
   },
-  "homepage": "https://github.com/contentstack/contentstack-typescript-generation-library",
+  "homepage": "https://github.com/contentstack/types-generator",
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/lodash": "^4.17.0",

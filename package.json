@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/types-generator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Contentstack type definition generation library",
   "private": false,
   "author": "Contentstack",

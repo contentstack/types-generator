@@ -1,8 +1,13 @@
 /src
 /node_modules
+/tests
 
 .env
 .DS_Store
+.github
 
 tsconfig.json
 tsup.config.ts
+jest.config.js
+
+CODEOWNERS

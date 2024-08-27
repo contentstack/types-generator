@@ -28,7 +28,7 @@ jobs:
           BRANCH: ${{secrets.BRANCH}}
 
   publish-gpr:
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read

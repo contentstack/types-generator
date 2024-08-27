@@ -17,6 +17,15 @@ jobs:
           node-version: 18
       - run: npm ci
       - run: npm test
+        env:
+          TOKEN: ${{secrets.TOKEN}}
+          TOKEN_WITH_NO_CT: ${{secrets.TOKEN_WITH_NO_CT}}
+          APIKEY: ${{secrets.APIKEY}}
+          APIKEY_WITH_NO_CT: ${{secrets.APIKEY_WITH_NO_CT}}
+          ENVIRONMENT: ${{secrets.ENVIRONMENT}}
+          REGION: ${{secrets.REGION}}
+          TOKENTYPE: ${{secrets.TOKENTYPE}}
+          BRANCH: ${{secrets.BRANCH}}
 
   publish-gpr:
     needs: build

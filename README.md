@@ -123,38 +123,7 @@ interface BuiltinExample {
   /** Single Choice */
   single_choice: "Choice 1" | "Choice 2" | "Choice 3";
   /** Modular Blocks */
-  modular_blocks?: (
-    | {
-        block_1: {
-          /** Number */
-          number?: number;
-          /** Single line textbox */
-          single_line?: string;
-        };
-        block_2: undefined;
-        seo_gf: undefined;
-      }
-    | {
-        block_2: {
-          /** Boolean */
-          boolean?: boolean;
-          /** Date */
-          date?: string;
-        };
-        block_1: undefined;
-        seo_gf: undefined;
-      }
-    | {
-        seo_gf: {
-          /** Keywords */
-          keywords?: string;
-          /** Description */
-          description?: string;
-        };
-        block_1: undefined;
-        block_2: undefined;
-      }
-  )[];
+  modular_blocks?: ModularBlocks[];
   /** Number */
   number?: number;
   /** Link */
@@ -165,6 +134,27 @@ interface BuiltinExample {
   boolean?: boolean;
   /** Date */
   date?: string;
+}
+
+interface ModularBlocks {
+  block_1: {
+    /** Number */
+    number?: number;
+    /** Single line textbox */
+    single_line?: string;
+  };
+  block_2: {
+    /** Boolean */
+    boolean?: boolean;
+    /** Date */
+    date?: string;
+  };
+  seo_gf: {
+    /** Keywords */
+    keywords?: string;
+    /** Description */
+    description?: string;
+  };
 }
 ```
 

@@ -31,6 +31,10 @@ type GlobalFieldCache = {
   [prop: string]: { definition: string };
 };
 
+type ModularBlockCache = {
+  [prop: string]: string;
+};
+
 enum TypeFlags {
   BuiltinJS = 1 << 0,
   BuiltinCS = 1 << 1,
@@ -65,7 +69,10 @@ export default function (userOptions: TSGenOptions) {
   const visitedGlobalFields = new Set<string>();
   const visitedContentTypes = new Set<string>();
   const cachedGlobalFields: GlobalFieldCache = {};
+  const cachedModularBlocks: ModularBlockCache = {};
   const modularBlockInterfaces = new Set<string>();
+  const uniqueBlockInterfaces = new Set<string>();
+  let counter = 1;
 
   const typeMap: TypeMap = {
     text: { func: type_text, track: true, flag: TypeFlags.BuiltinJS },
@@ -188,21 +195,6 @@ export default function (userOptions: TSGenOptions) {
     return op_paren(choices.map((v) => get_value(v)).join(" | "));
   }
 
-  function visit_block_names(
-    field: ContentstackTypes.Field,
-    except: ContentstackTypes.Block
-  ) {
-    const uids: string[] = [];
-
-    field.blocks.forEach((block) => {
-      if (block.uid !== except.uid) {
-        uids.push(`${block.uid}: undefined;`);
-      }
-    });
-
-    return uids.join("\n");
-  }
-
   function visit_field_type(field: ContentstackTypes.Field) {
     let type = "any";
 
@@ -280,7 +272,8 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function type_modular_blocks(field: ContentstackTypes.Field): string {
-    const blockInterfaceName = name_type(field.uid);
+    let blockInterfaceName = name_type(field.uid);
+
     const blockInterfaces = field.blocks.map((block) => {
       const fieldType =
         block.reference_to && cachedGlobalFields[name_type(block.reference_to)]
@@ -292,6 +285,16 @@ export default function (userOptions: TSGenOptions) {
         : `{\n ${fieldType} }`;
       return `${block.uid}: ${schema}`;
     });
+    const blockInterfacesKey = blockInterfaces.join(";");
+
+    if (!uniqueBlockInterfaces.has(blockInterfacesKey)) {
+      uniqueBlockInterfaces.add(blockInterfacesKey);
+      // Keep appending a counter until a unique name is found
+      while (cachedModularBlocks[blockInterfaceName]) {
+        blockInterfaceName = `${blockInterfaceName}${counter}`;
+        counter++;
+      }
+    }
 
     const modularInterface = [
       `export interface ${blockInterfaceName} {`,

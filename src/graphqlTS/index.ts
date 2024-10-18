@@ -74,7 +74,7 @@ export async function graphqlTS({
     if (error.message && !error.response) {
       throw { error_message: error.message };
     }
-    if (error.response.status === 401) {
+    if (error.response.status === 412) {
       throw {
         error_message:
           "Unauthorized: The apiKey, token or environment is not valid.",

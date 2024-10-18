@@ -103,7 +103,7 @@ describe("graphqlTS function with errors", () => {
 
     nock(GRAPHQL_REGION_URL_MAPPING[region])
       .post(`/${apiKey}?environment=${environment}`)
-      .reply(401);
+      .reply(412);
 
     try {
       await graphqlTS({

@@ -42,7 +42,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@contentstack/delivery-sdk": "^4.2.0",
+    "@contentstack/delivery-sdk": "^4.4.3",
     "@gql2ts/from-schema": "^2.0.0-4",
     "axios": "^1.7.8",
     "lodash": "^4.17.21",

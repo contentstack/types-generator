@@ -21,6 +21,7 @@ export const generateTS = async ({
   prefix,
   includeDocumentation,
   systemFields,
+  host,
 }: GenerateTS) => {
   try {
     if (!token || !tokenType || !apiKey || !environment || !region) {
@@ -31,13 +32,6 @@ export const generateTS = async ({
       };
     }
 
-    if (!validRegions.includes(region)) {
-      throw {
-        type: "validation",
-        error_message:
-          "Please provide a valid region, supported regions are :  (US, EU, AZURE_NA, AZURE_EU, GCP_NA)",
-      };
-    }
     if (tokenType === TOKEN_TYPE.DELIVERY) {
       const Stack = initializeContentstackSdk({
         apiKey,
@@ -45,6 +39,7 @@ export const generateTS = async ({
         environment,
         region,
         branch,
+        host,
       });
 
       const contentTypeQuery = Stack.contentType();

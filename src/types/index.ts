@@ -1,9 +1,7 @@
-import { Region } from "@contentstack/delivery-sdk";
-
 export interface StackConnectionConfig {
   apiKey: string;
   token: string;
-  region: Region;
+  region: "US" | "EU" | "AZURE_NA" | "AZURE_EU" | "GCP_NA";
   environment: string;
   branch?: string;
   host?: string;

@@ -9,8 +9,6 @@ import { defaultInterfaces } from "./stack/builtins";
 import { format } from "../format/index";
 import { ContentType } from "../types/schema";
 
-const validRegions = ["US", "EU", "AZURE_NA", "AZURE_EU", "GCP_NA"];
-
 export const generateTS = async ({
   token,
   tokenType,

@@ -4,6 +4,7 @@ export interface StackConnectionConfig {
   region: "US" | "EU" | "AZURE_NA" | "AZURE_EU" | "GCP_NA";
   environment: string;
   branch?: string;
+  host?: string;
 }
 
 export interface GenerateTSBase extends StackConnectionConfig {

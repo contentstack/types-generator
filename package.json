@@ -46,7 +46,7 @@
     "@gql2ts/from-schema": "^2.0.0-4",
     "axios": "^1.7.5",
     "lodash": "^4.17.21",
-    "prettier": "^3.3.3"
+    "prettier": "^3.4.1"
   },
   "files": [
     "dist",

@@ -161,20 +161,3 @@ export const generateTSFromContentTypes = async ({
     };
   }
 };
-
-// const fun = async () => {
-//   const config: GenerateTSBase = {
-//     apiKey: "blt90b7f961dd6ed75e",
-//     token: "cs8dadf8eec9a363f2a3aaf809",
-//     region: "US",
-//     environment: "local",
-//     branch: undefined,
-//     host: "cdn.contentstack.io",
-//     tokenType: "delivery",
-//     includeDocumentation: true,
-//     systemFields: false,
-//   };
-
-//   return await generateTS(config);
-// };
-// console.log("🚀 ~ result:", fun());

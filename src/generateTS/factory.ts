@@ -329,12 +329,13 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function type_file(field: ContentstackTypes.Field): string {
-    // Check if the field is `parent_uid`
+    // Check if the field is `parent_uid` and return its specific type
     if (field.uid === "parent_uid") {
       return "string | null"; // Explicitly handle `parent_uid`
     }
-    // Default handling for other file-related fields
-    return "string"; // Or any other default structure
+
+    // Default behavior with prefix support for other file-related fields
+    return `${options.naming?.prefix}File`;
   }
 
   function type_global_field(field: ContentstackTypes.GlobalField) {

@@ -17,11 +17,12 @@ export const defaultInterfaces = (prefix = "", systemFields = false) => {
               tags: string[];
               filename: string;
               url: string;
-              ACL: any[];
+              ACL: any[] | object;
               is_dir: boolean;
               parent_uid: string;
               _version: number;
               title: string;
+              _metadata?:object;
               publish_details: ${prefix}PublishDetails;
           }`,
     `export interface ${prefix}Link { 

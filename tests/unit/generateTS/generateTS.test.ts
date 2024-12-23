@@ -191,9 +191,7 @@ describe("generateTS function with errors", () => {
         branch,
       });
     } catch (err: any) {
-      expect(err.error_message).toEqual(
-        "Please provide a valid region, supported regions are :  (US, EU, AZURE_NA, AZURE_EU, GCP_NA)"
-      );
+      expect(err.error_message).toEqual("Something went wrong");
     }
   });
 

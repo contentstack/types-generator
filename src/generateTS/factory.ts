@@ -261,7 +261,7 @@ export default function (userOptions: TSGenOptions) {
       define_interface(contentType, options.systemFields),
       "{",
       ["/**", "Version", "*/"].join(" "),
-      [`_version: `, contentType._version, ";"].join(" "),
+      `_version: number;`,
       visit_fields(contentType.schema),
       "}",
     ]
@@ -328,8 +328,13 @@ export default function (userOptions: TSGenOptions) {
     return `${options.naming?.prefix}Link`;
   }
 
-  function type_file() {
-    return `${options.naming?.prefix}File`;
+  function type_file(field: ContentstackTypes.Field): string {
+    // Check if the field is `parent_uid`
+    if (field.uid === "parent_uid") {
+      return "string | null"; // Explicitly handle `parent_uid`
+    }
+    // Default handling for other file-related fields
+    return "string"; // Or any other default structure
   }
 
   function type_global_field(field: ContentstackTypes.GlobalField) {

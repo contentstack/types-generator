@@ -230,7 +230,9 @@ describe("generateTS function with errors", () => {
     const tokenType = "delivery";
     const branch = "main";
 
-    mockClient.onGet(`/content_types`).reply(401);
+    mockClient.onGet(`/content_types`).reply(401, {
+      status: 401,
+    });
 
     try {
       await generateTS({
@@ -256,7 +258,9 @@ describe("generateTS function with errors", () => {
     const tokenType = "delivery";
     const branch = "main";
 
-    mockClient.onGet(`/content_types`).reply(401);
+    mockClient.onGet(`/content_types`).reply(401, {
+      status: 401,
+    });
 
     try {
       await generateTS({
@@ -342,7 +346,9 @@ describe("generateTS function with errors", () => {
 
     mockClient.onGet(`/content_types`).reply(200, contentTypes);
 
-    mockClient.onGet(`/global_fields`).reply(401);
+    mockClient.onGet(`/global_fields`).reply(401, {
+      status: 401,
+    });
 
     try {
       await generateTS({

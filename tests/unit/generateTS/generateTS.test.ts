@@ -174,12 +174,12 @@ describe("generateTS function with errors", () => {
   });
 
   it("Check for Invalid region", async () => {
-    const token = "your-token";
-    const apiKey = "your-api-key";
-    const environment = "development";
-    const region = "demo" as unknown as any;
-    const tokenType = "delivery";
-    const branch = "main";
+    const token = process.env.TOKEN as unknown as any;
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = "wrong" as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
+    const branch = process.env.BRANCH as unknown as any;
 
     try {
       await generateTS({
@@ -191,7 +191,9 @@ describe("generateTS function with errors", () => {
         branch,
       });
     } catch (err: any) {
-      expect(err.error_message).toEqual("Something went wrong");
+      expect(err.error_message).toEqual(
+        "Something went wrong while initializing Contentstack SDK."
+      );
     }
   });
 

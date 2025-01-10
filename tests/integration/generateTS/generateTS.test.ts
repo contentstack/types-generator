@@ -137,7 +137,10 @@ describe("generateTS function with errors", () => {
         branch,
       });
     } catch (err: any) {
-      expect(err.error_message).toEqual("Something went wrong");
+      console.log("🚀 ~ it ~ err:", err);
+      expect(err.error_message).toEqual(
+        "Something went wrong while initializing Contentstack SDK."
+      );
     }
   });
 

@@ -3,7 +3,7 @@ const modularBlocks = {
   updated_at: "2020-07-12T15:40:10.208Z",
   title: "Modular Blocks",
   uid: "modular_blocks",
-  _version: 2,
+  _version: "number",
   inbuilt_class: false,
   schema: [
     {

@@ -3,7 +3,7 @@ const builtinTaxonomies = {
   updated_at: '2020-07-12T14:37:02.250Z',
   title: 'Taxonomies',
   uid: 'taxonomy',
-  _version: 2,
+  _version: "number",
   inbuilt_class: false,
   schema: [
     {

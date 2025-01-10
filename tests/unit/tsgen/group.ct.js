@@ -3,7 +3,7 @@ const group = {
   updated_at: "2020-07-12T15:15:23.552Z",
   title: "Group",
   uid: "group",
-  _version: 3,
+  _version: "number",
   inbuilt_class: false,
   schema: [
     {

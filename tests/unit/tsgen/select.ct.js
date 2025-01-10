@@ -3,7 +3,7 @@ const select = {
   updated_at: "2020-10-28T01:17:25.986Z",
   title: "Select",
   uid: "select",
-  _version: 5,
+  _version: "number",
   inbuilt_class: false,
   schema: [
     {

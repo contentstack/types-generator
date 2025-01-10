@@ -3,7 +3,7 @@ const builtinIsodate = {
   updated_at: "2020-07-12T14:32:33.380Z",
   title: "Isodate",
   uid: "isodate",
-  _version: 2,
+  _version: "number",
   inbuilt_class: false,
   schema: [
     {

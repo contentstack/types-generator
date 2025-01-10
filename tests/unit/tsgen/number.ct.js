@@ -3,7 +3,7 @@ const builtinNumber = {
   updated_at: "2020-07-12T14:16:22.707Z",
   title: "Number",
   uid: "number",
-  _version: 2,
+  _version: "number",
   inbuilt_class: false,
   schema: [
     {

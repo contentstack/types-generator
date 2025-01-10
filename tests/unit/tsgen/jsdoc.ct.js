@@ -3,7 +3,7 @@ const jsdoc = {
   updated_at: "2020-07-12T17:38:31.073Z",
   title: "jsdoc",
   uid: "jsdoc",
-  _version: 3,
+  _version: "number",
   inbuilt_class: false,
   schema: [
     {

@@ -34,7 +34,7 @@ describe("modular blocks", () => {
       export interface ModularBlocks
       {
       /** Version */
-      _version:  2 ;
+      _version: number;
       title: string  ;
       url: string  ;
       modular_blocks?: ModularBlocks[]  ;

@@ -3,7 +3,7 @@ const options = {
   updated_at: "2020-07-12T13:50:10.317Z",
   title: "Options",
   uid: "options",
-  _version: 4,
+  _version: "number",
   inbuilt_class: false,
   schema: [
     {

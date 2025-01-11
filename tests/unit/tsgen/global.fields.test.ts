@@ -25,7 +25,7 @@ describe("global fields", () => {
       "export interface ISeo
       {
       /** Version */
-      _version:   ;
+      _version: number;
       keywords?: string  ;
       description?: string  ;
       }"
@@ -37,7 +37,7 @@ describe("global fields", () => {
       "export interface IGlobalFields
       {
       /** Version */
-      _version:  2 ;
+      _version: number;
       title: string  ;
       seo?: ISeo  ;
       }"

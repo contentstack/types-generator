@@ -3,7 +3,7 @@ const builtinBoolean = {
   updated_at: "2020-07-12T14:37:02.250Z",
   title: "Boolean",
   uid: "boolean",
-  _version: 2,
+  _version: "number",
   inbuilt_class: false,
   schema: [
     {

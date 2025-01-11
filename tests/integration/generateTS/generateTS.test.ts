@@ -22,7 +22,7 @@ describe("generateTS function", () => {
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
     expect(generatedTS).toEqual(expect.stringContaining("Dishes")); // Check for whether typeDef of Content type is included
-    expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for is Documentation Generated
+    expect(generatedTS).toMatch(/\/\*\*[\s\S]*?\*\/\s*(export)/); // Check for Documentation Generated with export
   });
 
   it("generates type definitions without Documentation", async () => {
@@ -137,7 +137,9 @@ describe("generateTS function with errors", () => {
         branch,
       });
     } catch (err: any) {
-      expect(err.error_message).toEqual("Something went wrong");
+      expect(err.error_message).toEqual(
+        "Something went wrong while initializing Contentstack SDK."
+      );
     }
   });
 

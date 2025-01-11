@@ -3,7 +3,7 @@ const builtinStrings = {
   updated_at: "2020-07-12T13:00:45.296Z",
   title: "Builtin Strings",
   uid: "builtin_strings",
-  _version: 4,
+  _version: "number",
   inbuilt_class: false,
   schema: [
     {

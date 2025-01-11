@@ -3,7 +3,7 @@ const globalFields = {
   updated_at: "2020-07-12T15:48:52.343Z",
   title: "Global Fields",
   uid: "global_fields",
-  _version: 2,
+  _version: "number",
   inbuilt_class: false,
   schema: [
     {

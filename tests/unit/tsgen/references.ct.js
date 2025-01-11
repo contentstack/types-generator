@@ -3,7 +3,7 @@ const references = {
   updated_at: "2020-07-13T15:39:12.714Z",
   title: "Reference Parent",
   uid: "reference_parent",
-  _version: 5,
+  _version: "number",
   inbuilt_class: false,
   schema: [
     {

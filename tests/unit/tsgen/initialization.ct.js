@@ -3,7 +3,7 @@ const defaultSingleContentBlock = {
     updated_at: "2020-07-12T13:40:36.124Z",
     title: "Metadata Single Content Block",
     uid: "metadata_single_content_block",
-    _version: 2,
+    _version: "number",
     inbuilt_class: false,
     schema: [
       {

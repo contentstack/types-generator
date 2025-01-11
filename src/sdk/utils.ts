@@ -39,7 +39,7 @@ export const initializeContentstackSdk = ({
         host: host,
         branch: branch,
       });
-    } else {
+    } else if (regionVal) {
       Stack = Contentstack.stack({
         apiKey: apiKey,
         deliveryToken: token,
@@ -47,6 +47,11 @@ export const initializeContentstackSdk = ({
         region: regionVal,
         branch: branch,
       });
+    } else {
+      throw {
+        type: "validation",
+        error_message: `The region "${region}" is not supported and no host is provided for a custom region.`,
+      };
     }
 
     return Stack;

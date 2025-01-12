@@ -20,24 +20,24 @@ describe("modular blocks", () => {
     expect(result.definition).toMatchInlineSnapshot(`
       "export interface ModularBlocks {
       string_block: {
-       single_line?: string  ;
-      multi_line?: string  ;
-      markdown?: string  ;
-      rich_text_editor?: string  ; }
+       single_line?: string;
+      multi_line?: string;
+      markdown?: string;
+      rich_text_editor?: string; }
       string_block_with_options: {
-       single_line_textbox_required: string  ;
-      single_line_textbox_multiple?: string[]  ; }
+       single_line_textbox_required: string;
+      single_line_textbox_multiple?: string[]; }
       boolean_block: {
-       boolean?: boolean  ; }
+       boolean?: boolean; }
       }
 
       export interface ModularBlocks
       {
       /** Version */
       _version: number;
-      title: string  ;
-      url: string  ;
-      modular_blocks?: ModularBlocks[]  ;
+      title: string;
+      url: string;
+      modular_blocks?: ModularBlocks[];
       }"
     `);
   });

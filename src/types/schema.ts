@@ -30,6 +30,7 @@ export type GlobalField = {
   schema: Schema;
   schema_type?: string;
   _version?: number;
+  referred_content_types: Array<{ uid: string; title: string }>;
 } & FieldOptions;
 
 export type ReferenceField = {

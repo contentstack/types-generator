@@ -23,11 +23,11 @@ describe("builtin string fields", () => {
       {
       /** Version */
       _version: number;
-      title: string  ;
-      single_line?: string  ;
-      multi_line?: string  ;
-      rich_text_editor?: string  ;
-      markdown?: string  ;
+      title: string;
+      single_line?: string;
+      multi_line?: string;
+      rich_text_editor?: string;
+      markdown?: string;
       }"
     `);
   });

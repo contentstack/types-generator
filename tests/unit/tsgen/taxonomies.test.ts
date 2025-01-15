@@ -28,9 +28,9 @@ describe("builtin taxonomies field", () => {
       {
       /** Version */
       _version: number;
-      title: string  ;
-      boolean?: boolean  ;
-      taxonomies?: ITaxonomy[]  ;
+      title: string;
+      boolean?: boolean;
+      taxonomies?: ITaxonomy[];
       }"
     `);
   });

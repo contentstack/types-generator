@@ -25,31 +25,31 @@ describe("group", () => {
       {
       /** Version */
       _version: number;
-      title: string  ;
+      title: string;
       multiple_group_max_limit?: [{
-      number?: number | null ;
+      number?: number | null;
       }, {
-      number?: number | null ;
+      number?: number | null;
       }, {
-      number?: number | null ;
+      number?: number | null;
       }, {
-      number?: number | null ;
+      number?: number | null;
       }, {
-      number?: number | null ;
-      }]  ;
+      number?: number | null;
+      }];
       multiple_group?: {
-      single_line?: string  ;
-      }[]  ;
+      single_line?: string;
+      }[];
       parent_group?: {
-      rich_text_editor?: string  ;
-      multi_line?: string  ;
-      single_line?: string  ;
+      rich_text_editor?: string;
+      multi_line?: string;
+      single_line?: string;
       child_group?: {
-      number?: number | null ;
-      boolean?: boolean  ;
-      date?: string | null ;
-      }  ;
-      }  ;
+      number?: number | null;
+      boolean?: boolean;
+      date?: string | null;
+      };
+      };
       }"
     `);
   });

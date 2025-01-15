@@ -19,7 +19,7 @@ describe("default single content block", () => {
       {
       /** Version */
       _version: number;
-      title: string  ;
+      title: string;
       }"
     `);
   });
@@ -45,8 +45,8 @@ describe("default single webpage", () => {
       {
       /** Version */
       _version: number;
-      title: string  ;
-      url: string  ;
+      title: string;
+      url: string;
       }"
     `);
   });

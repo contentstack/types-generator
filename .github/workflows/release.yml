@@ -1,8 +1,10 @@
 name: Publish package to NPM and Git registry
+
 on:
   push:
     branches:
       - main
+
 jobs:
   build:
     name: Build and upload
@@ -19,12 +21,14 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build
-        run: npm run prepack
+        run: |
+          rm -rf dist
+          npm run prepare
       - name: Upload dist
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: lib
-          path: lib
+          name: dist
+          path: dist
 
   release:
     name: Download dist and release
@@ -44,8 +48,8 @@ jobs:
       - name: Download dist
         uses: actions/download-artifact@v3
         with:
-          name: lib
-          path: lib
+          name: dist
+          path: dist
       - name: Display dirs
         run: ls -R
       - uses: Klemensas/action-autotag@1.2.3
@@ -60,7 +64,7 @@ jobs:
         with:
           token: ${{ secrets.TYPES_GENERATOR_AUTOMATION }}
           strategy: upgrade
-      - name: github-release
+      - name: GitHub Release
         if: steps.update_tag.outputs.tagname
         id: github-release
         env:

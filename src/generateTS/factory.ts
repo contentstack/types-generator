@@ -237,6 +237,8 @@ export default function (userOptions: TSGenOptions) {
       if (field.multiple) {
         fieldType += "[]";
       }
+    } else if (field.data_type === "global_field") {
+      fieldType = type_reference(field);
     } else if (field.data_type === "blocks") {
       // Handle blocks type (unchanged)
       fieldType = type_modular_blocks(field);
@@ -296,14 +298,13 @@ export default function (userOptions: TSGenOptions) {
     let blockInterfaceName = name_type(field.uid);
 
     const blockInterfaces = field.blocks.map((block) => {
-      const fieldType =
-        block.reference_to && cachedGlobalFields[name_type(block.reference_to)]
-          ? name_type(block.reference_to)
-          : visit_fields(block.schema || []);
+      const fieldType = block.reference_to
+        ? name_type(block.reference_to)
+        : visit_fields(block.schema || []);
 
       const schema = block.reference_to
         ? `${fieldType};`
-        : `{\n ${fieldType} }`;
+        : `{\n ${fieldType} };`;
       return `${block.uid}: ${schema}`;
     });
     const blockInterfacesKey = blockInterfaces.join(";");

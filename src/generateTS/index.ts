@@ -145,7 +145,6 @@ export const generateTSFromContentTypes = async ({
         });
       }
     }
-
     const output = await format(
       [
         defaultInterfaces(prefix, systemFields).join("\n\n"),

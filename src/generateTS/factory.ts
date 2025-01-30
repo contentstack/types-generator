@@ -237,8 +237,27 @@ export default function (userOptions: TSGenOptions) {
       if (field.multiple) {
         fieldType += "[]";
       }
-    } else if (field.data_type === "global_field") {
+    } else if (
+      field.data_type === "global_field" &&
+      !cachedGlobalFields[name_type(field.reference_to)] &&
+      field.reference_to
+    ) {
       fieldType = type_reference(field);
+
+      const referredContentTypes = [
+        {
+          title: name_type(field.reference_to), // Customize as needed
+          uid: field.reference_to, // Use the correct reference to UID
+        },
+      ];
+
+      // Assign the new structure for the global field
+      fieldType = `referred_content_types: ${JSON.stringify(referredContentTypes)}`;
+
+      // If it's a multiple field, append '[]' to the fieldType
+      if (field.multiple) {
+        fieldType += "[]";
+      }
     } else if (field.data_type === "blocks") {
       // Handle blocks type (unchanged)
       fieldType = type_modular_blocks(field);
@@ -304,7 +323,7 @@ export default function (userOptions: TSGenOptions) {
 
       const schema = block.reference_to
         ? `${fieldType};`
-        : `{\n ${fieldType} };`;
+        : `{\n ${fieldType} }`;
       return `${block.uid}: ${schema}`;
     });
     const blockInterfacesKey = blockInterfaces.join(";");

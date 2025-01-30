@@ -39,7 +39,7 @@ describe("global fields", () => {
       /** Version */
       _version: number;
       title: string;
-      seo?: ISeo;
+      seo?: (ISeo)[];
       }"
     `);
   });

@@ -22,7 +22,7 @@ const globalFields = {
     {
       data_type: "global_field",
       display_name: "SEO",
-      reference_to: "seo",
+      reference_to: ["seo"],
       field_metadata: {
         description: "",
       },

@@ -217,29 +217,57 @@ export default function (userOptions: TSGenOptions) {
 
   function visit_field(field: ContentstackTypes.Field) {
     let fieldType = "";
-    if (
-      field.data_type === "global_field" &&
-      cachedGlobalFields[name_type(field.reference_to)]
-    ) {
-      fieldType = name_type(field.reference_to);
+    // Check if the field is a global field
+    if (field.data_type === "global_field") {
+      // Check if the field is cached
+      const isCached = cachedGlobalFields[name_type(field.reference_to)];
 
+      // Generate the referred_content_types array
+      const referredContentTypes = [
+        {
+          title: name_type(field.reference_to),
+          uid: field.reference_to,
+        },
+      ];
+
+      // Assign the new structure for the global field
+      fieldType = `referred_content_types: ${JSON.stringify(
+        referredContentTypes
+      )}`;
+
+      // If it's a multiple field, append '[]' to the fieldType
       if (field.multiple) {
         fieldType += "[]";
       }
+
+      // If the field is not cached and there is a reference, update fieldType accordingly
+      if (!isCached && field.reference_to) {
+        fieldType = type_reference(field);
+      }
     } else if (field.data_type === "blocks") {
+      // Handle blocks type (unchanged)
       fieldType = type_modular_blocks(field);
+    } else {
+      // Default handling if fieldType is still empty
+      fieldType = visit_field_type(field);
     }
-    return [
-      field.uid + op_required(field.mandatory) + ":",
-      fieldType || visit_field_type(field),
+
+    // Build and return the final string in the required format
+    const requiredFlag = op_required(field.mandatory);
+    const typeModifier =
       ["isodate", "file", "number"].includes(field.data_type) ||
       ["radio", "dropdown"].includes(field.display_type)
         ? field.mandatory
           ? ""
-          : "| null"
-        : "",
-      ";",
-    ].join(" ");
+          : " | null"
+        : "";
+
+    if (fieldType.startsWith("referred_content_types")) {
+      // For global_field or referred_content_types, omit field.uid in output
+      return `${fieldType}`;
+    }
+    // Ensure the formatting is correct, and avoid concatenating field.uid directly to a string
+    return `${field.uid}${requiredFlag}: ${fieldType}${typeModifier};`;
   }
 
   function visit_fields(schema: ContentstackTypes.Schema) {
@@ -275,10 +303,9 @@ export default function (userOptions: TSGenOptions) {
     let blockInterfaceName = name_type(field.uid);
 
     const blockInterfaces = field.blocks.map((block) => {
-      const fieldType =
-        block.reference_to && cachedGlobalFields[name_type(block.reference_to)]
-          ? name_type(block.reference_to)
-          : visit_fields(block.schema || []);
+      const fieldType = block.reference_to
+        ? name_type(block.reference_to)
+        : visit_fields(block.schema || []);
 
       const schema = block.reference_to
         ? `${fieldType};`
@@ -341,13 +368,11 @@ export default function (userOptions: TSGenOptions) {
   function type_global_field(field: ContentstackTypes.GlobalField) {
     if (!field.schema) {
       throw new Error(
-        `Schema not found for global field '${field.uid}. Did you forget to include it?`
+        `Schema not found for global field '${field.uid}'. Did you forget to include it?`
       );
     }
 
-    const name = name_type(field.reference_to);
-
-    return name;
+    return name_type(field.reference_to);
   }
 
   function type_reference(field: ContentstackTypes.Field) {

@@ -333,7 +333,7 @@ describe("generateTS function with errors", () => {
       });
     } catch (err: any) {
       expect(err.error_message).toEqual(
-        "Something went wrong, Schema not found for global field 'global_field. Did you forget to include it?"
+        "Something went wrong, Schema not found for global field 'global_field'. Did you forget to include it?"
       );
     }
   });

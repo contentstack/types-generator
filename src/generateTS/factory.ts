@@ -218,24 +218,31 @@ export default function (userOptions: TSGenOptions) {
   function visit_field(field: ContentstackTypes.Field) {
     let fieldType = "";
     // Check if the field is a global field
-    if (
-      field.data_type === "global_field" &&
-      cachedGlobalFields[name_type(field.reference_to)]
-    ) {
+    if (field.data_type === "global_field") {
+      // Check if the field is cached
+      const isCached = cachedGlobalFields[name_type(field.reference_to)];
+
       // Generate the referred_content_types array
       const referredContentTypes = [
         {
-          title: name_type(field.reference_to), // Customize as needed
-          uid: field.reference_to, // Use the correct reference to UID
+          title: name_type(field.reference_to),
+          uid: field.reference_to,
         },
       ];
 
       // Assign the new structure for the global field
-      fieldType = `referred_content_types: ${JSON.stringify(referredContentTypes)}`;
+      fieldType = `referred_content_types: ${JSON.stringify(
+        referredContentTypes
+      )}`;
 
       // If it's a multiple field, append '[]' to the fieldType
       if (field.multiple) {
         fieldType += "[]";
+      }
+
+      // If the field is not cached and there is a reference, update fieldType accordingly
+      if (!isCached && field.reference_to) {
+        fieldType = type_reference(field);
       }
     } else if (field.data_type === "blocks") {
       // Handle blocks type (unchanged)
@@ -296,10 +303,9 @@ export default function (userOptions: TSGenOptions) {
     let blockInterfaceName = name_type(field.uid);
 
     const blockInterfaces = field.blocks.map((block) => {
-      const fieldType =
-        block.reference_to && cachedGlobalFields[name_type(block.reference_to)]
-          ? name_type(block.reference_to)
-          : visit_fields(block.schema || []);
+      const fieldType = block.reference_to
+        ? name_type(block.reference_to)
+        : visit_fields(block.schema || []);
 
       const schema = block.reference_to
         ? `${fieldType};`

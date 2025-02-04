@@ -17,6 +17,8 @@ export type FieldOptions = {
   non_localizable: boolean;
   max_instance: boolean | undefined;
   display_type: string;
+  config?: Record<string, any>;
+  field_metadata?: Record<string, any>;
 } & Identifier;
 
 export type Block = {

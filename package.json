@@ -29,8 +29,8 @@
   },
   "homepage": "https://github.com/contentstack/types-generator",
   "devDependencies": {
-    "@types/jest": "^29.5.12",
-    "@types/lodash": "^4.17.0",
+    "@types/jest": "^29.5.14",
+    "@types/lodash": "^4.17.15",
     "@types/node": "^20.12.7",
     "axios-mock-adapter": "^1.22.0",
     "cross-env": "^7.0.3",

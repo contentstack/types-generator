@@ -1,4 +1,8 @@
-export const defaultInterfaces = (prefix = "", systemFields = false) => {
+export const defaultInterfaces = (
+  prefix = "",
+  systemFields = false,
+  hasJsonRte?: boolean
+) => {
   const defaultInterfaces = [
     `export interface ${prefix}PublishDetails {
             environment: string;
@@ -36,6 +40,31 @@ export const defaultInterfaces = (prefix = "", systemFields = false) => {
             non_localizable: boolean;
         }`,
   ];
+  if (hasJsonRte) {
+    defaultInterfaces.push(
+      `export interface JSONRTENode {
+      type: string;
+      uid: string;
+      _version: number;
+      attrs: Record<string, any>;
+      children?: JSONRTENode[];
+      text?: string;
+      bold?: boolean;
+      italic?: boolean;
+      underline?: boolean;
+      src?: string; 
+      alt?: string; 
+      href?: string; 
+      target?: string; 
+      embed?: {
+        type: string;
+        uid: string;
+        _version: number;
+        attrs: Record<string, any>;
+      };
+    };`
+    );
+  }
   if (systemFields) {
     defaultInterfaces.push(
       `export interface ${prefix}SystemFields {

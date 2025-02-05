@@ -24,7 +24,7 @@ const customField = {
       },
       {
         display_name: "Custom key value pair",
-        extension_uid: "blt819d8b90b0236e1f",
+        extension_uid: "uid",
         field_metadata: {
           extension: true,
         },

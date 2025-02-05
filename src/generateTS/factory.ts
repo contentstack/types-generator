@@ -434,7 +434,6 @@ export default function (userOptions: TSGenOptions) {
       _version: number;
       attrs: Record<string, any>;
       children: JSONRTENode[];
-    }
-  `;
+    }`;
   }
 }

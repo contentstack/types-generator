@@ -22,8 +22,7 @@ describe("JSON RTE", () => {
           _version: number;
           attrs: Record<string, any>;
           children: JSONRTENode[];
-        }
-      ;
+        };
     }"
     `);
   });

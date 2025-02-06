@@ -18,13 +18,13 @@ describe("jsdoc", () => {
       /** Version */
       _version: number;
       /** Name */
-      title: string  ;
+      title: string;
       /** Age */
-      current_age?: number | null ;
+      current_age?: number | null;
       /** City */
-      current_city?: string  ;
+      current_city?: string;
       /** State */
-      current_state?: string  ;
+      current_state?: string;
       }"
     `);
   });

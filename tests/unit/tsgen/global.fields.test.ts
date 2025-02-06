@@ -11,35 +11,49 @@ const tsgen = tsgenFactory({
 });
 
 describe("global fields", () => {
-  const result = tsgen(testData.globalFields);
+  let result: any;
+  const globalFields: Array<any> = [];
+  const definitions: Array<any> = [];
+
+  for (const contentType of testData.globalFields) {
+    const tsgenResult = tsgen(contentType);
+
+    if (tsgenResult.isGlobalField) {
+      globalFields.push(tsgenResult.definition);
+    } else {
+      definitions.push(tsgenResult.definition);
+
+      tsgenResult.metadata.types.globalFields.forEach((field: string) => {
+        globalFields.push(
+          tsgenResult.metadata.dependencies.globalFields[field].definition
+        );
+      });
+    }
+  }
 
   test("metadata", () => {
-    const types = result.metadata.types;
-
-    expect([...types.globalFields]).toEqual(expect.arrayContaining(["ISeo"]));
+    expect(globalFields[0]).toEqual(expect.stringContaining("INewGlobal"));
   });
 
   test("global field definition", () => {
-    const globalField = result.metadata.dependencies.globalFields.ISeo;
-    expect(globalField.definition).toMatchInlineSnapshot(`
-      "export interface ISeo
+    expect(globalFields[0]).toMatchInlineSnapshot(`
+      "export interface INewGlobal
       {
       /** Version */
       _version: number;
-      keywords?: string  ;
-      description?: string  ;
+      single_line_textbox?: string;
       }"
     `);
   });
 
   test("content type definition", () => {
-    expect(result.definition).toMatchInlineSnapshot(`
-      "export interface IGlobalFields
+    expect(definitions[0]).toMatchInlineSnapshot(`
+      "export interface IHome
       {
       /** Version */
       _version: number;
-      title: string  ;
-      seo?: ISeo  ;
+      title: string;
+      taxonomies?: ITaxonomy[];
       }"
     `);
   });

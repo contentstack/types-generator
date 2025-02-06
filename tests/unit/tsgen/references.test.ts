@@ -27,10 +27,10 @@ describe("references", () => {
       {
       /** Version */
       _version: number;
-      title: string  ;
-      url: string  ;
-      single_reference: (IReferenceChild)[]  ;
-      multiple_reference?: (IReferenceChild | IBoolean | IBuiltinExample)[]  ;
+      title: string;
+      url: string;
+      single_reference: (IReferenceChild)[];
+      multiple_reference?: (IReferenceChild | IBoolean | IBuiltinExample)[];
       }"
     `);
   });

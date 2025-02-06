@@ -26,12 +26,12 @@ describe("builtin isodate field", () => {
       {
       /** Version */
       _version: number;
-      title: string  ;
-      date?: string | null ;
-      date_required: string  ;
-      date_multiple?: string[] | null ;
-      date_multiple_maxlength?: [string, string, string, string, string] | null ;
-      date_required_multiple_maxlength: [string, string, string, string, string, string, string, string]  ;
+      title: string;
+      date?: string | null;
+      date_required: string;
+      date_multiple?: string[] | null;
+      date_multiple_maxlength?: [string, string, string, string, string] | null;
+      date_required_multiple_maxlength: [string, string, string, string, string, string, string, string];
       }"
     `);
   });

@@ -23,13 +23,13 @@ describe("builtin number field", () => {
       {
       /** Version */
       _version: number;
-      title: string  ;
-      url: string  ;
-      number?: number | null ;
-      number_required: number  ;
-      number_multiple?: number[] | null ;
-      number_multiple_max_limit?: [number, number, number, number, number, number, number, number, number, number] | null ;
-      number_required_multiple_max_limit: [number, number, number]  ;
+      title: string;
+      url: string;
+      number?: number | null;
+      number_required: number;
+      number_multiple?: number[] | null;
+      number_multiple_max_limit?: [number, number, number, number, number, number, number, number, number, number] | null;
+      number_required_multiple_max_limit: [number, number, number];
       }"
     `);
   });

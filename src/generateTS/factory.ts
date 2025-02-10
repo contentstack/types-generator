@@ -428,12 +428,18 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function type_json_rte(field: ContentstackTypes.Field) {
-    return `{
+    let json_rte;
+    if (field.config && field.field_metadata?.extension) {
+      json_rte = `{ value: { key: string; value: string }[] }`;
+    } else {
+      json_rte = `{
       type: string;
       uid: string;
       _version: number;
       attrs: Record<string, any>;
       children: JSONRTENode[];
     }`;
+    }
+    return json_rte;
   }
 }

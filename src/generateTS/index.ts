@@ -133,7 +133,8 @@ export const generateTSFromContentTypes = async ({
     for (const contentType of contentTypes) {
       const tsgenResult = tsgen(contentType);
       hasJsonField = contentType.schema.some(
-        (field: { data_type: string }) => field.data_type === "json"
+        (field: { field_metadata: any; data_type: string }) =>
+          field.data_type === "json" && field.field_metadata.allow_json_rte
       );
       if (tsgenResult.isGlobalField) {
         globalFields.add(tsgenResult.definition);

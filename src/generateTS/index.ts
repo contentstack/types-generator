@@ -129,10 +129,13 @@ export const generateTSFromContentTypes = async ({
       },
       systemFields,
     });
-
+    let hasJsonField = false;
     for (const contentType of contentTypes) {
       const tsgenResult = tsgen(contentType);
-
+      hasJsonField = contentType.schema.some(
+        (field: { field_metadata: any; data_type: string }) =>
+          field.data_type === "json" && field.field_metadata.allow_json_rte
+      );
       if (tsgenResult.isGlobalField) {
         globalFields.add(tsgenResult.definition);
       } else {
@@ -147,7 +150,7 @@ export const generateTSFromContentTypes = async ({
     }
     const output = await format(
       [
-        defaultInterfaces(prefix, systemFields).join("\n\n"),
+        defaultInterfaces(prefix, systemFields, hasJsonField).join("\n\n"),
         [...globalFields].join("\n\n"),
         definitions.join("\n\n"),
       ].join("\n\n")

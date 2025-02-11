@@ -247,6 +247,8 @@ export default function (userOptions: TSGenOptions) {
     } else if (field.data_type === "blocks") {
       // Handle blocks type (unchanged)
       fieldType = type_modular_blocks(field);
+    } else if (field.data_type === "json") {
+      fieldType = type_json_rte(field);
     } else {
       // Default handling if fieldType is still empty
       fieldType = visit_field_type(field);
@@ -423,5 +425,21 @@ export default function (userOptions: TSGenOptions) {
 
   function type_taxonomy() {
     return `${options?.naming?.prefix}Taxonomy`;
+  }
+
+  function type_json_rte(field: ContentstackTypes.Field) {
+    let json_rte;
+    if (field.config && field.field_metadata?.extension) {
+      json_rte = `{ value: { key: string; value: string }[] }`;
+    } else {
+      json_rte = `{
+      type: string;
+      uid: string;
+      _version: number;
+      attrs: Record<string, any>;
+      children: JSONRTENode[];
+    }`;
+    }
+    return json_rte;
   }
 }

@@ -15,7 +15,7 @@ describe("group", () => {
     expect([...types.contentstack]).toHaveLength(0);
     expect([...types.globalFields]).toHaveLength(0);
     expect([...types.javascript]).toEqual(
-      expect.arrayContaining(["string", "number", "boolean"])
+      expect.arrayContaining(["string", "number", "boolean"]),
     );
   });
 
@@ -26,17 +26,9 @@ describe("group", () => {
       /** Version */
       _version: number;
       title: string;
-      multiple_group_max_limit?: [{
+      multiple_group_max_limit?: MaxTuple<{
       number?: number | null;
-      }, {
-      number?: number | null;
-      }, {
-      number?: number | null;
-      }, {
-      number?: number | null;
-      }, {
-      number?: number | null;
-      }];
+      }, 5>;
       multiple_group?: {
       single_line?: string;
       }[];

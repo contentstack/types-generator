@@ -5,14 +5,10 @@ export const defaultInterfaces = (
 ) => {
   const defaultInterfaces = [
     `type BuildTuple<T, N extends number, R extends T[] = []> =
-  R['length'] extends N ? R : BuildTuple<T, N, [...R, T]>;
-
-// Recursively produce a union of all prefixes of a tuple
-type TuplePrefixes<T extends any[]> = 
-  T extends [any, ...infer Rest] ? T | TuplePrefixes<Rest extends any[] ? Rest : []> : [];
-
-// The utility type: union of tuples with 0 to N copies of T
-type MaxTuple<T, N extends number> = TuplePrefixes<BuildTuple<T, N>>;`,
+  R['length'] extends N ? R : BuildTuple<T, N, [...R, T]>`,
+    `type TuplePrefixes<T extends any[]> = 
+  T extends [any, ...infer Rest] ? T | TuplePrefixes<Rest extends any[] ? Rest : []> : []`,
+    `type MaxTuple<T, N extends number> = TuplePrefixes<BuildTuple<T, N>>`,
     `export interface ${prefix}PublishDetails {
             environment: string;
             locale: string;

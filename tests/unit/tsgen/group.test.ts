@@ -15,7 +15,7 @@ describe("group", () => {
     expect([...types.contentstack]).toHaveLength(0);
     expect([...types.globalFields]).toHaveLength(0);
     expect([...types.javascript]).toEqual(
-      expect.arrayContaining(["string", "number", "boolean"]),
+      expect.arrayContaining(["string", "number", "boolean"])
     );
   });
 

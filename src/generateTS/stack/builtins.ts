@@ -1,7 +1,7 @@
 export const defaultInterfaces = (
   prefix = "",
   systemFields = false,
-  hasJsonRte?: boolean,
+  hasJsonRte?: boolean
 ) => {
   const defaultInterfaces = [
     `type BuildTuple<T, N extends number, R extends T[] = []> =
@@ -71,7 +71,7 @@ type MaxTuple<T, N extends number> = TuplePrefixes<BuildTuple<T, N>>;`,
         _version: number;
         attrs: Record<string, any>;
       };
-    };`,
+    };`
     );
   }
   if (systemFields) {
@@ -90,7 +90,7 @@ type MaxTuple<T, N extends number> = TuplePrefixes<BuildTuple<T, N>>;`,
             locale?: string;
             publish_details?: ${prefix}PublishDetails[];
             title?: string;
-        }`,
+        }`
     );
     return defaultInterfaces;
   } else {

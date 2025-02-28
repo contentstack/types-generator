@@ -107,7 +107,7 @@ export default function (userOptions: TSGenOptions) {
   function track_dependency(
     field: ContentstackTypes.Field,
     type: string,
-    flag: TypeFlags,
+    flag: TypeFlags
   ) {
     if (flag === TypeFlags.BuiltinJS) {
       visitedJSTypes.add(type);
@@ -139,14 +139,14 @@ export default function (userOptions: TSGenOptions) {
 
   function define_interface(
     contentType: ContentstackTypes.ContentType | ContentstackTypes.GlobalField,
-    systemFields = false,
+    systemFields = false
   ) {
     const interface_declaration = [
       "export interface",
       name_type(
         contentType.data_type === "global_field"
           ? (contentType.reference_to as string)
-          : contentType.uid,
+          : contentType.uid
       ),
     ];
     if (systemFields && contentType.schema_type !== "global_field") {
@@ -231,7 +231,7 @@ export default function (userOptions: TSGenOptions) {
 
       // Assign the new structure for the global field
       fieldType = `referred_content_types: ${JSON.stringify(
-        referredContentTypes,
+        referredContentTypes
       )}`;
 
       // If it's a multiple field, append '[]' to the fieldType
@@ -282,7 +282,7 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function visit_content_type(
-    contentType: ContentstackTypes.ContentType | ContentstackTypes.GlobalField,
+    contentType: ContentstackTypes.ContentType | ContentstackTypes.GlobalField
   ) {
     modularBlockInterfaces.clear();
     const contentTypeInterface = [
@@ -369,7 +369,7 @@ export default function (userOptions: TSGenOptions) {
   function type_global_field(field: ContentstackTypes.GlobalField) {
     if (!field.schema) {
       throw new Error(
-        `Schema not found for global field '${field.uid}'. Did you forget to include it?`,
+        `Schema not found for global field '${field.uid}'. Did you forget to include it?`
       );
     }
 
@@ -391,7 +391,7 @@ export default function (userOptions: TSGenOptions) {
   }
 
   return function (
-    contentType: ContentstackTypes.ContentType,
+    contentType: ContentstackTypes.ContentType
   ): TSGenResult | any {
     if (contentType.schema_type === "global_field") {
       const name = name_type(contentType.uid);

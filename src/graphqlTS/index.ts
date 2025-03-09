@@ -80,9 +80,14 @@ export async function graphqlTS({
           "Unauthorized: The apiKey, token or environment is not valid.",
       };
     } else {
+      let details = '';
+      if (error.response.data.errors[0]?.extensions?.errors?.[0]?.code === 'SCHEMA_BUILD_ERROR') {
+        error.response.data.errors[0].extensions.errors[0].details.forEach((element: {error: string}) => {
+          details += element.error + '\n'
+        });
+      }
       throw {
-        error_message:
-          error.response.data.errors[0]?.extensions?.errors[0].message,
+        error_message: details ? details : error.response.data.errors[0]?.extensions?.errors[0].message,
       };
     }
   }

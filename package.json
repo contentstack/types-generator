@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/types-generator",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Contentstack type definition generation library",
   "private": false,
   "author": "Contentstack",
@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/contentstack/types-generator",
   "devDependencies": {
+    "@types/async": "^3.2.24",
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.15",
     "@types/node": "^20.17.17",
@@ -45,6 +46,7 @@
   "dependencies": {
     "@contentstack/delivery-sdk": "^4.5.0",
     "@gql2ts/from-schema": "^2.0.0-4",
+    "async": "^3.2.6",
     "axios": "^1.8.2",
     "lodash": "^4.17.21",
     "prettier": "^3.4.2"

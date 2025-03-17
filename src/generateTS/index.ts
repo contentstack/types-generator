@@ -1,4 +1,5 @@
 import async from "async";
+import {flatMap, flatten} from 'lodash';
 import { TOKEN_TYPE } from "../constants";
 import { initializeContentstackSdk } from "../sdk/utils";
 import { GenerateTS, GenerateTSFromContentTypes } from "../types";
@@ -172,7 +173,7 @@ const getContentTypes = async (contentTypeQuery: any) => {
 
     const results: any = await contentTypeQuery.find();
 
-    if (results.count > limit) {
+    if (results?.count > limit) {
       const additionalQueries = Array.from(
         { length: Math.ceil(results.count / limit) - 1 },
         (_, i) => {
@@ -184,13 +185,8 @@ const getContentTypes = async (contentTypeQuery: any) => {
         }
       );
       const additionalResults: any = (await async.parallel(additionalQueries));
-
-      for (const r of additionalResults) {
-        results.content_types = [
-          ...results.content_types,
-          ...r.value.content_types,
-        ];
-      }
+      const flattenedResult = additionalResults.flatMap((res: any) => res?.value?.content_types);
+      results.content_types = flatten([flattenedResult, results.content_types]);
     }
 
     return results;

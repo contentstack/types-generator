@@ -191,8 +191,6 @@ const getContentTypes = async (contentTypeQuery: any) => {
 
     return results;
   } catch (error) {
-    throw {
-      error_message: error,
-    };
+    throw error;
   }
 };

@@ -26,17 +26,9 @@ describe("group", () => {
       /** Version */
       _version: number;
       title: string;
-      multiple_group_max_limit?: [{
+      multiple_group_max_limit?: {
       number?: number | null;
-      }, {
-      number?: number | null;
-      }, {
-      number?: number | null;
-      }, {
-      number?: number | null;
-      }, {
-      number?: number | null;
-      }];
+      }[];
       multiple_group?: {
       single_line?: string;
       }[];

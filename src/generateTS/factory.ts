@@ -160,11 +160,6 @@ export default function (userOptions: TSGenOptions) {
 
     if (field.multiple) {
       op = "[]";
-
-      if (field.max_instance) {
-        const elements = new Array(field.max_instance).fill(type as any);
-        return ["[", elements.join(", "), "]"].join("");
-      }
     }
 
     return type + op;

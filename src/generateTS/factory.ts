@@ -214,29 +214,18 @@ export default function (userOptions: TSGenOptions) {
     return op_array(type, field);
   }
 
-  // Helper function to handle global fields
-  const handleGlobalField = (
-    field: ContentstackTypes.Field,
-    schemaType?: string
-  ): string => {
+  const handleGlobalField = (field: ContentstackTypes.Field): string => {
     const referenceName = name_type(field.reference_to);
-    const isCached = cachedGlobalFields[referenceName];
-
-    // Handle 'global_field' schemaType case
-    if (schemaType === "global_field" && !isCached) {
-      return `${referenceName}${field.multiple ? "[]" : ""}`;
-    } else if (schemaType === undefined && isCached) {
-      return `${referenceName}${field.multiple ? "[]" : ""}`;
-    }
-
-    return "";
+    // Return the reference name with array brackets if the field is multiple
+    return `${referenceName}${field.multiple ? "[]" : ""}`;
   };
+  
 
-  function visit_field(field: ContentstackTypes.Field, schemaType?: string) {
+  function visit_field(field: ContentstackTypes.Field) {
     let fieldType = "";
     // Check if the field is a global field
     if (field.data_type === "global_field") {
-      fieldType = handleGlobalField(field, schemaType);
+      fieldType = handleGlobalField(field);
     } else if (field.data_type === "blocks") {
       // Handle blocks type (unchanged)
       fieldType = type_modular_blocks(field);
@@ -261,12 +250,12 @@ export default function (userOptions: TSGenOptions) {
     return `${field.uid}${requiredFlag}: ${fieldType}${typeModifier};`;
   }
 
-  function visit_fields(schema: ContentstackTypes.Schema, schemaType?: string) {
+  function visit_fields(schema: ContentstackTypes.Schema) {
     return schema
       .map((v) => {
         return [
           options.docgen.field(v.display_name),
-          visit_field(v, schemaType),
+          visit_field(v),
         ]
           .filter((v) => v)
           .join("\n");
@@ -284,7 +273,7 @@ export default function (userOptions: TSGenOptions) {
       "{",
       ["/**", "Version", "*/"].join(" "),
       `_version: number;`,
-      visit_fields(contentType.schema, contentType?.schema_type),
+      visit_fields(contentType.schema),
       "}",
     ]
       .filter((v) => v)

@@ -160,6 +160,10 @@ export default function (userOptions: TSGenOptions) {
 
     if (field.multiple) {
       op = "[]";
+
+      if (field.max_instance) {
+        return ["MaxTuple<", type, ", ", field.max_instance, ">"].join("");
+      }
     }
 
     return type + op;

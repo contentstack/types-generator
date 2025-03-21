@@ -26,9 +26,9 @@ describe("group", () => {
       /** Version */
       _version: number;
       title: string;
-      multiple_group_max_limit?: {
+      multiple_group_max_limit?: MaxTuple<{
       number?: number | null;
-      }[];
+      }, 5>;
       multiple_group?: {
       single_line?: string;
       }[];

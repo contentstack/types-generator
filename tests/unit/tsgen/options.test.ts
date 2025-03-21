@@ -21,7 +21,7 @@ describe("all options", () => {
       single_line_textbox_not_required?: string;
       single_line_textbox_required: string;
       single_line_textbox_multiple?: string[];
-      single_line_textbox_multiple_max_limit?: string[];
+      single_line_textbox_multiple_max_limit?: MaxTuple<string, 5>;
       }"
     `);
   });

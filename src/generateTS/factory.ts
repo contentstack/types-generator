@@ -214,35 +214,18 @@ export default function (userOptions: TSGenOptions) {
     return op_array(type, field);
   }
 
+  const handleGlobalField = (field: ContentstackTypes.Field): string => {
+    const referenceName = name_type(field.reference_to);
+    // Return the reference name with array brackets if the field is multiple
+    return `${referenceName}${field.multiple ? "[]" : ""}`;
+  };
+  
+
   function visit_field(field: ContentstackTypes.Field) {
     let fieldType = "";
     // Check if the field is a global field
     if (field.data_type === "global_field") {
-      // Check if the field is cached
-      const isCached = cachedGlobalFields[name_type(field.reference_to)];
-
-      // Generate the referred_content_types array
-      const referredContentTypes = [
-        {
-          title: name_type(field.reference_to),
-          uid: field.reference_to,
-        },
-      ];
-
-      // Assign the new structure for the global field
-      fieldType = `referred_content_types: ${JSON.stringify(
-        referredContentTypes
-      )}`;
-
-      // If it's a multiple field, append '[]' to the fieldType
-      if (field.multiple) {
-        fieldType += "[]";
-      }
-
-      // If the field is not cached and there is a reference, update fieldType accordingly
-      if (!isCached && field.reference_to) {
-        fieldType = type_reference(field);
-      }
+      fieldType = handleGlobalField(field);
     } else if (field.data_type === "blocks") {
       // Handle blocks type (unchanged)
       fieldType = type_modular_blocks(field);
@@ -263,10 +246,6 @@ export default function (userOptions: TSGenOptions) {
           : " | null"
         : "";
 
-    if (fieldType.startsWith("referred_content_types")) {
-      // For global_field or referred_content_types, omit field.uid in output
-      return `${fieldType}`;
-    }
     // Ensure the formatting is correct, and avoid concatenating field.uid directly to a string
     return `${field.uid}${requiredFlag}: ${fieldType}${typeModifier};`;
   }
@@ -274,7 +253,10 @@ export default function (userOptions: TSGenOptions) {
   function visit_fields(schema: ContentstackTypes.Schema) {
     return schema
       .map((v) => {
-        return [options.docgen.field(v.display_name), visit_field(v)]
+        return [
+          options.docgen.field(v.display_name),
+          visit_field(v),
+        ]
           .filter((v) => v)
           .join("\n");
       })

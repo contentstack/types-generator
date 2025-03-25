@@ -1,3 +1,5 @@
+import async from "async";
+import {flatMap, flatten} from 'lodash';
 import { TOKEN_TYPE } from "../constants";
 import { initializeContentstackSdk } from "../sdk/utils";
 import { GenerateTS, GenerateTSFromContentTypes } from "../types";
@@ -41,8 +43,9 @@ export const generateTS = async ({
       });
 
       const contentTypeQuery = Stack.contentType();
+      contentTypeQuery._queryParams['include_count'] = 'true';
       const globalFieldsQuery = Stack.globalField();
-      const contentTypes = await contentTypeQuery.find();
+      const contentTypes = await getContentTypes(contentTypeQuery);
       const globalFields = await globalFieldsQuery.find();
 
       const { content_types }: any = contentTypes;
@@ -161,5 +164,33 @@ export const generateTSFromContentTypes = async ({
     throw {
       error_message: "Something went wrong, " + err.message,
     };
+  }
+};
+
+const getContentTypes = async (contentTypeQuery: any) => {
+  try {
+    const limit = 100;
+
+    const results: any = await contentTypeQuery.find();
+
+    if (results?.count > limit) {
+      const additionalQueries = Array.from(
+        { length: Math.ceil(results.count / limit) - 1 },
+        (_, i) => {
+          return async.reflect(async () => {
+            contentTypeQuery._queryParams['skip'] = (i + 1) * limit;
+            contentTypeQuery._queryParams['limit'] = limit;
+            return contentTypeQuery.find();
+          });
+        }
+      );
+      const additionalResults: any = (await async.parallel(additionalQueries));
+      const flattenedResult = additionalResults.flatMap((res: any) => res?.value?.content_types);
+      results.content_types = flatten([flattenedResult, results.content_types]);
+    }
+
+    return results;
+  } catch (error) {
+    throw error;
   }
 };

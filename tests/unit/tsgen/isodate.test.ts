@@ -30,8 +30,8 @@ describe("builtin isodate field", () => {
       date?: string | null;
       date_required: string;
       date_multiple?: string[] | null;
-      date_multiple_maxlength?: [string, string, string, string, string] | null;
-      date_required_multiple_maxlength: [string, string, string, string, string, string, string, string];
+      date_multiple_maxlength?: MaxTuple<string, 5> | null;
+      date_required_multiple_maxlength: MaxTuple<string, 8>;
       }"
     `);
   });

@@ -1,8 +1,13 @@
 import async from "async";
-import {flatMap, flatten} from 'lodash';
+import { flatMap, flatten } from "lodash";
+import * as fs from "fs";
 import { TOKEN_TYPE } from "../constants";
 import { initializeContentstackSdk } from "../sdk/utils";
-import { GenerateTS, GenerateTSFromContentTypes } from "../types";
+import {
+  GenerateTS,
+  GenerateTSBase,
+  GenerateTSFromContentTypes,
+} from "../types";
 import { DocumentationGenerator } from "./docgen/doc";
 import JSDocumentationGenerator from "./docgen/jsdoc";
 import NullDocumentationGenerator from "./docgen/nulldoc";
@@ -43,7 +48,7 @@ export const generateTS = async ({
       });
 
       const contentTypeQuery = Stack.contentType();
-      contentTypeQuery._queryParams['include_count'] = 'true';
+      contentTypeQuery._queryParams["include_count"] = "true";
       const globalFieldsQuery = Stack.globalField();
       const contentTypes = await getContentTypes(contentTypeQuery);
       const globalFields = await globalFieldsQuery.find();
@@ -82,9 +87,7 @@ export const generateTS = async ({
     }
   } catch (error: any) {
     if (error.type === "validation") {
-      throw {
-        error_message: error.error_message,
-      };
+      throw { error_message: error.error_message };
     } else {
       const errorObj = JSON.parse(error.message.replace("Error: ", ""));
       let errorMessage = "Something went wrong";
@@ -105,9 +108,7 @@ export const generateTS = async ({
       if (errorObj.error_message && !errorObj.status) {
         errorMessage = `${errorMessage}, ${errorObj.error_message}`;
       }
-      throw {
-        error_message: errorMessage,
-      };
+      throw { error_message: errorMessage };
     }
   }
 };
@@ -125,20 +126,10 @@ export const generateTSFromContentTypes = async ({
     const globalFields = new Set();
     const definitions = [];
 
-    const tsgen = tsgenFactory({
-      docgen,
-      naming: {
-        prefix,
-      },
-      systemFields,
-    });
+    const tsgen = tsgenFactory({ docgen, naming: { prefix }, systemFields });
     let hasJsonField = false;
     for (const contentType of contentTypes) {
       const tsgenResult = tsgen(contentType);
-      hasJsonField = contentType.schema.some(
-        (field: { field_metadata: any; data_type: string }) =>
-          field.data_type === "json" && field.field_metadata.allow_json_rte
-      );
       if (tsgenResult.isGlobalField) {
         globalFields.add(tsgenResult.definition);
       } else {
@@ -151,6 +142,20 @@ export const generateTSFromContentTypes = async ({
         });
       }
     }
+
+    hasJsonField = contentTypes.some((contentType) => {
+      return contentType.schema.some(
+        (field: {
+          data_type: string;
+          field_metadata: { allow_json_rte: any };
+        }) => {
+          const isJsonField =
+            field.data_type === "json" && field.field_metadata?.allow_json_rte;
+
+          return isJsonField;
+        }
+      );
+    });
     const output = await format(
       [
         defaultInterfaces(prefix, systemFields, hasJsonField).join("\n\n"),
@@ -161,9 +166,7 @@ export const generateTSFromContentTypes = async ({
 
     return output;
   } catch (err: any) {
-    throw {
-      error_message: "Something went wrong, " + err.message,
-    };
+    throw { error_message: "Something went wrong, " + err.message };
   }
 };
 
@@ -178,14 +181,16 @@ const getContentTypes = async (contentTypeQuery: any) => {
         { length: Math.ceil(results.count / limit) - 1 },
         (_, i) => {
           return async.reflect(async () => {
-            contentTypeQuery._queryParams['skip'] = (i + 1) * limit;
-            contentTypeQuery._queryParams['limit'] = limit;
+            contentTypeQuery._queryParams["skip"] = (i + 1) * limit;
+            contentTypeQuery._queryParams["limit"] = limit;
             return contentTypeQuery.find();
           });
         }
       );
-      const additionalResults: any = (await async.parallel(additionalQueries));
-      const flattenedResult = additionalResults.flatMap((res: any) => res?.value?.content_types);
+      const additionalResults: any = await async.parallel(additionalQueries);
+      const flattenedResult = additionalResults.flatMap(
+        (res: any) => res?.value?.content_types
+      );
       results.content_types = flatten([flattenedResult, results.content_types]);
     }
 

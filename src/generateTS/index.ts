@@ -1,13 +1,8 @@
 import async from "async";
 import { flatMap, flatten } from "lodash";
-import * as fs from "fs";
 import { TOKEN_TYPE } from "../constants";
 import { initializeContentstackSdk } from "../sdk/utils";
-import {
-  GenerateTS,
-  GenerateTSBase,
-  GenerateTSFromContentTypes,
-} from "../types";
+import { GenerateTS, GenerateTSFromContentTypes } from "../types";
 import { DocumentationGenerator } from "./docgen/doc";
 import JSDocumentationGenerator from "./docgen/jsdoc";
 import NullDocumentationGenerator from "./docgen/nulldoc";
@@ -147,7 +142,7 @@ export const generateTSFromContentTypes = async ({
       return contentType.schema.some(
         (field: {
           data_type: string;
-          field_metadata: { allow_json_rte: any };
+          field_metadata: { allow_json_rte: boolean };
         }) => {
           const isJsonField =
             field.data_type === "json" && field.field_metadata?.allow_json_rte;

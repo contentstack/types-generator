@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/types-generator",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "Contentstack type definition generation library",
   "private": false,
   "author": "Contentstack",
@@ -38,7 +38,7 @@
     "dotenv": "^16.4.7",
     "jest": "^29.7.0",
     "nock": "^13.5.6",
-    "rollup": "^4.38.0",
+    "rollup": "^4.40.0",
     "ts-jest": "^29.3.1",
     "tsup": "^8.4.0",
     "typescript": "^5.7.3"

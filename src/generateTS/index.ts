@@ -2,7 +2,11 @@ import async from "async";
 import { flatMap, flatten } from "lodash";
 import { TOKEN_TYPE } from "../constants";
 import { initializeContentstackSdk } from "../sdk/utils";
-import { GenerateTS, GenerateTSFromContentTypes } from "../types";
+import {
+  GenerateTS,
+  GenerateTSFromContentTypes,
+} from "../types";
+import * as fs from "fs";
 import { DocumentationGenerator } from "./docgen/doc";
 import JSDocumentationGenerator from "./docgen/jsdoc";
 import NullDocumentationGenerator from "./docgen/nulldoc";
@@ -122,7 +126,6 @@ export const generateTSFromContentTypes = async ({
     const definitions = [];
 
     const tsgen = tsgenFactory({ docgen, naming: { prefix }, systemFields });
-    let hasJsonField = false;
     for (const contentType of contentTypes) {
       const tsgenResult = tsgen(contentType);
       if (tsgenResult.isGlobalField) {
@@ -138,19 +141,10 @@ export const generateTSFromContentTypes = async ({
       }
     }
 
-    hasJsonField = contentTypes.some((contentType) => {
-      return contentType.schema.some(
-        (field: {
-          data_type: string;
-          field_metadata: { allow_json_rte: boolean };
-        }) => {
-          const isJsonField =
-            field.data_type === "json" && field.field_metadata?.allow_json_rte;
+    const hasJsonField = contentTypes.some((contentType) =>
+      checkJsonField(contentType.schema)
+    );
 
-          return isJsonField;
-        }
-      );
-    });
     const output = await format(
       [
         defaultInterfaces(prefix, systemFields, hasJsonField).join("\n\n"),
@@ -194,3 +188,21 @@ const getContentTypes = async (contentTypeQuery: any) => {
     throw error;
   }
 };
+
+const checkJsonField = (schema: any[]): boolean => {
+  return schema.some((field) => {
+    if (field.data_type === "json" && field.field_metadata?.allow_json_rte) {
+      return true;
+    }
+
+    if (field.data_type === "group" && Array.isArray(field.schema)) {
+      return checkJsonField(field.schema);
+    }
+
+    if (field.data_type === "blocks" && Array.isArray(field.blocks)) {
+      return field.blocks.some((block: { schema: any; }) => checkJsonField(block.schema || []));
+    }
+
+    return false;
+  });
+}

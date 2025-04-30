@@ -286,7 +286,7 @@ export default function (userOptions: TSGenOptions) {
     let blockInterfaceName = name_type(field.uid);
 
     const blockInterfaces = field.blocks.map((block) => {
-      const fieldType = block.reference_to
+      const fieldType = block.reference_to && cachedGlobalFields[name_type(block.reference_to)]
         ? name_type(block.reference_to)
         : visit_fields(block.schema || []);
 
@@ -314,7 +314,7 @@ export default function (userOptions: TSGenOptions) {
 
     // Store or track the generated block interface for later use
     modularBlockInterfaces.add(modularInterface);
-
+    cachedModularBlocks[blockInterfaceName] = blockInterfaceName;
     return field.multiple ? `${blockInterfaceName}[]` : blockInterfaceName;
   }
 

@@ -29,7 +29,7 @@ describe("builtin taxonomies field", () => {
       /** Version */
       _version: number;
       title: string;
-      boolean?: boolean;
+      boolean: boolean;
       taxonomies?: ITaxonomy[];
       }"
     `);

@@ -219,7 +219,6 @@ export default function (userOptions: TSGenOptions) {
     // Return the reference name with array brackets if the field is multiple
     return `${referenceName}${field.multiple ? "[]" : ""}`;
   };
-  
 
   function visit_field(field: ContentstackTypes.Field) {
     let fieldType = "";
@@ -237,7 +236,8 @@ export default function (userOptions: TSGenOptions) {
     }
 
     // Build and return the final string in the required format
-    const requiredFlag = op_required(field.mandatory);
+    const requiredFlag =
+      field.data_type === "boolean" ? "" : op_required(field.mandatory);
     const typeModifier =
       ["isodate", "file", "number"].includes(field.data_type) ||
       ["radio", "dropdown"].includes(field.display_type)
@@ -253,10 +253,7 @@ export default function (userOptions: TSGenOptions) {
   function visit_fields(schema: ContentstackTypes.Schema) {
     return schema
       .map((v) => {
-        return [
-          options.docgen.field(v.display_name),
-          visit_field(v),
-        ]
+        return [options.docgen.field(v.display_name), visit_field(v)]
           .filter((v) => v)
           .join("\n");
       })
@@ -286,9 +283,10 @@ export default function (userOptions: TSGenOptions) {
     let blockInterfaceName = name_type(field.uid);
 
     const blockInterfaces = field.blocks.map((block) => {
-      const fieldType = block.reference_to && cachedGlobalFields[name_type(block.reference_to)]
-        ? name_type(block.reference_to)
-        : visit_fields(block.schema || []);
+      const fieldType =
+        block.reference_to && cachedGlobalFields[name_type(block.reference_to)]
+          ? name_type(block.reference_to)
+          : visit_fields(block.schema || []);
 
       const schema = block.reference_to
         ? `${fieldType};`

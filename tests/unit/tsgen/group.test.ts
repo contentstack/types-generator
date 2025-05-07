@@ -38,7 +38,7 @@ describe("group", () => {
       single_line?: string;
       child_group?: {
       number?: number | null;
-      boolean?: boolean;
+      boolean: boolean;
       date?: string | null;
       };
       };

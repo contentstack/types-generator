@@ -28,7 +28,7 @@ describe("modular blocks", () => {
        single_line_textbox_required: string;
       single_line_textbox_multiple?: string[]; }
       boolean_block: {
-       boolean?: boolean; }
+       boolean: boolean; }
       }
 
       export interface ModularBlocks

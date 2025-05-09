@@ -84,7 +84,7 @@ export const defaultInterfaces = (
             _version?: number;
             _in_progress?: boolean;
             locale?: string;
-            publish_details?: ${prefix}PublishDetails[];
+            publish_details?: ${prefix}PublishDetails;
             title?: string;
         }`
     );

@@ -27,7 +27,7 @@ describe("builtin boolean field", () => {
       /** Version */
       _version: number;
       title: string;
-      boolean?: boolean;
+      boolean: boolean;
       }"
     `);
   });

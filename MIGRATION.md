@@ -1,9 +1,13 @@
 ## Migrating from v2 to v3
 
-This document outlines the necessary change made to the `ISystemFields` interface.  
-The `publish_details` field is no longer an array of objects — it is now a single object.
+This changelog documents a breaking change to the `ISystemFields` interface, specifically related to the `publish_details` field.
 
-This update aligns the generated types with the actual Contentstack API response.
+
+## What Changed
+
+The `publish_details` field is no longer an array of objects. It is now represented as a single `IPublishDetails` object.
+
+This update aligns the generated types with the actual [Contentstack API](https://www.contentstack.com/docs/developers/apis/content-delivery-api) response.
 
 
 ## Before 

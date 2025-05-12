@@ -6,6 +6,11 @@ This library helps to generate TypeScript type definition for the content types 
 
 `$ npm install @contentstack/types-generator`
 
+
+## Migration
+Refer to the [Migration Guide](https://github.com/contentstack/types-generator/blob/main/MIGRATION.md) version 3 if you are migrating from version 2 or older.
+
+
 ## Usage
 
 ### In NodeJs

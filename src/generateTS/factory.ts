@@ -284,7 +284,7 @@ export default function (userOptions: TSGenOptions) {
 
     const blockInterfaces = field.blocks.map((block) => {
       const fieldType =
-        block.reference_to && cachedGlobalFields[name_type(block.reference_to)]
+        block.reference_to 
           ? name_type(block.reference_to)
           : visit_fields(block.schema || []);
 

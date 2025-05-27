@@ -40,7 +40,7 @@ describe("global fields", () => {
       "export interface INewGlobal
       {
       /** Version */
-      _version: number;
+      _version?: number;
       single_line_textbox?: string;
       }"
     `);

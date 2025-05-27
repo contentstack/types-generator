@@ -1,9 +1,9 @@
 fileignoreconfig:
-- filename: .github/workflows/secrets-scan.yml
-  ignore_detectors:
-    - filecontent
-- filename: package-lock.json
-  checksum: bc2affd8d88f505479a4e7fd931f9341a2b3571285bc37714eac2655903d98e3
-- filename: .husky/pre-commit
-  checksum: 5baabd7d2c391648163f9371f0e5e9484f8fb90fa2284cfc378732ec3192c193
+  - filename: .github/workflows/secrets-scan.yml
+    ignore_detectors:
+      - filecontent
+  - filename: package-lock.json
+    checksum: 7ca77c023135dd0b7cf06a754dac82689f5a024141e444eadc04c840169bb4d1
+  - filename: .husky/pre-commit
+    checksum: 5baabd7d2c391648163f9371f0e5e9484f8fb90fa2284cfc378732ec3192c193
 version: "1.0"

@@ -269,7 +269,9 @@ export default function (userOptions: TSGenOptions) {
       define_interface(contentType, options.systemFields),
       "{",
       ["/**", "Version", "*/"].join(" "),
-      `_version: number;`,
+      contentType.schema_type === "global_field"
+        ? `_version?: number;`
+        : `_version: number;`,
       visit_fields(contentType.schema),
       "}",
     ]
@@ -283,10 +285,9 @@ export default function (userOptions: TSGenOptions) {
     let blockInterfaceName = name_type(field.uid);
 
     const blockInterfaces = field.blocks.map((block) => {
-      const fieldType =
-        block.reference_to 
-          ? name_type(block.reference_to)
-          : visit_fields(block.schema || []);
+      const fieldType = block.reference_to
+        ? name_type(block.reference_to)
+        : visit_fields(block.schema || []);
 
       const schema = block.reference_to
         ? `${fieldType};`

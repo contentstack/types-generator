@@ -88,11 +88,9 @@ export async function graphqlTS({
         error.response.data.errors[0]?.extensions?.errors?.[0]?.code ===
         "SCHEMA_BUILD_ERROR"
       ) {
-        error.response.data.errors[0].extensions.errors[0].details.forEach(
-          (element: { error: string }) => {
-            details += element.error + "\n";
-          }
-        );
+        details = error.response.data.errors[0].extensions.errors[0].details
+          .map((element: { error: string }) => element.error)
+          .join("\n");
       }
       throw {
         error_message: details

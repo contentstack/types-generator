@@ -92,6 +92,30 @@ describe("generateTS function", () => {
     expect(generatedTS).toMatch(/extends SystemFields \{\n/); // Check for whether interfaces have extended system fields interface
     expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
   });
+
+  it("generates type definitions with editable fields", async () => {
+    const token = process.env.TOKEN as unknown as any;
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
+    const isEditableTags = true;
+
+    const generatedTS = await generateTS({
+      token,
+      apiKey,
+      environment,
+      region,
+      tokenType,
+      isEditableTags,
+    });
+
+    expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
+    expect(generatedTS).toMatch(/export interface CSLPAttribute/); // Check for CSLP attribute interface is created
+    expect(generatedTS).toMatch(/\$\?\:/); // Check for editable field mappings with $ property
+    expect(generatedTS).toMatch(/\?\: CSLPAttribute/); // Check for individual field CSLP mappings
+    expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
+  });
 });
 
 describe("generateTS function with errors", () => {

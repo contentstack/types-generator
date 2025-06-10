@@ -18,12 +18,18 @@ export const initializeContentstackSdk = ({
           return Region.US;
         case REGIONS.EU:
           return Region.EU;
+        case REGIONS.AWS_NA:
+          return Region.US;
+        case REGIONS.AWS_EU:
+          return Region.EU;
         case REGIONS.AZURE_NA:
           return Region.AZURE_NA;
         case REGIONS.AZURE_EU:
           return Region.AZURE_EU;
         case REGIONS.GCP_NA:
           return Region.GCP_NA;
+        case REGIONS.GCP_EU:
+          return Region.GCP_EU;
         default:
           isCustomRegion = true;
           break;

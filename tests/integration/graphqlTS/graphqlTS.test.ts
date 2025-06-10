@@ -104,7 +104,7 @@ describe("graphqlTS function with errors", () => {
       });
     } catch (err: any) {
       expect(err.error_message).toEqual(
-        "GraphQL content delivery api unavailable for 'wrong-region' region"
+        "GraphQL content delivery api unavailable for 'wrong-region' region and no custom host provided"
       );
     }
   });

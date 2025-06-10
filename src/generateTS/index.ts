@@ -2,10 +2,7 @@ import async from "async";
 import { flatMap, flatten } from "lodash";
 import { TOKEN_TYPE } from "../constants";
 import { initializeContentstackSdk } from "../sdk/utils";
-import {
-  GenerateTS,
-  GenerateTSFromContentTypes,
-} from "../types";
+import { GenerateTS, GenerateTSFromContentTypes } from "../types";
 import * as fs from "fs";
 import { DocumentationGenerator } from "./docgen/doc";
 import JSDocumentationGenerator from "./docgen/jsdoc";
@@ -25,6 +22,7 @@ export const generateTS = async ({
   prefix,
   includeDocumentation,
   systemFields,
+  isEditableTags,
   host,
 }: GenerateTS) => {
   try {
@@ -80,6 +78,7 @@ export const generateTS = async ({
           prefix,
           includeDocumentation,
           systemFields,
+          isEditableTags,
         });
         return generatedTS;
       }
@@ -117,6 +116,7 @@ export const generateTSFromContentTypes = async ({
   prefix = "",
   includeDocumentation = true,
   systemFields = false,
+  isEditableTags = false,
 }: GenerateTSFromContentTypes) => {
   try {
     const docgen: DocumentationGenerator = includeDocumentation
@@ -125,7 +125,12 @@ export const generateTSFromContentTypes = async ({
     const globalFields = new Set();
     const definitions = [];
 
-    const tsgen = tsgenFactory({ docgen, naming: { prefix }, systemFields });
+    const tsgen = tsgenFactory({
+      docgen,
+      naming: { prefix },
+      systemFields,
+      isEditableTags,
+    });
     for (const contentType of contentTypes) {
       const tsgenResult = tsgen(contentType);
       if (tsgenResult.isGlobalField) {
@@ -147,7 +152,12 @@ export const generateTSFromContentTypes = async ({
 
     const output = await format(
       [
-        defaultInterfaces(prefix, systemFields, hasJsonField).join("\n\n"),
+        defaultInterfaces(
+          prefix,
+          systemFields,
+          isEditableTags,
+          hasJsonField
+        ).join("\n\n"),
         [...globalFields].join("\n\n"),
         definitions.join("\n\n"),
       ].join("\n\n")
@@ -200,9 +210,11 @@ const checkJsonField = (schema: any[]): boolean => {
     }
 
     if (field.data_type === "blocks" && Array.isArray(field.blocks)) {
-      return field.blocks.some((block: { schema: any; }) => checkJsonField(block.schema || []));
+      return field.blocks.some((block: { schema: any }) =>
+        checkJsonField(block.schema || [])
+      );
     }
 
     return false;
   });
-}
+};

@@ -1,14 +1,15 @@
 export const defaultInterfaces = (
   prefix = "",
   systemFields = false,
+  isEditableTags = false,
   hasJsonRte?: boolean
 ) => {
   const defaultInterfaces = [
     `type BuildTuple<T, N extends number, R extends T[] = []> =
     R['length'] extends N ? R : BuildTuple<T, N, [...R, T]>`,
-      `type TuplePrefixes<T extends any[]> = 
+    `type TuplePrefixes<T extends any[]> = 
     T extends [any, ...infer Rest] ? T | TuplePrefixes<Rest extends any[] ? Rest : []> : []`,
-      `type MaxTuple<T, N extends number> = TuplePrefixes<BuildTuple<T, N>>`,
+    `type MaxTuple<T, N extends number> = TuplePrefixes<BuildTuple<T, N>>`,
     `export interface ${prefix}PublishDetails {
             environment: string;
             locale: string;
@@ -70,6 +71,16 @@ export const defaultInterfaces = (
     };`
     );
   }
+
+  if (isEditableTags) {
+    defaultInterfaces.push(
+      `export interface CSLPAttribute {
+        "data-cslp"?: string;
+        "data-cslp-parent-field"?: string;
+        }`
+    );
+  }
+
   if (systemFields) {
     defaultInterfaces.push(
       `export interface ${prefix}SystemFields {

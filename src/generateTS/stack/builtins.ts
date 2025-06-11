@@ -1,3 +1,5 @@
+import { CSLP_HELPERS } from "../shared/cslp-helpers";
+
 export const defaultInterfaces = (
   prefix = "",
   systemFields = false,
@@ -73,12 +75,7 @@ export const defaultInterfaces = (
   }
 
   if (isEditableTags) {
-    defaultInterfaces.push(
-      `export interface CSLPAttribute {
-        "data-cslp"?: string;
-        "data-cslp-parent-field"?: string;
-        }`
-    );
+    defaultInterfaces.push(CSLP_HELPERS.INTERFACE_DEFINITION);
   }
 
   if (systemFields) {

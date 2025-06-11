@@ -10,4 +10,6 @@ fileignoreconfig:
     checksum: 0a693ed8cc35d373f3c88d2ca6b538648d2594e83c495e841546c161e419c8fe
   - filename: tests/integration/generateTS/generateTS.test.ts
     checksum: 328090da57e8cb2dd616091f3336b6da77a253f97ddfd47e3e1dd683260e58eb
+  - filename: src/generateTS/shared/cslp-helpers.ts
+    checksum: 55aa5c0c9ec0cd6c6139d4e9e4f1666abc7bc083313ccc2bf410c56935f35ef2
 version: "1.0"

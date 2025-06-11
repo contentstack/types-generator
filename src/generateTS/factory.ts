@@ -2,6 +2,7 @@ import { DocumentationGenerator } from "./docgen/doc";
 import NullDocumentationGenerator from "./docgen/nulldoc";
 import * as ContentstackTypes from "../types/schema";
 import * as _ from "lodash";
+import { CSLP_HELPERS } from "./shared/cslp-helpers";
 
 export type TSGenOptions = {
   docgen: DocumentationGenerator;
@@ -265,14 +266,14 @@ export default function (userOptions: TSGenOptions) {
         .join("\n");
 
       fieldLines.push(line);
-      dollarKeys.push(`${JSON.stringify(field.uid)}?: CSLPAttribute`);
+      dollarKeys.push(CSLP_HELPERS.createFieldMapping(field.uid));
     }
 
     // If editableTags is enabled, add the $ field
     if (options.isEditableTags) {
       fieldLines.push(
-        "\n/** CSLP mapping for editable fields */",
-        `$?: {\n  ${dollarKeys.join(";\n  ")};\n};`
+        `\n${CSLP_HELPERS.FIELD_COMMENT}`,
+        CSLP_HELPERS.createMappingBlock(dollarKeys)
       );
     }
 

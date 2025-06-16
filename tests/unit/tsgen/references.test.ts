@@ -26,7 +26,7 @@ describe("references", () => {
       "export interface IReferenceParent
       {
       /** Version */
-      _version: number;
+      _version?: number;
       title: string;
       url: string;
       single_reference: (IReferenceChild)[];

@@ -24,7 +24,7 @@ describe("group", () => {
       "export interface Group
       {
       /** Version */
-      _version: number;
+      _version?: number;
       title: string;
       multiple_group_max_limit?: MaxTuple<{
       number?: number | null;

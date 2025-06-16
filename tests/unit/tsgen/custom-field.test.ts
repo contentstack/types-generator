@@ -20,7 +20,7 @@ describe("JSON RTE", () => {
     "export interface Home
     {
     /** Version */
-    _version: number;
+    _version?: number;
     title: string;
     custom_key_value_pair?: { value: { key: string; value: string }[] };
     }"

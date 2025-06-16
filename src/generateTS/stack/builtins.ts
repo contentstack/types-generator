@@ -6,9 +6,9 @@ export const defaultInterfaces = (
   const defaultInterfaces = [
     `type BuildTuple<T, N extends number, R extends T[] = []> =
     R['length'] extends N ? R : BuildTuple<T, N, [...R, T]>`,
-      `type TuplePrefixes<T extends any[]> = 
+    `type TuplePrefixes<T extends any[]> = 
     T extends [any, ...infer Rest] ? T | TuplePrefixes<Rest extends any[] ? Rest : []> : []`,
-      `type MaxTuple<T, N extends number> = TuplePrefixes<BuildTuple<T, N>>`,
+    `type MaxTuple<T, N extends number> = TuplePrefixes<BuildTuple<T, N>>`,
     `export interface ${prefix}PublishDetails {
             environment: string;
             locale: string;
@@ -32,6 +32,7 @@ export const defaultInterfaces = (
               _version: number;
               title: string;
               _metadata?:object;
+              description?:string;
               publish_details: ${prefix}PublishDetails;
           }`,
     `export interface ${prefix}Link { 

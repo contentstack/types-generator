@@ -22,7 +22,7 @@ describe("builtin string fields", () => {
       "export interface BuiltinStrings
       {
       /** Version */
-      _version: number;
+      _version?: number;
       title: string;
       single_line?: string;
       multi_line?: string;

@@ -1,7 +1,16 @@
 export interface StackConnectionConfig {
   apiKey: string;
   token: string;
-  region: "US" | "EU" | "AZURE_NA" | "AZURE_EU" | "GCP_NA";
+  region:
+    | "US"
+    | "EU"
+    | "AWS-NA"
+    | "AWS-EU"
+    | "AZURE_NA"
+    | "AZURE_EU"
+    | "GCP_NA"
+    | "GCP_EU"
+    | "CUSTOM";
   environment: string;
   branch?: string;
   host?: string;

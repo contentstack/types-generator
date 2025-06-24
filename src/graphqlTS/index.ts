@@ -22,6 +22,7 @@ export async function graphqlTS({
   environment,
   branch,
   namespace,
+  host,
 }: GraphQLBase) {
   try {
     if (!token || !apiKey || !environment || !region) {
@@ -34,7 +35,9 @@ export async function graphqlTS({
     let config = {
       method: "post",
       maxBodyLength: Infinity,
-      url: `${GRAPHQL_REGION_URL_MAPPING[region]}/${apiKey}`,
+      url: host
+        ? `https://${host}/stacks/${apiKey}`
+        : `${GRAPHQL_REGION_URL_MAPPING[region]}/${apiKey}`,
       headers: {
         access_token: token,
         branch: "",
@@ -50,10 +53,10 @@ export async function graphqlTS({
       config.headers.branch = branch;
     }
 
-    if (!GRAPHQL_REGION_URL_MAPPING[region]) {
+    if (!GRAPHQL_REGION_URL_MAPPING[region] && !host) {
       throw {
         type: "validation",
-        error_message: `GraphQL content delivery api unavailable for '${region}' region`,
+        error_message: `GraphQL content delivery api unavailable for '${region}' region and no custom host provided`,
       };
     }
 
@@ -80,14 +83,19 @@ export async function graphqlTS({
           "Unauthorized: The apiKey, token or environment is not valid.",
       };
     } else {
-      let details = '';
-      if (error.response.data.errors[0]?.extensions?.errors?.[0]?.code === 'SCHEMA_BUILD_ERROR') {
-        error.response.data.errors[0].extensions.errors[0].details.forEach((element: {error: string}) => {
-          details += element.error + '\n'
-        });
+      let details = "";
+      if (
+        error.response.data.errors[0]?.extensions?.errors?.[0]?.code ===
+        "SCHEMA_BUILD_ERROR"
+      ) {
+        details = error.response.data.errors[0].extensions.errors[0].details
+          .map((element: { error: string }) => element.error)
+          .join("\n");
       }
       throw {
-        error_message: details ? details : error.response.data.errors[0]?.extensions?.errors[0].message,
+        error_message: details
+          ? details
+          : error.response.data.errors[0]?.extensions?.errors[0].message,
       };
     }
   }

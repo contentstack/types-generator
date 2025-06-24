@@ -15,7 +15,7 @@ describe("JSON RTE", () => {
     "export interface Home
     {
     /** Version */
-    _version: number;
+    _version?: number;
     json_rte?: {
           type: string;
           uid: string;

@@ -22,7 +22,7 @@ describe("builtin number field", () => {
       "export interface Number
       {
       /** Version */
-      _version: number;
+      _version?: number;
       title: string;
       url: string;
       number?: number | null;

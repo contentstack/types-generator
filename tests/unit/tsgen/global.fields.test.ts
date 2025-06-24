@@ -51,7 +51,7 @@ describe("global fields", () => {
       "export interface IHome
       {
       /** Version */
-      _version: number;
+      _version?: number;
       title: string;
       taxonomies?: ITaxonomy[];
       }"

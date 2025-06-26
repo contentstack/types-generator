@@ -3,10 +3,11 @@ export const CSLP_HELPERS = {
   INTERFACE_DEFINITION: `export interface CSLPAttribute {
   "data-cslp"?: string;
   "data-cslp-parent-field"?: string;
-}`,
+}
+export type CSLPFieldMapping = CSLPAttribute | string;`,
   FIELD_COMMENT: "/** CSLP mapping for editable fields */",
   createFieldMapping: (fieldUid: string) =>
-    `${JSON.stringify(fieldUid)}?: CSLPAttribute`,
+    `${JSON.stringify(fieldUid)}?: CSLPFieldMapping`,
   createMappingBlock: (dollarKeys: string[]) =>
     `$?: {\n  ${dollarKeys.join(";\n  ")};\n};`,
 };

@@ -272,7 +272,7 @@ export default function (userOptions: TSGenOptions) {
     // If editableTags is enabled, add the $ field
     if (options.isEditableTags) {
       fieldLines.push(
-        `\n${CSLP_HELPERS.FIELD_COMMENT}`,
+        CSLP_HELPERS.FIELD_COMMENT,
         CSLP_HELPERS.createMappingBlock(dollarKeys)
       );
     }

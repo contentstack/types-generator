@@ -16,7 +16,7 @@ describe("jsdoc", () => {
       export interface Jsdoc
       {
       /** Version */
-      _version: number;
+      _version?: number;
       /** Name */
       title: string;
       /** Age */

@@ -35,6 +35,7 @@ export const defaultInterfaces = (
               _version: number;
               title: string;
               _metadata?:object;
+              description?:string;
               publish_details: ${prefix}PublishDetails;
           }`,
     `export interface ${prefix}Link { 

@@ -7,5 +7,5 @@ fileignoreconfig:
   - filename: .husky/pre-commit
     checksum: 5baabd7d2c391648163f9371f0e5e9484f8fb90fa2284cfc378732ec3192c193
   - filename: src/generateTS/factory.ts
-    checksum: 97599d5be9378ef28c21acc1556b24b1bf6741f3d07e0350e7500b542b56b270
+    checksum: 4be7b31934d36cbc6275a9155b3414293f6b9a1083ccfbd80d979ecf4ce8a0ac
 version: "1.0"

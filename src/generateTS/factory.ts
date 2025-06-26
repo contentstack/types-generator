@@ -294,13 +294,22 @@ export default function (userOptions: TSGenOptions) {
     });
     const blockInterfacesKey = blockInterfaces.join(";");
 
-    if (!uniqueBlockInterfaces.has(blockInterfacesKey)) {
-      uniqueBlockInterfaces.add(blockInterfacesKey);
-      // Keep appending a counter until a unique name is found
-      while (cachedModularBlocks[blockInterfaceName]) {
-        blockInterfaceName = `${blockInterfaceName}${counter}`;
-        counter++;
+    if (uniqueBlockInterfaces.has(blockInterfacesKey)) {
+      // Find the existing interface name for this structure
+      for (const [cachedName, cachedKey] of Object.entries(
+        cachedModularBlocks
+      )) {
+        if (cachedKey === blockInterfacesKey) {
+          return field.multiple ? `${cachedName}[]` : cachedName;
+        }
       }
+    }
+
+    uniqueBlockInterfaces.add(blockInterfacesKey);
+
+    while (cachedModularBlocks[blockInterfaceName]) {
+      blockInterfaceName = `${blockInterfaceName}${counter}`;
+      counter++;
     }
 
     const modularInterface = [
@@ -311,7 +320,7 @@ export default function (userOptions: TSGenOptions) {
 
     // Store or track the generated block interface for later use
     modularBlockInterfaces.add(modularInterface);
-    cachedModularBlocks[blockInterfaceName] = blockInterfaceName;
+    cachedModularBlocks[blockInterfaceName] = blockInterfacesKey;
     return field.multiple ? `${blockInterfaceName}[]` : blockInterfaceName;
   }
 

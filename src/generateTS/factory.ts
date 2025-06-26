@@ -289,9 +289,7 @@ export default function (userOptions: TSGenOptions) {
       define_interface(contentType, options.systemFields),
       "{",
       ["/**", "Version", "*/"].join(" "),
-      contentType.schema_type === "global_field"
-        ? `_version?: number;`
-        : `_version: number;`,
+      `_version?: number;`,
       visit_fields(contentType.schema),
       "}",
     ]

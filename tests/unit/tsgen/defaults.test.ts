@@ -18,7 +18,7 @@ describe("default single content block", () => {
       "export interface IMetadataSingleContentBlock
       {
       /** Version */
-      _version: number;
+      _version?: number;
       title: string;
       }"
     `);
@@ -44,7 +44,7 @@ describe("default single webpage", () => {
       "export interface IMetadataSingleWebpage
       {
       /** Version */
-      _version: number;
+      _version?: number;
       title: string;
       url: string;
       }"

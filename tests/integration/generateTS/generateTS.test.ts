@@ -112,8 +112,9 @@ describe("generateTS function", () => {
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
     expect(generatedTS).toMatch(/export interface CSLPAttribute/); // Check for CSLP attribute interface is created
+    expect(generatedTS).toMatch(/export type CSLPFieldMapping/); // Check for CSLP field mapping type is created
     expect(generatedTS).toMatch(/\$\?\:/); // Check for editable field mappings with $ property
-    expect(generatedTS).toMatch(/\?\: CSLPAttribute/); // Check for individual field CSLP mappings
+    expect(generatedTS).toMatch(/\?\: CSLPFieldMapping/); // Check for individual field CSLP mappings
     expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
   });
 });

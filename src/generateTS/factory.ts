@@ -281,46 +281,51 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function type_modular_blocks(field: ContentstackTypes.Field): string {
-    let blockInterfaceName = name_type(field.uid);
+    let modularBlockInterfaceName = name_type(field.uid);
 
-    const blockInterfaces = field.blocks.map((block) => {
-      const fieldType = block.reference_to
+    const modularBlockDefinitions = field.blocks.map((block) => {
+      const blockFieldType = block.reference_to
         ? name_type(block.reference_to)
         : visit_fields(block.schema || []);
 
-      const schema = block.reference_to
-        ? `${fieldType};`
-        : `{\n ${fieldType} }`;
-      return `${block.uid}: ${schema}`;
+      const blockSchemaDefinition = block.reference_to
+        ? `${blockFieldType};`
+        : `{\n ${blockFieldType} }`;
+      return `${block.uid}: ${blockSchemaDefinition}`;
     });
-    const blockInterfacesKey = JSON.stringify(blockInterfaces);
+    const modularBlockSignature = JSON.stringify(modularBlockDefinitions);
 
-    if (uniqueBlockInterfaces.has(blockInterfacesKey)) {
+    if (uniqueBlockInterfaces.has(modularBlockSignature)) {
       // Find the existing interface name for this structure using O(1) lookup
-      const cachedName = blockInterfacesKeyToName[blockInterfacesKey];
-      if (cachedName) {
-        return field.multiple ? `${cachedName}[]` : cachedName;
+      const existingInterfaceName =
+        blockInterfacesKeyToName[modularBlockSignature];
+      if (existingInterfaceName) {
+        return field.multiple
+          ? `${existingInterfaceName}[]`
+          : existingInterfaceName;
       }
     }
 
-    uniqueBlockInterfaces.add(blockInterfacesKey);
+    uniqueBlockInterfaces.add(modularBlockSignature);
 
-    while (cachedModularBlocks[blockInterfaceName]) {
-      blockInterfaceName = `${blockInterfaceName}${counter}`;
+    while (cachedModularBlocks[modularBlockInterfaceName]) {
+      modularBlockInterfaceName = `${modularBlockInterfaceName}${counter}`;
       counter++;
     }
 
-    const modularInterface = [
-      `export interface ${blockInterfaceName} {`,
-      blockInterfaces.join("\n"),
+    const modularBlockInterfaceDefinition = [
+      `export interface ${modularBlockInterfaceName} {`,
+      modularBlockDefinitions.join("\n"),
       "}",
     ].join("\n");
 
     // Store or track the generated block interface for later use
-    modularBlockInterfaces.add(modularInterface);
-    cachedModularBlocks[blockInterfaceName] = blockInterfacesKey;
-    blockInterfacesKeyToName[blockInterfacesKey] = blockInterfaceName;
-    return field.multiple ? `${blockInterfaceName}[]` : blockInterfaceName;
+    modularBlockInterfaces.add(modularBlockInterfaceDefinition);
+    cachedModularBlocks[modularBlockInterfaceName] = modularBlockSignature;
+    blockInterfacesKeyToName[modularBlockSignature] = modularBlockInterfaceName;
+    return field.multiple
+      ? `${modularBlockInterfaceName}[]`
+      : modularBlockInterfaceName;
   }
 
   function type_group(field: ContentstackTypes.Field) {

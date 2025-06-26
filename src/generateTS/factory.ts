@@ -72,6 +72,7 @@ export default function (userOptions: TSGenOptions) {
   const cachedModularBlocks: ModularBlockCache = {};
   const modularBlockInterfaces = new Set<string>();
   const uniqueBlockInterfaces = new Set<string>();
+  const blockInterfacesKeyToName: { [key: string]: string } = {};
   let counter = 1;
 
   const typeMap: TypeMap = {
@@ -292,16 +293,13 @@ export default function (userOptions: TSGenOptions) {
         : `{\n ${fieldType} }`;
       return `${block.uid}: ${schema}`;
     });
-    const blockInterfacesKey = blockInterfaces.join(";");
+    const blockInterfacesKey = JSON.stringify(blockInterfaces);
 
     if (uniqueBlockInterfaces.has(blockInterfacesKey)) {
-      // Find the existing interface name for this structure
-      for (const [cachedName, cachedKey] of Object.entries(
-        cachedModularBlocks
-      )) {
-        if (cachedKey === blockInterfacesKey) {
-          return field.multiple ? `${cachedName}[]` : cachedName;
-        }
+      // Find the existing interface name for this structure using O(1) lookup
+      const cachedName = blockInterfacesKeyToName[blockInterfacesKey];
+      if (cachedName) {
+        return field.multiple ? `${cachedName}[]` : cachedName;
       }
     }
 
@@ -321,6 +319,7 @@ export default function (userOptions: TSGenOptions) {
     // Store or track the generated block interface for later use
     modularBlockInterfaces.add(modularInterface);
     cachedModularBlocks[blockInterfaceName] = blockInterfacesKey;
+    blockInterfacesKeyToName[blockInterfacesKey] = blockInterfaceName;
     return field.multiple ? `${blockInterfaceName}[]` : blockInterfaceName;
   }
 

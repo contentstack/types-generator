@@ -2,6 +2,7 @@ import { DocumentationGenerator } from "./docgen/doc";
 import NullDocumentationGenerator from "./docgen/nulldoc";
 import * as ContentstackTypes from "../types/schema";
 import * as _ from "lodash";
+import { CSLP_HELPERS } from "./shared/cslp-helpers";
 
 export type TSGenOptions = {
   docgen: DocumentationGenerator;
@@ -9,6 +10,7 @@ export type TSGenOptions = {
     prefix: string;
   };
   systemFields?: boolean;
+  isEditableTags?: boolean;
 };
 
 export type TSGenResult = {
@@ -60,6 +62,7 @@ const defaultOptions: TSGenOptions = {
     prefix: "",
   },
   systemFields: false,
+  isEditableTags: false,
 };
 
 export default function (userOptions: TSGenOptions) {
@@ -252,13 +255,30 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function visit_fields(schema: ContentstackTypes.Schema) {
-    return schema
-      .map((v) => {
-        return [options.docgen.field(v.display_name), visit_field(v)]
-          .filter((v) => v)
-          .join("\n");
-      })
-      .join("\n");
+    const fieldLines: string[] = [];
+    const dollarKeys: string[] = [];
+
+    for (const field of schema) {
+      const line = [
+        options.docgen.field(field.display_name),
+        visit_field(field),
+      ]
+        .filter((v) => v)
+        .join("\n");
+
+      fieldLines.push(line);
+      dollarKeys.push(CSLP_HELPERS.createFieldMapping(field.uid));
+    }
+
+    // If editableTags is enabled, add the $ field
+    if (options.isEditableTags) {
+      fieldLines.push(
+        CSLP_HELPERS.FIELD_COMMENT,
+        CSLP_HELPERS.createMappingBlock(dollarKeys)
+      );
+    }
+
+    return fieldLines.join("\n");
   }
 
   function visit_content_type(

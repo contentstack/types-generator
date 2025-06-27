@@ -21,6 +21,7 @@ export interface GenerateTSBase extends StackConnectionConfig {
   prefix?: string;
   includeDocumentation?: boolean;
   systemFields?: boolean;
+  isEditableTags?: boolean;
 }
 
 export type GenerateTS = GenerateTSBase;
@@ -34,4 +35,5 @@ export interface GenerateTSFromContentTypes {
   prefix?: string;
   includeDocumentation?: boolean;
   systemFields?: boolean;
+  isEditableTags?: boolean;
 }

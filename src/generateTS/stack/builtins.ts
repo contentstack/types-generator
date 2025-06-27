@@ -1,6 +1,9 @@
+import { CSLP_HELPERS } from "../shared/cslp-helpers";
+
 export const defaultInterfaces = (
   prefix = "",
   systemFields = false,
+  isEditableTags = false,
   hasJsonRte?: boolean
 ) => {
   const defaultInterfaces = [
@@ -71,6 +74,11 @@ export const defaultInterfaces = (
     };`
     );
   }
+
+  if (isEditableTags) {
+    defaultInterfaces.push(CSLP_HELPERS.INTERFACE_DEFINITION);
+  }
+
   if (systemFields) {
     defaultInterfaces.push(
       `export interface ${prefix}SystemFields {

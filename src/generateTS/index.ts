@@ -4,6 +4,7 @@ import { TOKEN_TYPE } from "../constants";
 import { initializeContentstackSdk } from "../sdk/utils";
 import {
   GenerateTS,
+  GenerateTSBase,
   GenerateTSFromContentTypes,
 } from "../types";
 import * as fs from "fs";
@@ -132,12 +133,19 @@ export const generateTSFromContentTypes = async ({
         globalFields.add(tsgenResult.definition);
       } else {
         definitions.push(tsgenResult.definition);
-
-        tsgenResult.metadata.types.globalFields.forEach((field: string) => {
-          globalFields.add(
-            tsgenResult.metadata.dependencies.globalFields[field].definition
-          );
-        });
+        try {
+          tsgenResult.metadata.types.globalFields.forEach((field: string) => {
+            globalFields.add(
+              tsgenResult.metadata.dependencies.globalFields[field].definition
+            );
+            console.log(
+              "tsgenResult.metadata.dependencies.globalFields[field].definition:",
+              tsgenResult.metadata.dependencies.globalFields[field].definition
+            );
+          });
+        } catch (error) {
+          console.log("🚀 ~ error:", error);
+        }
       }
     }
 
@@ -145,6 +153,19 @@ export const generateTSFromContentTypes = async ({
       checkJsonField(contentType.schema)
     );
 
+    fs.writeFileSync(
+      "/Users/naman.dembla/Documents/type-gen/types-generator/generated.ts",
+      JSON.parse(
+        JSON.stringify(
+          [
+            defaultInterfaces(prefix, systemFields, hasJsonField).join("\n\n"),
+            [...globalFields].join("\n\n"),
+            definitions.join("\n\n"),
+          ].join("\n\n")
+        )
+      ),
+      "utf-8"
+    );
     const output = await format(
       [
         defaultInterfaces(prefix, systemFields, hasJsonField).join("\n\n"),
@@ -200,9 +221,37 @@ const checkJsonField = (schema: any[]): boolean => {
     }
 
     if (field.data_type === "blocks" && Array.isArray(field.blocks)) {
-      return field.blocks.some((block: { schema: any; }) => checkJsonField(block.schema || []));
+      return field.blocks.some((block: { schema: any }) =>
+        checkJsonField(block.schema || [])
+      );
     }
 
     return false;
   });
-}
+};
+
+const fun = async () => {
+  try {
+    const config = JSON.parse(
+      fs.readFileSync(
+        "/Users/naman.dembla/Documents/type-gen/types-generator/data.json",
+        "utf-8"
+      )
+    );
+
+    const val = await generateTSFromContentTypes({
+      contentTypes: config,
+      prefix: "",
+      includeDocumentation: false,
+      systemFields: true,
+    });
+    fs.writeFileSync(
+      "/Users/naman.dembla/Documents/type-gen/types-generator/generated.ts",
+      JSON.parse(JSON.stringify(val)),
+      "utf-8"
+    );
+  } catch (err: any) {
+    console.log("🚀 ~ fun ~ err:", err);
+  }
+};
+fun();

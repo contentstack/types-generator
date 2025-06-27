@@ -133,9 +133,19 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function name_type(uid: string) {
-    return [options?.naming?.prefix, _.upperFirst(_.camelCase(uid))]
-      .filter((v) => v)
-      .join("");
+    const camelCaseName = _.upperFirst(_.camelCase(uid));
+    const finalName = /^\d/.test(camelCaseName)
+      ? `Type${camelCaseName}`
+      : camelCaseName;
+    return [options?.naming?.prefix, finalName].filter((v) => v).join("");
+  }
+
+  function name_property(uid: string) {
+    const camelCaseName = _.camelCase(uid);
+    const finalName = /^\d/.test(camelCaseName)
+      ? `field${_.upperFirst(camelCaseName)}`
+      : camelCaseName;
+    return finalName;
   }
 
   function define_interface(
@@ -248,7 +258,7 @@ export default function (userOptions: TSGenOptions) {
         : "";
 
     // Ensure the formatting is correct, and avoid concatenating field.uid directly to a string
-    return `${field.uid}${requiredFlag}: ${fieldType}${typeModifier};`;
+    return `${name_property(field.uid)}${requiredFlag}: ${fieldType}${typeModifier};`;
   }
 
   function visit_fields(schema: ContentstackTypes.Schema) {
@@ -291,7 +301,7 @@ export default function (userOptions: TSGenOptions) {
       const blockSchemaDefinition = block.reference_to
         ? `${blockFieldType};`
         : `{\n ${blockFieldType} }`;
-      return `${block.uid}: ${blockSchemaDefinition}`;
+      return `${name_property(block.uid)}: ${blockSchemaDefinition}`;
     });
     const modularBlockSignature = JSON.stringify(modularBlockDefinitions);
 

@@ -153,8 +153,7 @@ export const generateTSFromContentTypes = async ({
       checkJsonField(contentType.schema)
     );
 
-    fs.writeFileSync(
-      "/Users/naman.dembla/Documents/type-gen/types-generator/generated.ts",
+    console.log(
       JSON.parse(
         JSON.stringify(
           [
@@ -163,9 +162,9 @@ export const generateTSFromContentTypes = async ({
             definitions.join("\n\n"),
           ].join("\n\n")
         )
-      ),
-      "utf-8"
+      )
     );
+
     const output = await format(
       [
         defaultInterfaces(prefix, systemFields, hasJsonField).join("\n\n"),
@@ -230,28 +229,28 @@ const checkJsonField = (schema: any[]): boolean => {
   });
 };
 
-const fun = async () => {
-  try {
-    const config = JSON.parse(
-      fs.readFileSync(
-        "/Users/naman.dembla/Documents/type-gen/types-generator/data.json",
-        "utf-8"
-      )
-    );
+// const fun = async () => {
+//   try {
+//     const config = JSON.parse(
+//       fs.readFileSync(
+//         "/Users/naman.dembla/Documents/type-gen/types-generator/data.json",
+//         "utf-8"
+//       )
+//     );
 
-    const val = await generateTSFromContentTypes({
-      contentTypes: config,
-      prefix: "",
-      includeDocumentation: false,
-      systemFields: true,
-    });
-    fs.writeFileSync(
-      "/Users/naman.dembla/Documents/type-gen/types-generator/generated.ts",
-      JSON.parse(JSON.stringify(val)),
-      "utf-8"
-    );
-  } catch (err: any) {
-    console.log("🚀 ~ fun ~ err:", err);
-  }
-};
-fun();
+//     const val = await generateTSFromContentTypes({
+//       contentTypes: config,
+//       prefix: "",
+//       includeDocumentation: false,
+//       systemFields: true,
+//     });
+//     fs.writeFileSync(
+//       "/Users/naman.dembla/Documents/type-gen/types-generator/generated.ts",
+//       JSON.parse(JSON.stringify(val)),
+//       "utf-8"
+//     );
+//   } catch (err: any) {
+//     console.log("🚀 ~ fun ~ err:", err);
+//   }
+// };
+// fun();

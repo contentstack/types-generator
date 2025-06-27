@@ -7,7 +7,7 @@ fileignoreconfig:
   - filename: .husky/pre-commit
     checksum: 5baabd7d2c391648163f9371f0e5e9484f8fb90fa2284cfc378732ec3192c193
   - filename: src/generateTS/factory.ts
-    checksum: 0a693ed8cc35d373f3c88d2ca6b538648d2594e83c495e841546c161e419c8fe
+    checksum: d812bfa707bea8c9f2508e96219406b5b9c3b5bf061b812b7182c92e415e53b1
   - filename: tests/integration/generateTS/generateTS.test.ts
     checksum: 328090da57e8cb2dd616091f3336b6da77a253f97ddfd47e3e1dd683260e58eb
   - filename: src/generateTS/shared/cslp-helpers.ts

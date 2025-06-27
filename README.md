@@ -6,10 +6,9 @@ This library helps to generate TypeScript type definition for the content types 
 
 `$ npm install @contentstack/types-generator`
 
-
 ## Migration
-Refer to the [Migration Guide](https://github.com/contentstack/types-generator/blob/main/MIGRATION.md) version 3 if you are migrating from version 2 or older.
 
+Refer to the [Migration Guide](https://github.com/contentstack/types-generator/blob/main/MIGRATION.md) version 3 if you are migrating from version 2 or older.
 
 ## Usage
 
@@ -33,17 +32,17 @@ This is an asynchronous method which generates Typescript type definition of the
 
 **Input:**
 
-| Property Name        | Description                                                                        | Data type | Accepted values                                              | Mandatory | Default value |
-| -------------------- | ---------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------ | --------- | ------------- |
-| token                | Unique identifier used for authorization                                           | String    |                                                              | Yes       |               |
-| tokenType            | Type of token being provided (Currently we are supporting only delivery token)     | String    | delivery                                                     | Yes       |               |
-| apiKey               | Stack API key                                                                      | String    |                                                              | Yes       |               |
-| environment          | Name of the environment (example: development, staging, production)                | String    |                                                              | Yes       |               |
-| region               | Contentstack API region                                                            | String    | US (for AWS NA), EU (for AWS EU), AZURE_NA, AZURE_EU, GCP_NA | Yes       |               |
-| branch               | Stack branch name                                                                  | String    |                                                              | No        |               |
-| prefix               | Optional prefix to add for each interface                                          | String    |                                                              | No        |               |
-| includeDocumentation | To add content type documentation in the generated file                            | boolean   | true, false                                                  | No        | true          |
-| systemFields         | Boolean flag indicating whether to include system-generated fields in the response | boolean   | true, false                                                  | No        | false         |
+| Property Name        | Description                                                                        | Data type | Accepted values                                                               | Mandatory | Default value |
+| -------------------- | ---------------------------------------------------------------------------------- | --------- | ----------------------------------------------------------------------------- | --------- | ------------- |
+| token                | Unique identifier used for authorization                                           | String    |                                                                               | Yes       |               |
+| tokenType            | Type of token being provided (Currently we are supporting only delivery token)     | String    | delivery                                                                      | Yes       |               |
+| apiKey               | Stack API key                                                                      | String    |                                                                               | Yes       |               |
+| environment          | Name of the environment (example: development, staging, production)                | String    |                                                                               | Yes       |               |
+| region               | Contentstack API region                                                            | String    | US (for AWS NA), EU (for AWS EU), AU (for AWS AU), AZURE_NA, AZURE_EU, GCP_NA | Yes       |               |
+| branch               | Stack branch name                                                                  | String    |                                                                               | No        |               |
+| prefix               | Optional prefix to add for each interface                                          | String    |                                                                               | No        |               |
+| includeDocumentation | To add content type documentation in the generated file                            | boolean   | true, false                                                                   | No        | true          |
+| systemFields         | Boolean flag indicating whether to include system-generated fields in the response | boolean   | true, false                                                                   | No        | false         |
 
 **Output:**
 
@@ -169,14 +168,14 @@ This is an asynchronous method which generates Typescript type definition of the
 
 **Input:**
 
-| Property Name | Description                                                                               | Data type | Accepted values                                              | Mandatory |
-| ------------- | ----------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------ | --------- |
-| token         | Unique identifier used for authorization. This should be the delivery token of the stack. | String    |                                                              | Yes       |
-| apiKey        | Stack API key                                                                             | String    |                                                              | Yes       |
-| environment   | Name of the environment (example: development, staging, production)                       | String    |                                                              | Yes       |
-| region        | Contentstack API region                                                                   | String    | US (for AWS NA), EU (for AWS EU), AZURE_NA, AZURE_EU, GCP_NA | Yes       |
-| branch        | Stack branch name                                                                         | String    |                                                              | No        |
-| namespace     | Identifies the specific namespace within schema                                           | String    |                                                              | No        |
+| Property Name | Description                                                                               | Data type | Accepted values                                                               | Mandatory |
+| ------------- | ----------------------------------------------------------------------------------------- | --------- | ----------------------------------------------------------------------------- | --------- |
+| token         | Unique identifier used for authorization. This should be the delivery token of the stack. | String    |                                                                               | Yes       |
+| apiKey        | Stack API key                                                                             | String    |                                                                               | Yes       |
+| environment   | Name of the environment (example: development, staging, production)                       | String    |                                                                               | Yes       |
+| region        | Contentstack API region                                                                   | String    | US (for AWS NA), EU (for AWS EU), AU (for AWS AU), AZURE_NA, AZURE_EU, GCP_NA | Yes       |
+| branch        | Stack branch name                                                                         | String    |                                                                               | No        |
+| namespace     | Identifies the specific namespace within schema                                           | String    |                                                                               | No        |
 
 **Output:**
 

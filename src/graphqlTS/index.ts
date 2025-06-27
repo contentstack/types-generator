@@ -10,9 +10,11 @@ type RegionUrlMap = {
 const GRAPHQL_REGION_URL_MAPPING: RegionUrlMap = {
   US: "https://graphql.contentstack.com/stacks",
   EU: "https://eu-graphql.contentstack.com/stacks",
+  AU: "https://au-graphql.contentstack.com/stacks",
   AZURE_NA: "https://azure-na-graphql.contentstack.com/stacks",
   AZURE_EU: "https://azure-eu-graphql.contentstack.com/stacks",
   GCP_NA: "https://gcp-na-graphql.contentstack.com/stacks",
+  GCP_EU: "https://gcp-eu-graphql.contentstack.com/stacks",
 };
 
 export async function graphqlTS({

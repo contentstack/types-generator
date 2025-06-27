@@ -18,10 +18,14 @@ export const initializeContentstackSdk = ({
           return Region.US;
         case REGIONS.EU:
           return Region.EU;
+        case REGIONS.AU:
+          return Region.AU;
         case REGIONS.AWS_NA:
           return Region.US;
         case REGIONS.AWS_EU:
           return Region.EU;
+        case REGIONS.AWS_AU:
+          return Region.AU;
         case REGIONS.AZURE_NA:
           return Region.AZURE_NA;
         case REGIONS.AZURE_EU:

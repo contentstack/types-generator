@@ -19,7 +19,6 @@ describe("JSON RTE", () => {
     expect(result.definition).toMatchInlineSnapshot(`
     "export interface Home
     {
-    /** Version */
     _version?: number;
     title: string;
     custom_key_value_pair?: { value: { key: string; value: string }[] };

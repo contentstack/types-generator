@@ -289,7 +289,7 @@ export default function (userOptions: TSGenOptions) {
       options.docgen.interface(contentType.description),
       define_interface(contentType, options.systemFields),
       "{",
-      ["/**", "Version", "*/"].join(" "),
+      options.docgen.versionComment(),
       `_version?: number;`,
       visit_fields(contentType.schema),
       "}",
@@ -334,7 +334,7 @@ export default function (userOptions: TSGenOptions) {
     }
 
     const modularBlockInterfaceDefinition = [
-      `export interface ${modularBlockInterfaceName} {`,
+      `export interface ${modularBlockInterfaceName}${options.systemFields ? ` extends ${options.naming?.prefix || ""}SystemFields` : ""} {`,
       modularBlockDefinitions.join("\n"),
       "}",
     ].join("\n");

@@ -10,4 +10,8 @@ export default class NullDocumentationGenerator
   field(__description: string) {
     return null;
   }
+
+  versionComment() {
+    return null;
+  }
 }

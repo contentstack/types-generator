@@ -1,6 +1,7 @@
 const testData = require("./json-rte.ct");
 
 import NullDocumentationGenerator from "../../../src/generateTS/docgen/nulldoc";
+
 import tsgenFactory from "../../../src/generateTS/factory";
 
 const tsgen = tsgenFactory({
@@ -14,7 +15,6 @@ describe("JSON RTE", () => {
     expect(result.definition).toMatchInlineSnapshot(`
     "export interface Home
     {
-    /** Version */
     _version?: number;
     json_rte?: {
           type: string;

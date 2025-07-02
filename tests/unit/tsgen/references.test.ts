@@ -25,7 +25,6 @@ describe("references", () => {
     expect(result.definition).toMatchInlineSnapshot(`
       "export interface IReferenceParent
       {
-      /** Version */
       _version?: number;
       title: string;
       url: string;

@@ -39,7 +39,6 @@ describe("global fields", () => {
     expect(globalFields[0]).toMatchInlineSnapshot(`
       "export interface INewGlobal
       {
-      /** Version */
       _version?: number;
       single_line_textbox?: string;
       }"
@@ -50,7 +49,6 @@ describe("global fields", () => {
     expect(definitions[0]).toMatchInlineSnapshot(`
       "export interface IHome
       {
-      /** Version */
       _version?: number;
       title: string;
       taxonomies?: ITaxonomy[];

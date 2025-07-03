@@ -2,6 +2,7 @@ import { DocumentationGenerator } from "./docgen/doc";
 import NullDocumentationGenerator from "./docgen/nulldoc";
 import * as ContentstackTypes from "../types/schema";
 import * as _ from "lodash";
+import { CSLP_HELPERS } from "./shared/cslp-helpers";
 
 export type TSGenOptions = {
   docgen: DocumentationGenerator;
@@ -9,6 +10,7 @@ export type TSGenOptions = {
     prefix: string;
   };
   systemFields?: boolean;
+  isEditableTags?: boolean;
 };
 
 export type TSGenResult = {
@@ -60,6 +62,7 @@ const defaultOptions: TSGenOptions = {
     prefix: "",
   },
   systemFields: false,
+  isEditableTags: false,
 };
 
 export default function (userOptions: TSGenOptions) {
@@ -72,6 +75,7 @@ export default function (userOptions: TSGenOptions) {
   const cachedModularBlocks: ModularBlockCache = {};
   const modularBlockInterfaces = new Set<string>();
   const uniqueBlockInterfaces = new Set<string>();
+  const blockInterfacesKeyToName: { [key: string]: string } = {};
   let counter = 1;
 
   const typeMap: TypeMap = {
@@ -251,13 +255,30 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function visit_fields(schema: ContentstackTypes.Schema) {
-    return schema
-      .map((v) => {
-        return [options.docgen.field(v.display_name), visit_field(v)]
-          .filter((v) => v)
-          .join("\n");
-      })
-      .join("\n");
+    const fieldLines: string[] = [];
+    const dollarKeys: string[] = [];
+
+    for (const field of schema) {
+      const line = [
+        options.docgen.field(field.display_name),
+        visit_field(field),
+      ]
+        .filter((v) => v)
+        .join("\n");
+
+      fieldLines.push(line);
+      dollarKeys.push(CSLP_HELPERS.createFieldMapping(field.uid));
+    }
+
+    // If editableTags is enabled, add the $ field
+    if (options.isEditableTags) {
+      fieldLines.push(
+        CSLP_HELPERS.FIELD_COMMENT,
+        CSLP_HELPERS.createMappingBlock(dollarKeys)
+      );
+    }
+
+    return fieldLines.join("\n");
   }
 
   function visit_content_type(
@@ -268,7 +289,7 @@ export default function (userOptions: TSGenOptions) {
       options.docgen.interface(contentType.description),
       define_interface(contentType, options.systemFields),
       "{",
-      ["/**", "Version", "*/"].join(" "),
+      options.docgen.versionComment(),
       `_version?: number;`,
       visit_fields(contentType.schema),
       "}",
@@ -280,39 +301,51 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function type_modular_blocks(field: ContentstackTypes.Field): string {
-    let blockInterfaceName = name_type(field.uid);
+    let modularBlockInterfaceName = name_type(field.uid);
 
-    const blockInterfaces = field.blocks.map((block) => {
-      const fieldType = block.reference_to
+    const modularBlockDefinitions = field.blocks.map((block) => {
+      const blockFieldType = block.reference_to
         ? name_type(block.reference_to)
         : visit_fields(block.schema || []);
 
-      const schema = block.reference_to
-        ? `${fieldType};`
-        : `{\n ${fieldType} }`;
-      return `${block.uid}: ${schema}`;
+      const blockSchemaDefinition = block.reference_to
+        ? `${blockFieldType};`
+        : `{\n ${blockFieldType} }`;
+      return `${block.uid}: ${blockSchemaDefinition}`;
     });
-    const blockInterfacesKey = blockInterfaces.join(";");
+    const modularBlockSignature = JSON.stringify(modularBlockDefinitions);
 
-    if (!uniqueBlockInterfaces.has(blockInterfacesKey)) {
-      uniqueBlockInterfaces.add(blockInterfacesKey);
-      // Keep appending a counter until a unique name is found
-      while (cachedModularBlocks[blockInterfaceName]) {
-        blockInterfaceName = `${blockInterfaceName}${counter}`;
-        counter++;
+    if (uniqueBlockInterfaces.has(modularBlockSignature)) {
+      // Find the existing interface name for this structure using O(1) lookup
+      const existingInterfaceName =
+        blockInterfacesKeyToName[modularBlockSignature];
+      if (existingInterfaceName) {
+        return field.multiple
+          ? `${existingInterfaceName}[]`
+          : existingInterfaceName;
       }
     }
 
-    const modularInterface = [
-      `export interface ${blockInterfaceName} {`,
-      blockInterfaces.join("\n"),
+    uniqueBlockInterfaces.add(modularBlockSignature);
+
+    while (cachedModularBlocks[modularBlockInterfaceName]) {
+      modularBlockInterfaceName = `${modularBlockInterfaceName}${counter}`;
+      counter++;
+    }
+
+    const modularBlockInterfaceDefinition = [
+      `export interface ${modularBlockInterfaceName}${options.systemFields ? ` extends ${options.naming?.prefix || ""}SystemFields` : ""} {`,
+      modularBlockDefinitions.join("\n"),
       "}",
     ].join("\n");
 
     // Store or track the generated block interface for later use
-    modularBlockInterfaces.add(modularInterface);
-    cachedModularBlocks[blockInterfaceName] = blockInterfaceName;
-    return field.multiple ? `${blockInterfaceName}[]` : blockInterfaceName;
+    modularBlockInterfaces.add(modularBlockInterfaceDefinition);
+    cachedModularBlocks[modularBlockInterfaceName] = modularBlockSignature;
+    blockInterfacesKeyToName[modularBlockSignature] = modularBlockInterfaceName;
+    return field.multiple
+      ? `${modularBlockInterfaceName}[]`
+      : modularBlockInterfaceName;
   }
 
   function type_group(field: ContentstackTypes.Field) {

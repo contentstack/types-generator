@@ -14,7 +14,6 @@ describe("all options", () => {
     expect(result.definition).toMatchInlineSnapshot(`
       "export interface Options
       {
-      /** Version */
       _version?: number;
       title: string;
       url: string;

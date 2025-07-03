@@ -1,6 +1,9 @@
+import { CSLP_HELPERS } from "../shared/cslp-helpers";
+
 export const defaultInterfaces = (
   prefix = "",
   systemFields = false,
+  isEditableTags = false,
   hasJsonRte?: boolean
 ) => {
   const defaultInterfaces = [
@@ -33,6 +36,10 @@ export const defaultInterfaces = (
               title: string;
               _metadata?:object;
               description?:string;
+              dimension?: {
+                height: number;
+                width: number;
+            }
               publish_details: ${prefix}PublishDetails;
           }`,
     `export interface ${prefix}Link { 
@@ -71,6 +78,11 @@ export const defaultInterfaces = (
     };`
     );
   }
+
+  if (isEditableTags) {
+    defaultInterfaces.push(CSLP_HELPERS.INTERFACE_DEFINITION);
+  }
+
   if (systemFields) {
     defaultInterfaces.push(
       `export interface ${prefix}SystemFields {

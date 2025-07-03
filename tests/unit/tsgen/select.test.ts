@@ -20,7 +20,6 @@ describe("select (dropdown)", () => {
     expect(result.definition).toMatchInlineSnapshot(`
       "export interface Select
       {
-      /** Version */
       _version?: number;
       title: string;
       select_single_value?: ("Option 1" | "Option 2" | "Option 3") | null;

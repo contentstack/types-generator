@@ -21,7 +21,6 @@ describe("builtin string fields", () => {
     expect(result.definition).toMatchInlineSnapshot(`
       "export interface BuiltinStrings
       {
-      /** Version */
       _version?: number;
       title: string;
       single_line?: string;

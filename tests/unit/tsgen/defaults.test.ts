@@ -17,7 +17,6 @@ describe("default single content block", () => {
     expect(result.definition).toMatchInlineSnapshot(`
       "export interface IMetadataSingleContentBlock
       {
-      /** Version */
       _version?: number;
       title: string;
       }"
@@ -43,7 +42,6 @@ describe("default single webpage", () => {
     expect(result.definition).toMatchInlineSnapshot(`
       "export interface IMetadataSingleWebpage
       {
-      /** Version */
       _version?: number;
       title: string;
       url: string;

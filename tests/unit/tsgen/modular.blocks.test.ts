@@ -33,12 +33,56 @@ describe("modular blocks", () => {
 
       export interface ModularBlocks
       {
-      /** Version */
       _version?: number;
       title: string;
       url: string;
       modular_blocks?: ModularBlocks[];
       }"
     `);
+  });
+});
+
+describe("modular blocks with system fields", () => {
+  const tsgenWithSystemFields = tsgenFactory({
+    docgen: new NullDocumentationGenerator(),
+    systemFields: true,
+  });
+
+  const result = tsgenWithSystemFields(testData.modularBlocks);
+
+  test("modular block interfaces extend SystemFields", () => {
+    expect(result.definition).toContain(
+      "export interface ModularBlocks extends SystemFields {"
+    );
+  });
+
+  test("content type interface extends SystemFields", () => {
+    expect(result.definition).toContain(
+      "export interface ModularBlocks extends SystemFields {"
+    );
+  });
+
+  test("modular block interface contains all expected fields", () => {
+    expect(result.definition).toContain("string_block:");
+    expect(result.definition).toContain("string_block_with_options:");
+    expect(result.definition).toContain("boolean_block:");
+  });
+});
+
+describe("modular blocks with system fields and prefix", () => {
+  const tsgenWithSystemFieldsAndPrefix = tsgenFactory({
+    docgen: new NullDocumentationGenerator(),
+    systemFields: true,
+    naming: {
+      prefix: "I",
+    },
+  });
+
+  const result = tsgenWithSystemFieldsAndPrefix(testData.modularBlocks);
+
+  test("modular block interfaces extend prefixed SystemFields", () => {
+    expect(result.definition).toContain(
+      "export interface IModularBlocks extends ISystemFields {"
+    );
   });
 });

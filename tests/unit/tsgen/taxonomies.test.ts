@@ -26,7 +26,6 @@ describe("builtin taxonomies field", () => {
     expect(result.definition).toMatchInlineSnapshot(`
       "export interface ITaxonomy
       {
-      /** Version */
       _version?: number;
       title: string;
       boolean: boolean;

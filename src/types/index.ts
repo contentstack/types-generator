@@ -4,8 +4,10 @@ export interface StackConnectionConfig {
   region:
     | "US"
     | "EU"
+    | "AU"
     | "AWS-NA"
     | "AWS-EU"
+    | "AWS-AU"
     | "AZURE_NA"
     | "AZURE_EU"
     | "GCP_NA"
@@ -21,6 +23,7 @@ export interface GenerateTSBase extends StackConnectionConfig {
   prefix?: string;
   includeDocumentation?: boolean;
   systemFields?: boolean;
+  isEditableTags?: boolean;
 }
 
 export type GenerateTS = GenerateTSBase;
@@ -34,4 +37,5 @@ export interface GenerateTSFromContentTypes {
   prefix?: string;
   includeDocumentation?: boolean;
   systemFields?: boolean;
+  isEditableTags?: boolean;
 }

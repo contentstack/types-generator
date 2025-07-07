@@ -11,6 +11,10 @@ export default class JSDocumentationGenerator
     return description ? this.block(description) : null;
   }
 
+  versionComment() {
+    return "/** Version */";
+  }
+
   private block(description: string) {
     return ["/**", description, "*/"].join(" ");
   }

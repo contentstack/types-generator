@@ -272,10 +272,13 @@ export default function (userOptions: TSGenOptions) {
 
     // If editableTags is enabled, add the $ field
     if (options.isEditableTags) {
-      fieldLines.push(
-        CSLP_HELPERS.FIELD_COMMENT,
-        CSLP_HELPERS.createMappingBlock(dollarKeys)
+      const fieldComment = options.docgen.field(
+        "CSLP mapping for editable fields"
       );
+      const lines = fieldComment
+        ? [fieldComment, CSLP_HELPERS.createMappingBlock(dollarKeys)]
+        : [CSLP_HELPERS.createMappingBlock(dollarKeys)];
+      fieldLines.push(...lines);
     }
 
     return fieldLines.join("\n");
@@ -399,7 +402,20 @@ export default function (userOptions: TSGenOptions) {
       references.push(name_type(field.reference_to));
     }
 
-    return ["(", references.join(" | "), ")", "[]"].join("");
+    // Use the ReferencedEntry interface from builtins
+    const referencedEntryType = `${options.naming?.prefix || ""}ReferencedEntry`;
+
+    // If there's only one reference type, create a simple union
+    if (references.length === 1) {
+      return `(${references[0]} | ${referencedEntryType})[]`;
+    }
+
+    // If there are multiple reference types, create separate unions for each
+    const unionTypes = references.map((refType) => {
+      return `(${refType} | ${referencedEntryType})`;
+    });
+
+    return `${unionTypes.join(" | ")}[]`;
   }
 
   return function (

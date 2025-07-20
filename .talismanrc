@@ -3,7 +3,7 @@ fileignoreconfig:
     ignore_detectors:
       - filecontent
   - filename: package-lock.json
-    checksum: 1d240c73925f883935b08529e87a96851d2372ec112c7f625f1d5fd36a6665e9
+    checksum: 91f95329bfad51e02bef9c6ae8626cc31307f8ee9bd2947ed081484f4b7800a2
   - filename: .husky/pre-commit
     checksum: 5baabd7d2c391648163f9371f0e5e9484f8fb90fa2284cfc378732ec3192c193
   - filename: src/generateTS/factory.ts

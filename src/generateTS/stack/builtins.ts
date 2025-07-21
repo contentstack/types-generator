@@ -12,6 +12,10 @@ export const defaultInterfaces = (
     `type TuplePrefixes<T extends any[]> = 
     T extends [any, ...infer Rest] ? T | TuplePrefixes<Rest extends any[] ? Rest : []> : []`,
     `type MaxTuple<T, N extends number> = TuplePrefixes<BuildTuple<T, N>>`,
+    `export interface ${prefix}ReferencedEntry {
+            uid: string;
+            _content_type_uid: string;
+        }`,
     `export interface ${prefix}PublishDetails {
             environment: string;
             locale: string;

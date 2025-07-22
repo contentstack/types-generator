@@ -4,6 +4,11 @@ import * as ContentstackTypes from "../types/schema";
 import * as _ from "lodash";
 import { CSLP_HELPERS } from "./shared/cslp-helpers";
 import { cliux } from "@contentstack/cli-utilities";
+import {
+  isNumericIdentifier,
+  NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+  checkNumericIdentifierExclusion,
+} from "./shared/utils";
 
 export type TSGenOptions = {
   docgen: DocumentationGenerator;
@@ -86,11 +91,6 @@ export default function (userOptions: TSGenOptions) {
     [];
   const skippedBlocks: Array<{ uid: string; path: string; reason: string }> =
     [];
-
-  // Helper function to check if a key starts with a number
-  function isNumericKey(key: string): boolean {
-    return /^\d/.test(key);
-  }
 
   const typeMap: TypeMap = {
     text: { func: type_text, track: true, flag: TypeFlags.BuiltinJS },
@@ -234,7 +234,7 @@ export default function (userOptions: TSGenOptions) {
           `Skipped field "${field.uid}" with unknown type "${field.data_type}": ${reason}`,
           { color: "yellow" }
         );
-        type = "unknown"; // Use unknown as fallback for better type safety
+        type = "Record<string, unknown>"; // Use Record<string, unknown> for balanced type safety
       }
     }
 
@@ -243,12 +243,14 @@ export default function (userOptions: TSGenOptions) {
 
   const handleGlobalField = (field: ContentstackTypes.Field): string => {
     // Skip global field references with numeric UIDs
-    if (isNumericKey(field.reference_to)) {
-      const reason =
-        "TypeScript constraint: object keys cannot start with numbers";
-      skippedFields.push({ uid: field.uid, path: field.uid, reason });
+    const exclusionCheck = checkNumericIdentifierExclusion(
+      field.reference_to,
+      field.uid
+    );
+    if (exclusionCheck.shouldExclude) {
+      skippedFields.push(exclusionCheck.record!);
       cliux.print(
-        `Skipped global field reference "${field.uid}" to "${field.reference_to}": ${reason}`,
+        `Skipped global field reference "${field.uid}" to "${field.reference_to}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`,
         { color: "yellow" }
       );
       return "string"; // Use string as fallback for global field references
@@ -295,17 +297,15 @@ export default function (userOptions: TSGenOptions) {
 
     for (const field of schema) {
       // Skip fields with numeric UIDs
-      if (isNumericKey(field.uid)) {
-        const fieldPath = path ? `${path}.${field.uid}` : field.uid;
-        const reason =
-          "TypeScript constraint: object keys cannot start with numbers";
-        skippedFields.push({
-          uid: field.uid,
-          path: fieldPath,
-          reason,
-        });
+      const fieldPath = path ? `${path}.${field.uid}` : field.uid;
+      const exclusionCheck = checkNumericIdentifierExclusion(
+        field.uid,
+        fieldPath
+      );
+      if (exclusionCheck.shouldExclude) {
+        skippedFields.push(exclusionCheck.record!);
         cliux.print(
-          ` Skipped field "${field.uid}" at path "${fieldPath}": ${reason}`,
+          `Skipped field "${field.uid}" at path "${fieldPath}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`,
           { color: "yellow" }
         );
         continue;
@@ -361,17 +361,15 @@ export default function (userOptions: TSGenOptions) {
     const modularBlockDefinitions = field.blocks
       .map((block) => {
         // Skip blocks with numeric UIDs
-        if (isNumericKey(block.uid)) {
-          const blockPath = `${field.uid}.blocks.${block.uid}`;
-          const reason =
-            "TypeScript constraint: object keys cannot start with numbers";
-          skippedBlocks.push({
-            uid: block.uid,
-            path: blockPath,
-            reason,
-          });
+        const blockPath = `${field.uid}.blocks.${block.uid}`;
+        const exclusionCheck = checkNumericIdentifierExclusion(
+          block.uid,
+          blockPath
+        );
+        if (exclusionCheck.shouldExclude) {
+          skippedBlocks.push(exclusionCheck.record!);
           cliux.print(
-            `Skipped block "${block.uid}" at path "${blockPath}": ${reason}`,
+            `Skipped block "${block.uid}" at path "${blockPath}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`,
             { color: "yellow" }
           );
           return null; // Return null to filter out later
@@ -467,13 +465,18 @@ export default function (userOptions: TSGenOptions) {
 
   function type_global_field(field: ContentstackTypes.GlobalField) {
     // Skip global fields with numeric UIDs
-    if (isNumericKey(field.uid)) {
-      const reason =
-        "TypeScript constraint: object keys cannot start with numbers";
-      skippedFields.push({ uid: field.uid, path: field.uid, reason });
-      cliux.print(`Skipped global field "${field.uid}": ${reason}`, {
-        color: "yellow",
-      });
+    const exclusionCheck = checkNumericIdentifierExclusion(
+      field.uid,
+      field.uid
+    );
+    if (exclusionCheck.shouldExclude) {
+      skippedFields.push(exclusionCheck.record!);
+      cliux.print(
+        `Skipped global field "${field.uid}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`,
+        {
+          color: "yellow",
+        }
+      );
       return "string"; // Use string as fallback for global fields
     }
 
@@ -496,22 +499,22 @@ export default function (userOptions: TSGenOptions) {
     if (Array.isArray(field.reference_to)) {
       field.reference_to.forEach((v) => {
         // Skip references to content types with numeric names
-        if (!isNumericKey(v)) {
+        if (!isNumericIdentifier(v)) {
           references.push(name_type(v));
         } else {
           cliux.print(
-            `Skipped reference to content type "${v}": TypeScript constraint: object keys cannot start with numbers`,
+            `Skipped reference to content type "${v}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`,
             { color: "yellow" }
           );
         }
       });
     } else {
       // Skip references to content types with numeric names
-      if (!isNumericKey(field.reference_to)) {
+      if (!isNumericIdentifier(field.reference_to)) {
         references.push(name_type(field.reference_to));
       } else {
         cliux.print(
-          `Skipped reference to content type "${field.reference_to}": TypeScript constraint: object keys cannot start with numbers`,
+          `Skipped reference to content type "${field.reference_to}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`,
           { color: "yellow" }
         );
       }
@@ -558,7 +561,8 @@ export default function (userOptions: TSGenOptions) {
 
     // Log summary table of skipped fields and blocks
     if (skippedFields.length > 0 || skippedBlocks.length > 0) {
-      cliux.print("\n Summary of Skipped Items:", {
+      cliux.print("");
+      cliux.print("Summary of Skipped Items:", {
         color: "cyan",
         bold: true,
       });
@@ -591,7 +595,8 @@ export default function (userOptions: TSGenOptions) {
       );
 
       const totalSkipped = skippedFields.length + skippedBlocks.length;
-      cliux.print(`\n Total skipped items: ${totalSkipped}`, {
+      cliux.print("", {});
+      cliux.print(`Total skipped items: ${totalSkipped}`, {
         color: "yellow",
       });
       cliux.success(" Generation completed successfully with partial schema.");

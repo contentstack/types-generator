@@ -46,6 +46,7 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@contentstack/cli-utilities": "^1.12.1",
     "@contentstack/delivery-sdk": "^4.8.0",
     "@gql2ts/from-schema": "^2.0.0-4",
     "async": "^3.2.6",

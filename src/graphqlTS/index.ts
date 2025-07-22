@@ -2,6 +2,7 @@ import { schemaToInterfaces, generateNamespace } from "@gql2ts/from-schema";
 import { GraphQLBase } from "../types";
 import { introspectionQuery } from "./queries";
 import axios from "axios";
+import { cliux } from "@contentstack/cli-utilities";
 
 type RegionUrlMap = {
   [prop: string]: string;
@@ -28,6 +29,13 @@ export async function graphqlTS({
 }: GraphQLBase) {
   try {
     if (!token || !apiKey || !environment || !region) {
+      cliux.print("Missing required parameters", {
+        color: "red",
+        bold: true,
+      });
+      cliux.print("Required: token, apiKey, environment, region", {
+        color: "yellow",
+      });
       throw {
         type: "validation",
         error_message:
@@ -56,6 +64,15 @@ export async function graphqlTS({
     }
 
     if (!GRAPHQL_REGION_URL_MAPPING[region] && !host) {
+      cliux.print(`Unsupported region: ${region}`, {
+        color: "red",
+        bold: true,
+      });
+      cliux.print(
+        "🌍 Supported regions: US, EU, AU, AZURE_NA, AZURE_EU, GCP_NA, GCP_EU",
+        { color: "yellow" }
+      );
+      cliux.print("Or provide a custom host", { color: "yellow" });
       throw {
         type: "validation",
         error_message: `GraphQL content delivery api unavailable for '${region}' region and no custom host provided`,

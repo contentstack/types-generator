@@ -114,10 +114,11 @@ describe("numeric key handling", () => {
     ).toBe(true);
     // Check that table was called with correct data
     expect(tableOutput).toHaveLength(1); // One combined table
-    expect(tableOutput[0].headers).toHaveLength(3);
+    expect(tableOutput[0].headers).toHaveLength(4);
     expect(tableOutput[0].headers[0].value).toBe("Type");
     expect(tableOutput[0].headers[1].value).toBe("Key Name");
     expect(tableOutput[0].headers[2].value).toBe("Schema Path");
+    expect(tableOutput[0].headers[3].value).toBe("Reason");
     expect(tableOutput[0].data).toHaveLength(2); // 2 skipped fields
     expect(
       successOutput.some((log) =>

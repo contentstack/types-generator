@@ -3,13 +3,7 @@ fileignoreconfig:
     ignore_detectors:
       - filecontent
   - filename: package-lock.json
-    checksum: 91f95329bfad51e02bef9c6ae8626cc31307f8ee9bd2947ed081484f4b7800a2
+    checksum: 863e4c99d7da6be90dc7af0a2744a470092019418ab1ff6f2c8e87b40a25eb59
   - filename: .husky/pre-commit
     checksum: 5baabd7d2c391648163f9371f0e5e9484f8fb90fa2284cfc378732ec3192c193
-  - filename: src/generateTS/factory.ts
-    checksum: d812bfa707bea8c9f2508e96219406b5b9c3b5bf061b812b7182c92e415e53b1
-  - filename: tests/integration/generateTS/generateTS.test.ts
-    checksum: 328090da57e8cb2dd616091f3336b6da77a253f97ddfd47e3e1dd683260e58eb
-  - filename: src/generateTS/shared/cslp-helpers.ts
-    checksum: 55aa5c0c9ec0cd6c6139d4e9e4f1666abc7bc083313ccc2bf410c56935f35ef2
 version: "1.0"

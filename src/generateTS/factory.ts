@@ -3,6 +3,7 @@ import NullDocumentationGenerator from "./docgen/nulldoc";
 import * as ContentstackTypes from "../types/schema";
 import * as _ from "lodash";
 import { CSLP_HELPERS } from "./shared/cslp-helpers";
+import { cliux } from "@contentstack/cli-utilities";
 
 export type TSGenOptions = {
   docgen: DocumentationGenerator;
@@ -25,6 +26,10 @@ export type TSGenResult = {
     dependencies: {
       globalFields: GlobalFieldCache;
       contentTypes: Set<string>;
+    };
+    skippedFields?: {
+      fields: Array<{ uid: string; path: string; reason: string }>;
+      blocks: Array<{ uid: string; path: string; reason: string }>;
     };
   };
 };
@@ -77,6 +82,15 @@ export default function (userOptions: TSGenOptions) {
   const uniqueBlockInterfaces = new Set<string>();
   const blockInterfacesKeyToName: { [key: string]: string } = {};
   let counter = 1;
+  const skippedFields: Array<{ uid: string; path: string; reason: string }> =
+    [];
+  const skippedBlocks: Array<{ uid: string; path: string; reason: string }> =
+    [];
+
+  // Helper function to check if a key starts with a number
+  function isNumericKey(key: string): boolean {
+    return /^\d/.test(key);
+  }
 
   const typeMap: TypeMap = {
     text: { func: type_text, track: true, flag: TypeFlags.BuiltinJS },
@@ -212,6 +226,15 @@ export default function (userOptions: TSGenOptions) {
         if (match.track) {
           track_dependency(field, type, match.flag);
         }
+      } else {
+        // Log warning for unknown field type instead of failing silently
+        const reason = `Unknown field type: ${field.data_type}`;
+        skippedFields.push({ uid: field.uid, path: field.uid, reason });
+        cliux.print(
+          `Skipped field "${field.uid}" with unknown type "${field.data_type}": ${reason}`,
+          { color: "yellow" }
+        );
+        type = "unknown"; // Use unknown as fallback for better type safety
       }
     }
 
@@ -219,6 +242,18 @@ export default function (userOptions: TSGenOptions) {
   }
 
   const handleGlobalField = (field: ContentstackTypes.Field): string => {
+    // Skip global field references with numeric UIDs
+    if (isNumericKey(field.reference_to)) {
+      const reason =
+        "TypeScript constraint: object keys cannot start with numbers";
+      skippedFields.push({ uid: field.uid, path: field.uid, reason });
+      cliux.print(
+        `Skipped global field reference "${field.uid}" to "${field.reference_to}": ${reason}`,
+        { color: "yellow" }
+      );
+      return "string"; // Use string as fallback for global field references
+    }
+
     const referenceName = name_type(field.reference_to);
     // Return the reference name with array brackets if the field is multiple
     return `${referenceName}${field.multiple ? "[]" : ""}`;
@@ -254,11 +289,28 @@ export default function (userOptions: TSGenOptions) {
     return `${field.uid}${requiredFlag}: ${fieldType}${typeModifier};`;
   }
 
-  function visit_fields(schema: ContentstackTypes.Schema) {
+  function visit_fields(schema: ContentstackTypes.Schema, path = "") {
     const fieldLines: string[] = [];
     const dollarKeys: string[] = [];
 
     for (const field of schema) {
+      // Skip fields with numeric UIDs
+      if (isNumericKey(field.uid)) {
+        const fieldPath = path ? `${path}.${field.uid}` : field.uid;
+        const reason =
+          "TypeScript constraint: object keys cannot start with numbers";
+        skippedFields.push({
+          uid: field.uid,
+          path: fieldPath,
+          reason,
+        });
+        cliux.print(
+          ` Skipped field "${field.uid}" at path "${fieldPath}": ${reason}`,
+          { color: "yellow" }
+        );
+        continue;
+      }
+
       const line = [
         options.docgen.field(field.display_name),
         visit_field(field),
@@ -306,16 +358,46 @@ export default function (userOptions: TSGenOptions) {
   function type_modular_blocks(field: ContentstackTypes.Field): string {
     let modularBlockInterfaceName = name_type(field.uid);
 
-    const modularBlockDefinitions = field.blocks.map((block) => {
-      const blockFieldType = block.reference_to
-        ? name_type(block.reference_to)
-        : visit_fields(block.schema || []);
+    const modularBlockDefinitions = field.blocks
+      .map((block) => {
+        // Skip blocks with numeric UIDs
+        if (isNumericKey(block.uid)) {
+          const blockPath = `${field.uid}.blocks.${block.uid}`;
+          const reason =
+            "TypeScript constraint: object keys cannot start with numbers";
+          skippedBlocks.push({
+            uid: block.uid,
+            path: blockPath,
+            reason,
+          });
+          cliux.print(
+            `Skipped block "${block.uid}" at path "${blockPath}": ${reason}`,
+            { color: "yellow" }
+          );
+          return null; // Return null to filter out later
+        }
 
-      const blockSchemaDefinition = block.reference_to
-        ? `${blockFieldType};`
-        : `{\n ${blockFieldType} }`;
-      return `${block.uid}: ${blockSchemaDefinition}`;
-    });
+        const blockFieldType = block.reference_to
+          ? name_type(block.reference_to)
+          : visit_fields(
+              block.schema || [],
+              `${field.uid}.blocks.${block.uid}`
+            );
+
+        const blockSchemaDefinition = block.reference_to
+          ? `${blockFieldType};`
+          : `{\n ${blockFieldType} }`;
+        return `${block.uid}: ${blockSchemaDefinition}`;
+      })
+      .filter(Boolean); // Filter out null values from skipped blocks
+
+    // If all blocks were skipped, return a more specific fallback type
+    if (modularBlockDefinitions.length === 0) {
+      return field.multiple
+        ? "Record<string, unknown>[]"
+        : "Record<string, unknown>";
+    }
+
     const modularBlockSignature = JSON.stringify(modularBlockDefinitions);
 
     if (uniqueBlockInterfaces.has(modularBlockSignature)) {
@@ -352,7 +434,9 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function type_group(field: ContentstackTypes.Field) {
-    return ["{", visit_fields(field.schema), "}"].filter((v) => v).join("\n");
+    return ["{", visit_fields(field.schema, field.uid), "}"]
+      .filter((v) => v)
+      .join("\n");
   }
 
   function type_text() {
@@ -382,10 +466,25 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function type_global_field(field: ContentstackTypes.GlobalField) {
+    // Skip global fields with numeric UIDs
+    if (isNumericKey(field.uid)) {
+      const reason =
+        "TypeScript constraint: object keys cannot start with numbers";
+      skippedFields.push({ uid: field.uid, path: field.uid, reason });
+      cliux.print(`Skipped global field "${field.uid}": ${reason}`, {
+        color: "yellow",
+      });
+      return "string"; // Use string as fallback for global fields
+    }
+
     if (!field.schema) {
-      throw new Error(
-        `Schema not found for global field '${field.uid}'. Did you forget to include it?`
+      const reason = "Schema not found for global field";
+      skippedFields.push({ uid: field.uid, path: field.uid, reason });
+      cliux.print(
+        `Skipped global field "${field.uid}": ${reason}. Did you forget to include it?`,
+        { color: "yellow" }
       );
+      return "string"; // Use string as fallback
     }
 
     return name_type(field.reference_to);
@@ -396,10 +495,31 @@ export default function (userOptions: TSGenOptions) {
 
     if (Array.isArray(field.reference_to)) {
       field.reference_to.forEach((v) => {
-        references.push(name_type(v));
+        // Skip references to content types with numeric names
+        if (!isNumericKey(v)) {
+          references.push(name_type(v));
+        } else {
+          cliux.print(
+            `Skipped reference to content type "${v}": TypeScript constraint: object keys cannot start with numbers`,
+            { color: "yellow" }
+          );
+        }
       });
     } else {
-      references.push(name_type(field.reference_to));
+      // Skip references to content types with numeric names
+      if (!isNumericKey(field.reference_to)) {
+        references.push(name_type(field.reference_to));
+      } else {
+        cliux.print(
+          `Skipped reference to content type "${field.reference_to}": TypeScript constraint: object keys cannot start with numbers`,
+          { color: "yellow" }
+        );
+      }
+    }
+
+    // If no valid references remain, return a more specific fallback type
+    if (references.length === 0) {
+      return "Record<string, unknown>[]";
     }
 
     // Use the ReferencedEntry interface from builtins
@@ -433,8 +553,52 @@ export default function (userOptions: TSGenOptions) {
         isGlobalField: true,
       };
     }
+
+    const definition = visit_content_type(contentType);
+
+    // Log summary table of skipped fields and blocks
+    if (skippedFields.length > 0 || skippedBlocks.length > 0) {
+      cliux.print("\n Summary of Skipped Items:", {
+        color: "cyan",
+        bold: true,
+      });
+
+      // Create combined table data for all skipped items
+      const allSkippedItems = [
+        ...skippedFields.map((field) => ({
+          Type: "Field",
+          "Key Name": field.uid,
+          "Schema Path": field.path,
+          Reason: field.reason,
+        })),
+        ...skippedBlocks.map((block) => ({
+          Type: "Block",
+          "Key Name": block.uid,
+          "Schema Path": block.path,
+          Reason: block.reason,
+        })),
+      ];
+
+      // Display table
+      cliux.table(
+        [
+          { value: "Type" },
+          { value: "Key Name" },
+          { value: "Schema Path" },
+          { value: "Reason" },
+        ],
+        allSkippedItems
+      );
+
+      const totalSkipped = skippedFields.length + skippedBlocks.length;
+      cliux.print(`\n Total skipped items: ${totalSkipped}`, {
+        color: "yellow",
+      });
+      cliux.success(" Generation completed successfully with partial schema.");
+    }
+
     return {
-      definition: visit_content_type(contentType),
+      definition,
       metadata: {
         name: name_type(contentType.uid),
         types: {
@@ -445,6 +609,10 @@ export default function (userOptions: TSGenOptions) {
         dependencies: {
           globalFields: cachedGlobalFields,
           contentTypes: visitedContentTypes,
+        },
+        skippedFields: {
+          fields: [...skippedFields], // Create a copy to avoid reference issues
+          blocks: [...skippedBlocks], // Create a copy to avoid reference issues
         },
       },
     };

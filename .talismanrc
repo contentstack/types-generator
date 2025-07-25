@@ -6,4 +6,12 @@ fileignoreconfig:
     checksum: 863e4c99d7da6be90dc7af0a2744a470092019418ab1ff6f2c8e87b40a25eb59
   - filename: .husky/pre-commit
     checksum: 5baabd7d2c391648163f9371f0e5e9484f8fb90fa2284cfc378732ec3192c193
+  - filename: src/graphqlTS/index.ts
+    checksum: 24b1e285d463d0cf1f82a2f46b7e6de9ae66e3318221241a742ce813b65ae7cb
+  - filename: src/generateTS/index.ts
+    checksum: 0f4d4bc5ef7373e7749ef6ea71e8a5edece8816ff6cf44cf42aea58e26c30524
+  - filename: tests/unit/tsgen/numeric-keys.test.ts
+    checksum: a7febf9673f6bb759da48c1984cffbf813861a9e2695f1416741ca17aeeb71d7
+  - filename: src/generateTS/factory.ts
+    checksum: d6dd1ebc15493f9ed5e748f93d2f7c11b8dead5e0985482677270d450b94d270
 version: "1.0"

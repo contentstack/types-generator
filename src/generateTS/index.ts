@@ -11,6 +11,7 @@ import tsgenFactory from "./factory";
 import { defaultInterfaces } from "./stack/builtins";
 import { format } from "../format/index";
 import { ContentType } from "../types/schema";
+import { cliux } from "@contentstack/cli-utilities";
 
 export const generateTS = async ({
   token,
@@ -53,6 +54,14 @@ export const generateTS = async ({
       const { content_types }: any = contentTypes;
 
       if (!content_types.length) {
+        cliux.print("No Content Types found in the Stack", {
+          color: "red",
+          bold: true,
+        });
+        cliux.print(
+          "Please create Content Models to generate type definitions",
+          { color: "yellow" }
+        );
         throw {
           type: "validation",
           error_message:
@@ -92,14 +101,29 @@ export const generateTS = async ({
       if (errorObj.status) {
         switch (errorObj.status) {
           case 401:
+            cliux.print("Authentication failed", {
+              color: "red",
+              bold: true,
+            });
+            cliux.print("Please check your apiKey, token, and region", {
+              color: "yellow",
+            });
             errorMessage =
               "Unauthorized: The apiKey, token or region is not valid.";
             break;
           case 412:
+            cliux.print("Invalid credentials", { color: "red", bold: true });
+            cliux.print("Please verify your apiKey, token, and region", {
+              color: "yellow",
+            });
             errorMessage =
               "Invalid Credentials: Please check the provided apiKey, token and region.";
             break;
           default:
+            cliux.print(`API Error (${errorObj.status})`, {
+              color: "red",
+              bold: true,
+            });
             errorMessage = `${errorMessage}, ${errorObj.error_message}`;
         }
       }
@@ -165,7 +189,22 @@ export const generateTSFromContentTypes = async ({
 
     return output;
   } catch (err: any) {
-    throw { error_message: "Something went wrong, " + err.message };
+    // Enhanced error logging with more context
+    const errorMessage = err.message || "Unknown error occurred";
+    const errorDetails = {
+      error_message: `Type generation failed: ${errorMessage}`,
+      context: "generateTSFromContentTypes",
+      timestamp: new Date().toISOString(),
+      error_type: err.constructor.name,
+    };
+
+    // Log detailed error information for debugging
+    cliux.print(`Type generation failed: ${errorMessage}`, {
+      color: "red",
+      bold: true,
+    });
+
+    throw errorDetails;
   }
 };
 

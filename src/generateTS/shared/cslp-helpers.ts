@@ -5,7 +5,6 @@ export const CSLP_HELPERS = {
   "data-cslp-parent-field"?: string;
 }
 export type CSLPFieldMapping = CSLPAttribute | string;`,
-  FIELD_COMMENT: "/** CSLP mapping for editable fields */",
   createFieldMapping: (fieldUid: string) =>
     `${JSON.stringify(fieldUid)}?: CSLPFieldMapping`,
   createMappingBlock: (dollarKeys: string[]) =>

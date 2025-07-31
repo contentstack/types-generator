@@ -18,7 +18,7 @@ describe("builtin taxonomies field", () => {
     expect([...types.contentstack]).toHaveLength(1);
     expect([...types.globalFields]).toHaveLength(0);
     expect([...types.contentstack]).toEqual(
-      expect.arrayContaining(["ITaxonomy"])
+      expect.arrayContaining(["ITaxonomy | ITaxonomyEntry"])
     );
   });
 
@@ -29,7 +29,7 @@ describe("builtin taxonomies field", () => {
       _version?: number;
       title: string;
       boolean: boolean;
-      taxonomies?: ITaxonomy[];
+      taxonomies?: ITaxonomy | ITaxonomyEntry[];
       }"
     `);
   });

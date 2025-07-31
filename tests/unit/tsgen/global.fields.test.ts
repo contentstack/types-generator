@@ -51,7 +51,7 @@ describe("global fields", () => {
       {
       _version?: number;
       title: string;
-      taxonomies?: ITaxonomy[];
+      taxonomies?: ITaxonomy | ITaxonomyEntry[];
       }"
     `);
   });

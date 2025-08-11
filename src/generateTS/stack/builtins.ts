@@ -56,6 +56,7 @@ export const defaultInterfaces = (
             mandatory: boolean;
             non_localizable: boolean;
         }`,
+    `export type ${prefix}TaxonomyEntry = ${prefix}Taxonomy & { term_uid: string }`,
   ];
   if (hasJsonRte) {
     defaultInterfaces.push(

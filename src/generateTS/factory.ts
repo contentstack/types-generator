@@ -624,7 +624,7 @@ export default function (userOptions: TSGenOptions) {
   };
 
   function type_taxonomy() {
-    return `${options?.naming?.prefix}Taxonomy`;
+    return `${options?.naming?.prefix}Taxonomy | ${options?.naming?.prefix}TaxonomyEntry`;
   }
 
   function type_json_rte(field: ContentstackTypes.Field) {

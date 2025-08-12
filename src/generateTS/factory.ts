@@ -174,31 +174,23 @@ export default function (userOptions: TSGenOptions) {
     // Validate the interface name before creating it
     let interfaceName: string;
 
-    if (contentType.data_type === "global_field") {
-      const referenceTo = contentType.reference_to as string;
-      if (isNumericIdentifier(referenceTo)) {
-        throwUIDValidationError({
-          uid: contentType.uid,
-          errorCode: "INVALID_GLOBAL_FIELD_REFERENCE",
-          reason: NUMERIC_IDENTIFIER_EXCLUSION_REASON,
-          suggestion: `Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")`,
-          context: "generateTSFromContentTypes",
-          referenceTo,
-        });
-      }
-      interfaceName = name_type(referenceTo);
-    } else {
-      if (isNumericIdentifier(contentType.uid)) {
-        throwUIDValidationError({
-          uid: contentType.uid,
-          errorCode: "INVALID_CONTENT_TYPE_UID",
-          reason: NUMERIC_IDENTIFIER_EXCLUSION_REASON,
-          suggestion: `Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")`,
-          context: "generateTSFromContentTypes",
-        });
-      }
-      interfaceName = name_type(contentType.uid);
+    const isGlobalField = contentType.data_type === "global_field";
+    const identifier = isGlobalField
+      ? (contentType.reference_to as string)
+      : contentType.uid;
+    if (isNumericIdentifier(identifier)) {
+      throwUIDValidationError({
+        uid: contentType.uid,
+        errorCode: isGlobalField
+          ? "INVALID_GLOBAL_FIELD_REFERENCE"
+          : "INVALID_CONTENT_TYPE_UID",
+        reason: NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+        suggestion: `Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")`,
+        context: "generateTSFromContentTypes",
+        ...(isGlobalField && { referenceTo: identifier }),
+      });
     }
+    interfaceName = name_type(identifier);
 
     const interface_declaration = ["export interface", interfaceName];
     if (systemFields && contentType.schema_type !== "global_field") {

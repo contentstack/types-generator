@@ -3,7 +3,6 @@ import { GraphQLBase } from "../types";
 import { introspectionQuery } from "./queries";
 import axios from "axios";
 import { cliux } from "@contentstack/cli-utilities";
-import { createErrorDetails } from "../generateTS/shared/utils";
 
 type RegionUrlMap = {
   [prop: string]: string;
@@ -37,14 +36,11 @@ export async function graphqlTS({
       cliux.print("Required: token, apiKey, environment, region", {
         color: "yellow",
       });
-      throw createErrorDetails(
-        {
-          type: "validation",
-          error_message:
-            "Please provide all the required params (token, apiKey, environment, region)",
-        },
-        "graphqlTS"
-      );
+      throw {
+        type: "validation",
+        error_message:
+          "Please provide all the required params (token, apiKey, environment, region)",
+      };
     }
     let config = {
       method: "post",
@@ -77,13 +73,10 @@ export async function graphqlTS({
         { color: "yellow" }
       );
       cliux.print("Or provide a custom host", { color: "yellow" });
-      throw createErrorDetails(
-        {
-          type: "validation",
-          error_message: `GraphQL content delivery api unavailable for '${region}' region and no custom host provided`,
-        },
-        "graphqlTS"
-      );
+      throw {
+        type: "validation",
+        error_message: `GraphQL content delivery api unavailable for '${region}' region and no custom host provided`,
+      };
     }
 
     const result = await axios.request(config);
@@ -97,8 +90,7 @@ export async function graphqlTS({
     return schema;
   } catch (error: any) {
     if (error.type === "validation") {
-      const errorDetails = createErrorDetails(error, "graphqlTS");
-      throw { error_message: errorDetails.error_message };
+      throw { error_message: error.error_message };
     }
 
     if (error.message && !error.response) {

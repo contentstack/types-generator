@@ -11,7 +11,7 @@ import { defaultInterfaces } from "./stack/builtins";
 import { format } from "../format/index";
 import { ContentType } from "../types/schema";
 import { cliux } from "@contentstack/cli-utilities";
-import { createErrorDetails } from "./shared/utils";
+import { createValidationError, createErrorDetails } from "./shared/utils";
 
 export const generateTS = async ({
   token,
@@ -28,13 +28,8 @@ export const generateTS = async ({
 }: GenerateTS) => {
   try {
     if (!token || !tokenType || !apiKey || !environment || !region) {
-      throw createErrorDetails(
-        {
-          type: "validation",
-          error_message:
-            "Please provide all the required params (token, tokenType, apiKey, environment, region)",
-        },
-        "generateTS"
+      throw createValidationError(
+        "Please provide all the required params (token, tokenType, apiKey, environment, region)"
       );
     }
 
@@ -65,13 +60,8 @@ export const generateTS = async ({
           "Please create Content Models to generate type definitions",
           { color: "yellow" }
         );
-        throw createErrorDetails(
-          {
-            type: "validation",
-            error_message:
-              "There are no Content Types in the Stack, please create Content Models to generate type definitions",
-          },
-          "generateTS"
+        throw createValidationError(
+          "There are no Content Types in the Stack, please create Content Models to generate type definitions"
         );
       }
 
@@ -101,10 +91,9 @@ export const generateTS = async ({
   } catch (error: any) {
     if (error.type === "validation") {
       // Handle validation errors with proper error codes
-      const errorDetails = createErrorDetails(error, "generateTS");
       throw {
-        error_message: errorDetails.error_message,
-        error_code: errorDetails.error_code,
+        error_message: error.error_message,
+        error_code: error.error_code || "VALIDATION_ERROR",
       };
     } else {
       const errorObj = JSON.parse(error.message.replace("Error: ", ""));
@@ -193,7 +182,7 @@ export const generateTSFromContentTypes = async ({
 
     return output;
   } catch (err: any) {
-    // Use common error details creation function
+    // Use common function to create detailed error information
     const errorDetails = createErrorDetails(err, "generateTSFromContentTypes");
 
     // Don't log the error here - let the CLI handle the display

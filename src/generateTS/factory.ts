@@ -8,6 +8,7 @@ import {
   isNumericIdentifier,
   NUMERIC_IDENTIFIER_EXCLUSION_REASON,
   checkNumericIdentifierExclusion,
+  throwUIDValidationError,
 } from "./shared/utils";
 
 export type TSGenOptions = {
@@ -152,19 +153,13 @@ export default function (userOptions: TSGenOptions) {
   function name_type(uid: string) {
     // Check if the UID starts with a number, which would create invalid TypeScript
     if (isNumericIdentifier(uid)) {
-      const error = {
-        type: "validation",
-        error_code: "INVALID_INTERFACE_NAME",
-        error_message: `Content type UID "${uid}" starts with a number, which creates invalid TypeScript interface names. TypeScript interface names cannot start with numbers.`,
-        details: {
-          uid,
-          reason: NUMERIC_IDENTIFIER_EXCLUSION_REASON,
-          suggestion: `Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")`,
-        },
+      throwUIDValidationError({
+        uid,
+        errorCode: "INVALID_INTERFACE_NAME",
+        reason: NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+        suggestion: `Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")`,
         context: "generateTSFromContentTypes",
-        timestamp: new Date().toISOString(),
-      };
-      throw error;
+      });
     }
 
     return [options?.naming?.prefix, _.upperFirst(_.camelCase(uid))]
@@ -182,37 +177,25 @@ export default function (userOptions: TSGenOptions) {
     if (contentType.data_type === "global_field") {
       const referenceTo = contentType.reference_to as string;
       if (isNumericIdentifier(referenceTo)) {
-        const error = {
-          type: "validation",
-          error_code: "INVALID_GLOBAL_FIELD_REFERENCE",
-          error_message: `Global field "${contentType.uid}" references content type "${referenceTo}" which starts with a number, creating invalid TypeScript interface names.`,
-          details: {
-            uid: contentType.uid,
-            reference_to: referenceTo,
-            reason: NUMERIC_IDENTIFIER_EXCLUSION_REASON,
-            suggestion: `Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")`,
-          },
+        throwUIDValidationError({
+          uid: contentType.uid,
+          errorCode: "INVALID_GLOBAL_FIELD_REFERENCE",
+          reason: NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+          suggestion: `Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")`,
           context: "generateTSFromContentTypes",
-          timestamp: new Date().toISOString(),
-        };
-        throw error;
+          referenceTo,
+        });
       }
       interfaceName = name_type(referenceTo);
     } else {
       if (isNumericIdentifier(contentType.uid)) {
-        const error = {
-          type: "validation",
-          error_code: "INVALID_CONTENT_TYPE_UID",
-          error_message: `Content type UID "${contentType.uid}" starts with a number, which creates invalid TypeScript interface names.`,
-          details: {
-            uid: contentType.uid,
-            reason: NUMERIC_IDENTIFIER_EXCLUSION_REASON,
-            suggestion: `Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")`,
-          },
+        throwUIDValidationError({
+          uid: contentType.uid,
+          errorCode: "INVALID_CONTENT_TYPE_UID",
+          reason: NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+          suggestion: `Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")`,
           context: "generateTSFromContentTypes",
-          timestamp: new Date().toISOString(),
-        };
-        throw error;
+        });
       }
       interfaceName = name_type(contentType.uid);
     }

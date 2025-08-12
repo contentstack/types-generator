@@ -3,7 +3,6 @@ import { flatMap, flatten } from "lodash";
 import { TOKEN_TYPE } from "../constants";
 import { initializeContentstackSdk } from "../sdk/utils";
 import { GenerateTS, GenerateTSFromContentTypes } from "../types";
-import * as fs from "fs";
 import { DocumentationGenerator } from "./docgen/doc";
 import JSDocumentationGenerator from "./docgen/jsdoc";
 import NullDocumentationGenerator from "./docgen/nulldoc";
@@ -94,43 +93,40 @@ export const generateTS = async ({
     }
   } catch (error: any) {
     if (error.type === "validation") {
-      throw { error_message: error.error_message };
+      // Handle validation errors with proper error codes
+      throw {
+        error_message: error.error_message,
+        error_code: error.error_code || "VALIDATION_ERROR",
+      };
     } else {
       const errorObj = JSON.parse(error.message.replace("Error: ", ""));
       let errorMessage = "Something went wrong";
+      let errorCode = "API_ERROR";
+
       if (errorObj.status) {
         switch (errorObj.status) {
           case 401:
-            cliux.print("Authentication failed", {
-              color: "red",
-              bold: true,
-            });
-            cliux.print("Please check your apiKey, token, and region", {
-              color: "yellow",
-            });
             errorMessage =
               "Unauthorized: The apiKey, token or region is not valid.";
+            errorCode = "AUTHENTICATION_FAILED";
             break;
           case 412:
-            cliux.print("Invalid credentials", { color: "red", bold: true });
-            cliux.print("Please verify your apiKey, token, and region", {
-              color: "yellow",
-            });
             errorMessage =
               "Invalid Credentials: Please check the provided apiKey, token and region.";
+            errorCode = "INVALID_CREDENTIALS";
             break;
           default:
-            cliux.print(`API Error (${errorObj.status})`, {
-              color: "red",
-              bold: true,
-            });
             errorMessage = `${errorMessage}, ${errorObj.error_message}`;
+            errorCode = `API_ERROR_${errorObj.status}`;
         }
       }
       if (errorObj.error_message && !errorObj.status) {
         errorMessage = `${errorMessage}, ${errorObj.error_message}`;
       }
-      throw { error_message: errorMessage };
+      throw {
+        error_message: errorMessage,
+        error_code: errorCode,
+      };
     }
   }
 };
@@ -190,20 +186,32 @@ export const generateTSFromContentTypes = async ({
     return output;
   } catch (err: any) {
     // Enhanced error logging with more context
-    const errorMessage = err.message || "Unknown error occurred";
-    const errorDetails = {
-      error_message: `Type generation failed: ${errorMessage}`,
-      context: "generateTSFromContentTypes",
-      timestamp: new Date().toISOString(),
-      error_type: err.constructor.name,
-    };
+    let errorDetails;
 
-    // Log detailed error information for debugging
-    cliux.print(`Type generation failed: ${errorMessage}`, {
-      color: "red",
-      bold: true,
-    });
+    if (err.type === "validation") {
+      // Handle validation errors with proper error codes
+      errorDetails = {
+        error_message: err.error_message || "Validation error occurred", // Keep for backwards compatibility
+        error_code: err.error_code || "VALIDATION_ERROR", // New property
+        context: "generateTSFromContentTypes",
+        timestamp: new Date().toISOString(),
+        error_type: "ValidationError",
+        details: err.details || {},
+      };
+    } else {
+      // Handle other types of errors
+      const errorMessage = err.message || "Unknown error occurred";
+      errorDetails = {
+        error_message: `Type generation failed: ${errorMessage}`, // Keep for backwards compatibility
+        error_code: "TYPE_GENERATION_FAILED", // New property
+        context: "generateTSFromContentTypes",
+        timestamp: new Date().toISOString(),
+        error_type: err.constructor.name,
+        details: {},
+      };
+    }
 
+    // Don't log the error here - let the CLI handle the display
     throw errorDetails;
   }
 };

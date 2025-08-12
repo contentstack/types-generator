@@ -150,6 +150,23 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function name_type(uid: string) {
+    // Check if the UID starts with a number, which would create invalid TypeScript
+    if (isNumericIdentifier(uid)) {
+      const error = {
+        type: "validation",
+        error_code: "INVALID_INTERFACE_NAME",
+        error_message: `Content type UID "${uid}" starts with a number, which creates invalid TypeScript interface names. TypeScript interface names cannot start with numbers.`,
+        details: {
+          uid,
+          reason: NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+          suggestion: `Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")`,
+        },
+        context: "generateTSFromContentTypes",
+        timestamp: new Date().toISOString(),
+      };
+      throw error;
+    }
+
     return [options?.naming?.prefix, _.upperFirst(_.camelCase(uid))]
       .filter((v) => v)
       .join("");
@@ -159,14 +176,48 @@ export default function (userOptions: TSGenOptions) {
     contentType: ContentstackTypes.ContentType | ContentstackTypes.GlobalField,
     systemFields = false
   ) {
-    const interface_declaration = [
-      "export interface",
-      name_type(
-        contentType.data_type === "global_field"
-          ? (contentType.reference_to as string)
-          : contentType.uid
-      ),
-    ];
+    // Validate the interface name before creating it
+    let interfaceName: string;
+
+    if (contentType.data_type === "global_field") {
+      const referenceTo = contentType.reference_to as string;
+      if (isNumericIdentifier(referenceTo)) {
+        const error = {
+          type: "validation",
+          error_code: "INVALID_GLOBAL_FIELD_REFERENCE",
+          error_message: `Global field "${contentType.uid}" references content type "${referenceTo}" which starts with a number, creating invalid TypeScript interface names.`,
+          details: {
+            uid: contentType.uid,
+            reference_to: referenceTo,
+            reason: NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+            suggestion: `Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")`,
+          },
+          context: "generateTSFromContentTypes",
+          timestamp: new Date().toISOString(),
+        };
+        throw error;
+      }
+      interfaceName = name_type(referenceTo);
+    } else {
+      if (isNumericIdentifier(contentType.uid)) {
+        const error = {
+          type: "validation",
+          error_code: "INVALID_CONTENT_TYPE_UID",
+          error_message: `Content type UID "${contentType.uid}" starts with a number, which creates invalid TypeScript interface names.`,
+          details: {
+            uid: contentType.uid,
+            reason: NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+            suggestion: `Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")`,
+          },
+          context: "generateTSFromContentTypes",
+          timestamp: new Date().toISOString(),
+        };
+        throw error;
+      }
+      interfaceName = name_type(contentType.uid);
+    }
+
+    const interface_declaration = ["export interface", interfaceName];
     if (systemFields && contentType.schema_type !== "global_field") {
       interface_declaration.push("extends", name_type("SystemFields"));
     }

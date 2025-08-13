@@ -2,7 +2,11 @@ import async from "async";
 import { flatMap, flatten } from "lodash";
 import { TOKEN_TYPE } from "../constants";
 import { initializeContentstackSdk } from "../sdk/utils";
-import { GenerateTS, GenerateTSFromContentTypes } from "../types";
+import {
+  GenerateTS,
+  GenerateTSBase,
+  GenerateTSFromContentTypes,
+} from "../types";
 import * as fs from "fs";
 import { DocumentationGenerator } from "./docgen/doc";
 import JSDocumentationGenerator from "./docgen/jsdoc";
@@ -24,6 +28,7 @@ export const generateTS = async ({
   includeDocumentation,
   systemFields,
   isEditableTags,
+  includeReferencedEntry,
   host,
 }: GenerateTS) => {
   try {
@@ -88,6 +93,7 @@ export const generateTS = async ({
           includeDocumentation,
           systemFields,
           isEditableTags,
+          includeReferencedEntry,
         });
         return generatedTS;
       }
@@ -141,6 +147,7 @@ export const generateTSFromContentTypes = async ({
   includeDocumentation = true,
   systemFields = false,
   isEditableTags = false,
+  includeReferencedEntry = false,
 }: GenerateTSFromContentTypes) => {
   try {
     const docgen: DocumentationGenerator = includeDocumentation
@@ -154,6 +161,7 @@ export const generateTSFromContentTypes = async ({
       naming: { prefix },
       systemFields,
       isEditableTags,
+      includeReferencedEntry,
     });
     for (const contentType of contentTypes) {
       const tsgenResult = tsgen(contentType);
@@ -180,7 +188,8 @@ export const generateTSFromContentTypes = async ({
           prefix,
           systemFields,
           isEditableTags,
-          hasJsonField
+          hasJsonField,
+          includeReferencedEntry
         ).join("\n\n"),
         [...globalFields].join("\n\n"),
         definitions.join("\n\n"),
@@ -257,3 +266,31 @@ const checkJsonField = (schema: any[]): boolean => {
     return false;
   });
 };
+
+const fun = async () => {
+  try {
+    const config: GenerateTSBase = {
+      apiKey: "***REMOVED***",
+      token: "***REMOVED***",
+      environment: "dev",
+      tokenType: "delivery",
+      region: "AWS-NA",
+      includeDocumentation: false,
+      systemFields: true,
+      includeReferencedEntry: true,
+      // isEditableTags: true,
+      // host: "stag-cdn.csnonprod.com",
+      branch: "main",
+    };
+
+    const val = await generateTS(config);
+    fs.writeFileSync(
+      "/Users/naman.dembla/Documents/TS-GEN/types-generator/generated.ts",
+      JSON.parse(JSON.stringify(val)),
+      "utf-8"
+    );
+  } catch (err: any) {
+    console.log("🚀 ~ fun ~ err:", err);
+  }
+};
+fun();

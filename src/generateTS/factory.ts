@@ -17,6 +17,7 @@ export type TSGenOptions = {
   };
   systemFields?: boolean;
   isEditableTags?: boolean;
+  includeReferencedEntry?: boolean;
 };
 
 export type TSGenResult = {
@@ -73,6 +74,7 @@ const defaultOptions: TSGenOptions = {
   },
   systemFields: false,
   isEditableTags: false,
+  includeReferencedEntry: false,
 };
 
 export default function (userOptions: TSGenOptions) {
@@ -525,20 +527,29 @@ export default function (userOptions: TSGenOptions) {
       return "Record<string, unknown>[]";
     }
 
-    // Use the ReferencedEntry interface from builtins
-    const referencedEntryType = `${options.naming?.prefix || ""}ReferencedEntry`;
+    // Conditionally use the ReferencedEntry interface from builtins
+    if (options.includeReferencedEntry) {
+      const referencedEntryType = `${options.naming?.prefix || ""}ReferencedEntry`;
 
-    // If there's only one reference type, create a simple union
-    if (references.length === 1) {
-      return `(${references[0]} | ${referencedEntryType})[]`;
+      // If there's only one reference type, create a simple union
+      if (references.length === 1) {
+        return `(${references[0]} | ${referencedEntryType})[]`;
+      }
+
+      // If there are multiple reference types, create separate unions for each
+      const unionTypes = references.map((refType) => {
+        return `(${refType} | ${referencedEntryType})`;
+      });
+
+      return `${unionTypes.join(" | ")}[]`;
+    } else {
+      // If ReferencedEntry is disabled, just use the reference types directly
+      if (references.length === 1) {
+        return `${references[0]}[]`;
+      }
+
+      return `${references.join(" | ")}[]`;
     }
-
-    // If there are multiple reference types, create separate unions for each
-    const unionTypes = references.map((refType) => {
-      return `(${refType} | ${referencedEntryType})`;
-    });
-
-    return `${unionTypes.join(" | ")}[]`;
   }
 
   return function (

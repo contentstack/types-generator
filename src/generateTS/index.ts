@@ -2,12 +2,7 @@ import async from "async";
 import { flatMap, flatten } from "lodash";
 import { TOKEN_TYPE } from "../constants";
 import { initializeContentstackSdk } from "../sdk/utils";
-import {
-  GenerateTS,
-  GenerateTSBase,
-  GenerateTSFromContentTypes,
-} from "../types";
-import * as fs from "fs";
+import { GenerateTS, GenerateTSFromContentTypes } from "../types";
 import { DocumentationGenerator } from "./docgen/doc";
 import JSDocumentationGenerator from "./docgen/jsdoc";
 import NullDocumentationGenerator from "./docgen/nulldoc";
@@ -266,31 +261,3 @@ const checkJsonField = (schema: any[]): boolean => {
     return false;
   });
 };
-
-const fun = async () => {
-  try {
-    const config: GenerateTSBase = {
-      apiKey: "***REMOVED***",
-      token: "***REMOVED***",
-      environment: "dev",
-      tokenType: "delivery",
-      region: "AWS-NA",
-      includeDocumentation: false,
-      systemFields: true,
-      includeReferencedEntry: true,
-      // isEditableTags: true,
-      // host: "stag-cdn.csnonprod.com",
-      branch: "main",
-    };
-
-    const val = await generateTS(config);
-    fs.writeFileSync(
-      "/Users/naman.dembla/Documents/TS-GEN/types-generator/generated.ts",
-      JSON.parse(JSON.stringify(val)),
-      "utf-8"
-    );
-  } catch (err: any) {
-    console.log("🚀 ~ fun ~ err:", err);
-  }
-};
-fun();

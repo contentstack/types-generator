@@ -111,10 +111,56 @@ describe("generateTS function", () => {
     });
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
-    expect(generatedTS).toMatch(/export interface CSLPAttribute/); // Check for CSLP attribute interface is created
-    expect(generatedTS).toMatch(/export type CSLPFieldMapping/); // Check for CSLP field mapping type is created
+    expect(generatedTS).toMatch(/Dishes/); // Check for whether typeDef of Content type is included
+    expect(generatedTS).toMatch(/export interface CSLPAttribute/); // Check for whether CSLP attribute interface is created
+    expect(generatedTS).toMatch(/export type CSLPFieldMapping/); // Check for whether CSLP field mapping type is created
     expect(generatedTS).toMatch(/\$\?\:/); // Check for editable field mappings with $ property
     expect(generatedTS).toMatch(/\?\: CSLPFieldMapping/); // Check for individual field CSLP mappings
+    expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
+  });
+
+  it("generates type definitions with ReferencedEntry enabled", async () => {
+    const token = process.env.TOKEN as unknown as any;
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
+    const includeReferencedEntry = true;
+
+    const generatedTS = await generateTS({
+      token,
+      apiKey,
+      environment,
+      region,
+      tokenType,
+      includeReferencedEntry,
+    });
+
+    expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
+    expect(generatedTS).toEqual(expect.stringContaining("Dishes")); // Check for whether typeDef of Content type is included
+    expect(generatedTS).toMatch(/ReferencedEntry/); // Check that ReferencedEntry interface is included
+    expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
+  });
+
+  it("generates type definitions without ReferencedEntry (default)", async () => {
+    const token = process.env.TOKEN as unknown as any;
+    const apiKey = process.env.APIKEY as unknown as any;
+    const environment = process.env.ENVIRONMENT as unknown as any;
+    const region = process.env.REGION as unknown as any;
+    const tokenType = process.env.TOKENTYPE as unknown as any;
+    // Don't pass includeReferencedEntry, should default to false
+
+    const generatedTS = await generateTS({
+      token,
+      apiKey,
+      environment,
+      region,
+      tokenType,
+    });
+
+    expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
+    expect(generatedTS).toEqual(expect.stringContaining("Dishes")); // Check for whether typeDef of Content type is included
+    expect(generatedTS).not.toMatch(/ReferencedEntry/); // Check that ReferencedEntry interface is not included
     expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
   });
 });

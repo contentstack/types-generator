@@ -495,6 +495,33 @@ export default function (userOptions: TSGenOptions) {
     return name_type(field.reference_to);
   }
 
+  function buildReferenceArrayType(references: string[], options: any): string {
+    // If no valid references remain, return a more specific fallback type
+    if (references.length === 0) {
+      return "Record<string, unknown>[]";
+    }
+
+    // Handle reference types with or without ReferencedEntry interface
+    if (options.includeReferencedEntry) {
+      const referencedEntryType = `${options.naming?.prefix || ""}ReferencedEntry`;
+
+      const wrapWithReferencedEntry = (refType: string) =>
+        `(${refType} | ${referencedEntryType})`;
+
+      const types =
+        references.length === 1
+          ? wrapWithReferencedEntry(references[0])
+          : references.map(wrapWithReferencedEntry).join(" | ");
+
+      return `${types}[]`;
+    }
+
+    const baseType =
+      references.length === 1 ? references[0] : references.join(" | ");
+
+    return `${baseType}[]`;
+  }
+
   function type_reference(field: ContentstackTypes.Field) {
     const references: string[] = [];
 
@@ -522,30 +549,7 @@ export default function (userOptions: TSGenOptions) {
       }
     }
 
-    // If no valid references remain, return a more specific fallback type
-    if (references.length === 0) {
-      return "Record<string, unknown>[]";
-    }
-
-    // Handle reference types with or without ReferencedEntry interface
-    if (options.includeReferencedEntry) {
-      const referencedEntryType = `${options.naming?.prefix || ""}ReferencedEntry`;
-
-      const wrapWithReferencedEntry = (refType: string) =>
-        `(${refType} | ${referencedEntryType})`;
-
-      const types =
-        references.length === 1
-          ? wrapWithReferencedEntry(references[0])
-          : references.map(wrapWithReferencedEntry).join(" | ");
-
-      return `${types}[]`;
-    }
-
-    const baseType =
-      references.length === 1 ? references[0] : references.join(" | ");
-
-    return `${baseType}[]`;
+    return buildReferenceArrayType(references, options);
   }
 
   return function (

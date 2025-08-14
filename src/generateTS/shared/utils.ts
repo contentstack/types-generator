@@ -132,9 +132,6 @@ export function createErrorDetails(
     return {
       error_message: err.error_message || "Validation error occurred", // Keep for backwards compatibility
       error_code: err.error_code || "VALIDATION_ERROR", // New property
-      context,
-      timestamp: new Date().toISOString(),
-      error_type: "ValidationError",
       details: err.details || {},
     };
   } else {
@@ -143,9 +140,6 @@ export function createErrorDetails(
     return {
       error_message: `Type generation failed: ${errorMessage}`, // Keep for backwards compatibility
       error_code: "TYPE_GENERATION_FAILED", // New property
-      context,
-      timestamp: new Date().toISOString(),
-      error_type: err.constructor.name,
       details: {},
     };
   }

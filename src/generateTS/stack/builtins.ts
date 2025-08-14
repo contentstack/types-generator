@@ -4,7 +4,8 @@ export const defaultInterfaces = (
   prefix = "",
   systemFields = false,
   isEditableTags = false,
-  hasJsonRte?: boolean
+  hasJsonRte?: boolean,
+  includeReferencedEntry = false
 ) => {
   const defaultInterfaces = [
     `type BuildTuple<T, N extends number, R extends T[] = []> =
@@ -12,16 +13,27 @@ export const defaultInterfaces = (
     `type TuplePrefixes<T extends any[]> = 
     T extends [any, ...infer Rest] ? T | TuplePrefixes<Rest extends any[] ? Rest : []> : []`,
     `type MaxTuple<T, N extends number> = TuplePrefixes<BuildTuple<T, N>>`,
-    `export interface ${prefix}ReferencedEntry {
+  ];
+
+  // Conditionally include ReferencedEntry interface
+  if (includeReferencedEntry) {
+    defaultInterfaces.push(
+      `export interface ${prefix}ReferencedEntry {
             uid: string;
             _content_type_uid: string;
-        }`,
+        }`
+    );
+  }
+
+  defaultInterfaces.push(
     `export interface ${prefix}PublishDetails {
             environment: string;
             locale: string;
             time: string;
             user: string;
-        }`,
+        }`
+  );
+  defaultInterfaces.push(
     `export interface ${prefix}File { 
               uid: string;
               created_at: string;
@@ -45,19 +57,25 @@ export const defaultInterfaces = (
                 width: number;
             }
               publish_details: ${prefix}PublishDetails;
-          }`,
+          }`
+  );
+  defaultInterfaces.push(
     `export interface ${prefix}Link { 
               title: string;
               href: string;
-          }`,
+          }`
+  );
+  defaultInterfaces.push(
     `export interface ${prefix}Taxonomy { 
             taxonomy_uid: string;
             max_terms?: number;
             mandatory: boolean;
             non_localizable: boolean;
-        }`,
-    `export type ${prefix}TaxonomyEntry = ${prefix}Taxonomy & { term_uid: string }`,
-  ];
+        }`
+  );
+  defaultInterfaces.push(
+    `export type ${prefix}TaxonomyEntry = ${prefix}Taxonomy & { term_uid: string }`
+  );
   if (hasJsonRte) {
     defaultInterfaces.push(
       `export interface JSONRTENode {

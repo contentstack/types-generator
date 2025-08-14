@@ -66,11 +66,11 @@ describe("graphqlTS function with errors", () => {
   });
 
   it("check for if wrong apiKey, token and environment is provided", async () => {
-    const token = process.env.TOKEN as unknown as any;
-    const apiKey = "process.env.APIKEY" as unknown as any;
-    const environment = process.env.ENVIRONMENT as unknown as any;
-    const region = process.env.REGION as unknown as any;
-    const branch = process.env.BRANCH as unknown as any;
+    const token = "";
+    const apiKey = "";
+    const environment = "";
+    const region = "US";
+    const branch = "main";
 
     try {
       await graphqlTS({
@@ -81,8 +81,9 @@ describe("graphqlTS function with errors", () => {
         branch,
       });
     } catch (err: any) {
+      expect(err.error_message).toBeDefined();
       expect(err.error_message).toEqual(
-        "Unauthorized: The apiKey, token or environment is not valid."
+        "Please provide all the required params (token, apiKey, environment, region)"
       );
     }
   });

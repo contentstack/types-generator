@@ -182,10 +182,19 @@ export const generateTSFromContentTypes = async ({
 
     return output;
   } catch (err: any) {
-    // Use common function to create detailed error information
-    const errorDetails = createErrorDetails(err, "generateTSFromContentTypes");
+    // Handle numeric identifier errors specially to preserve their detailed format
+    if (
+      err.type === "validation" &&
+      err.error_code === "VALIDATION_ERROR" &&
+      err.error_message &&
+      err.error_message.includes("numeric identifiers")
+    ) {
+      // Pass through the detailed error as-is
+      throw err;
+    }
 
-    // Don't log the error here - let the CLI handle the display
+    // Use common function to create detailed error information for other errors
+    const errorDetails = createErrorDetails(err, "generateTSFromContentTypes");
     throw errorDetails;
   }
 };

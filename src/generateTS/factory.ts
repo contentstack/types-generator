@@ -527,29 +527,25 @@ export default function (userOptions: TSGenOptions) {
       return "Record<string, unknown>[]";
     }
 
-    // Conditionally use the ReferencedEntry interface from builtins
+    // Handle reference types with or without ReferencedEntry interface
     if (options.includeReferencedEntry) {
       const referencedEntryType = `${options.naming?.prefix || ""}ReferencedEntry`;
 
-      // If there's only one reference type, create a simple union
-      if (references.length === 1) {
-        return `(${references[0]} | ${referencedEntryType})[]`;
-      }
+      const wrapWithReferencedEntry = (refType: string) =>
+        `(${refType} | ${referencedEntryType})`;
 
-      // If there are multiple reference types, create separate unions for each
-      const unionTypes = references.map((refType) => {
-        return `(${refType} | ${referencedEntryType})`;
-      });
+      const types =
+        references.length === 1
+          ? wrapWithReferencedEntry(references[0])
+          : references.map(wrapWithReferencedEntry).join(" | ");
 
-      return `${unionTypes.join(" | ")}[]`;
-    } else {
-      // If ReferencedEntry is disabled, just use the reference types directly
-      if (references.length === 1) {
-        return `${references[0]}[]`;
-      }
-
-      return `${references.join(" | ")}[]`;
+      return `${types}[]`;
     }
+
+    const baseType =
+      references.length === 1 ? references[0] : references.join(" | ");
+
+    return `${baseType}[]`;
   }
 
   return function (

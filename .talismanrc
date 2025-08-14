@@ -14,4 +14,6 @@ fileignoreconfig:
     checksum: a7febf9673f6bb759da48c1984cffbf813861a9e2695f1416741ca17aeeb71d7
   - filename: src/generateTS/factory.ts
     checksum: d6dd1ebc15493f9ed5e748f93d2f7c11b8dead5e0985482677270d450b94d270
+  - filename: tests/integration/graphqlTS/graphqlTS.test.ts
+    checksum: 7ffa82084fd0fc2f5ec9c8e8124cdf1bce08c7f75c5be2ede2eb5cd506812db1
 version: "1.0"

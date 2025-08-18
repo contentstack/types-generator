@@ -10,27 +10,70 @@ const tsgen = tsgenFactory({
   },
 });
 
+const tsgenWithReferencedEntry = tsgenFactory({
+  docgen: new NullDocumentationGenerator(),
+  naming: {
+    prefix: "I",
+  },
+  includeReferencedEntry: true,
+});
+
 describe("references", () => {
-  const result = tsgen(testData.references);
+  describe("with ReferencedEntry disabled (default)", () => {
+    const result = tsgen(testData.references);
 
-  test("metadata", () => {
-    const contentTypes = [...result.metadata.dependencies.contentTypes];
+    test("metadata", () => {
+      const contentTypes = [...result.metadata.dependencies.contentTypes];
 
-    expect(contentTypes).toEqual(
-      expect.arrayContaining(["IReferenceChild", "IBoolean", "IBuiltinExample"])
-    );
+      expect(contentTypes).toEqual(
+        expect.arrayContaining([
+          "IReferenceChild",
+          "IBoolean",
+          "IBuiltinExample",
+        ])
+      );
+    });
+
+    test("definition", () => {
+      expect(result.definition).toMatchInlineSnapshot(`
+        "export interface IReferenceParent
+        {
+        _version?: number;
+        title: string;
+        url: string;
+        single_reference: IReferenceChild[];
+        multiple_reference?: IReferenceChild | IBoolean | IBuiltinExample[];
+        }"
+      `);
+    });
   });
 
-  test("definition", () => {
-    expect(result.definition).toMatchInlineSnapshot(`
-      "export interface IReferenceParent
-      {
-      _version?: number;
-      title: string;
-      url: string;
-      single_reference: (IReferenceChild | IReferencedEntry)[];
-      multiple_reference?: (IReferenceChild | IReferencedEntry) | (IBoolean | IReferencedEntry) | (IBuiltinExample | IReferencedEntry)[];
-      }"
-    `);
+  describe("with ReferencedEntry enabled", () => {
+    const result = tsgenWithReferencedEntry(testData.references);
+
+    test("metadata", () => {
+      const contentTypes = [...result.metadata.dependencies.contentTypes];
+
+      expect(contentTypes).toEqual(
+        expect.arrayContaining([
+          "IReferenceChild",
+          "IBoolean",
+          "IBuiltinExample",
+        ])
+      );
+    });
+
+    test("definition", () => {
+      expect(result.definition).toMatchInlineSnapshot(`
+        "export interface IReferenceParent
+        {
+        _version?: number;
+        title: string;
+        url: string;
+        single_reference: (IReferenceChild | IReferencedEntry)[];
+        multiple_reference?: (IReferenceChild | IReferencedEntry) | (IBoolean | IReferencedEntry) | (IBuiltinExample | IReferencedEntry)[];
+        }"
+      `);
+    });
   });
 });

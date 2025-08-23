@@ -24,6 +24,7 @@ export const generateTS = async ({
   includeDocumentation,
   systemFields,
   isEditableTags,
+  includeReferencedEntry,
   host,
 }: GenerateTS) => {
   try {
@@ -84,6 +85,7 @@ export const generateTS = async ({
           includeDocumentation,
           systemFields,
           isEditableTags,
+          includeReferencedEntry,
         });
         return generatedTS;
       }
@@ -134,6 +136,7 @@ export const generateTSFromContentTypes = async ({
   includeDocumentation = true,
   systemFields = false,
   isEditableTags = false,
+  includeReferencedEntry = false,
 }: GenerateTSFromContentTypes) => {
   try {
     const docgen: DocumentationGenerator = includeDocumentation
@@ -147,6 +150,7 @@ export const generateTSFromContentTypes = async ({
       naming: { prefix },
       systemFields,
       isEditableTags,
+      includeReferencedEntry,
     });
     for (const contentType of contentTypes) {
       const tsgenResult = tsgen(contentType);
@@ -173,7 +177,8 @@ export const generateTSFromContentTypes = async ({
           prefix,
           systemFields,
           isEditableTags,
-          hasJsonField
+          hasJsonField,
+          includeReferencedEntry
         ).join("\n\n"),
         [...globalFields].join("\n\n"),
         definitions.join("\n\n"),

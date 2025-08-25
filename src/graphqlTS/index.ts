@@ -96,25 +96,40 @@ export async function graphqlTS({
     if (error.message && !error.response) {
       throw { error_message: error.message };
     }
-    if (error.response.status === 412) {
+
+    if (error.response?.status === 412) {
       throw {
         error_message:
           "Unauthorized: The apiKey, token or environment is not valid.",
       };
     } else {
       let details = "";
+      // Add proper null checks before accessing array elements
       if (
-        error.response.data.errors[0]?.extensions?.errors?.[0]?.code ===
-        "SCHEMA_BUILD_ERROR"
+        error.response?.data?.errors &&
+        Array.isArray(error.response.data.errors) &&
+        error.response.data.errors.length > 0 &&
+        error.response.data.errors[0]?.extensions?.errors &&
+        Array.isArray(error.response.data.errors[0].extensions.errors) &&
+        error.response.data.errors[0].extensions.errors.length > 0 &&
+        error.response.data.errors[0].extensions.errors[0]?.code ===
+          "SCHEMA_BUILD_ERROR"
       ) {
-        details = error.response.data.errors[0].extensions.errors[0].details
-          .map((element: { error: string }) => element.error)
-          .join("\n");
+        details =
+          error.response.data.errors[0].extensions.errors[0].details
+            ?.map((element: { error: string }) => element.error)
+            .join("\n") || "";
       }
+
+      // Safely access the error message with proper null checks
+      const errorMessage =
+        error.response?.data?.errors?.[0]?.extensions?.errors?.[0]?.message;
+
       throw {
-        error_message: details
-          ? details
-          : error.response.data.errors[0]?.extensions?.errors[0].message,
+        error_message:
+          details ||
+          errorMessage ||
+          "An error occurred while processing GraphQL schema",
       };
     }
   }

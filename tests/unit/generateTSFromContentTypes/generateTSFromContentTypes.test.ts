@@ -35,7 +35,7 @@ describe("generateTSFromContentTypes function", () => {
     expect(generatedTSfromCT).toMatch(/(?!Dishes)testDishes/); // Check for whether typeDef of Content type is included with test prefix
     expect(generatedTSfromCT).toMatch(/(?!Seo)testSeo/); // Check for whether typeDef of Global Fields is included with test prefix
     expect(generatedTSfromCT).toMatch(/export interface testSystemFields \{\n/); // Check for whether System Fields are Created with test prefix
-    expect(generatedTSfromCT).toMatch(/extends testSystemFields \{\n/); // Check for whether interfaces have extended testSystemFields interface
+    expect(generatedTSfromCT).toMatch(/extends testSystemFields\s*\{/); // Check for whether interfaces have extended testSystemFields interface
     expect(generatedTSfromCT).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for is Documentation Generated
   });
 });

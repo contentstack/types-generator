@@ -623,17 +623,17 @@ export default function (userOptions: TSGenOptions) {
 
       // Build the detailed error message
       let errorDetails = "";
-      errorDetails += `Type generation failed: Found ${numericIdentifierErrors.length} items with numeric identifiers that create invalid TypeScript interface names. Please use the --prefix flag to resolve this issue.\n\n`;
+      errorDetails += `Type generation failed: ${numericIdentifierErrors.length} items use numeric identifiers, which result in invalid TypeScript interface names. Use the --prefix flag to resolve this issue.\n\n`;
 
       if (contentTypeErrors.length > 0) {
-        errorDetails += "Content Types & Global Fields with Numeric UIDs:\n";
+        errorDetails += "Content Types and Global Fields with Numeric UIDs\n";
         errorDetails +=
-          "Note: Global Fields are Content Types, so they appear in this section if their own UID starts with a number.\n\n";
+          "Note: Global Fields are also Content Types. If their UID begins with a number, they are listed here.\n\n";
 
         contentTypeErrors.forEach((error, index) => {
           errorDetails += `${index + 1}. UID: "${error.uid}"\n`;
-          errorDetails += `   Reason: ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}\n`;
-          errorDetails += `   Suggestion: Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")\n\n`;
+          errorDetails += `TypeScript constraint: Object keys cannot start with a number.\n`;
+          errorDetails += `Suggestion: Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType").\n\n`;
         });
       }
 
@@ -643,15 +643,15 @@ export default function (userOptions: TSGenOptions) {
         globalFieldErrors.forEach((error, index) => {
           errorDetails += `${index + 1}. Global Field: "${error.uid}"\n`;
           errorDetails += `   References: "${error.referenceTo || "Unknown"}"\n`;
-          errorDetails += `   Reason: ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}\n`;
-          errorDetails += `   Suggestion: Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType")\n\n`;
+          errorDetails += `TypeScript constraint: Object keys cannot start with a number.\n`;
+          errorDetails += `Suggestion: Since UIDs cannot be changed, use the --prefix flag to add a valid prefix to all interface names (e.g., --prefix "ContentType").\n\n`;
         });
       }
 
       errorDetails += "To resolve these issues:\n";
       errorDetails +=
-        "   • Use the --prefix flag to add a valid prefix to all interface names\n";
-      errorDetails += "   • Example: --prefix 'ContentType'\n";
+        "• Use the --prefix flag to add a valid prefix to all interface names.\n";
+      errorDetails += '• Example: --prefix "ContentType"\n';
 
       // Throw a comprehensive error with all the details
       throw {

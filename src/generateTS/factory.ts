@@ -8,6 +8,7 @@ import {
   isNumericIdentifier,
   NUMERIC_IDENTIFIER_EXCLUSION_REASON,
   checkNumericIdentifierExclusion,
+  throwNumericIdentifierValidationError,
 } from "./shared/utils";
 
 export type TSGenOptions = {
@@ -94,6 +95,13 @@ export default function (userOptions: TSGenOptions) {
   const skippedBlocks: Array<{ uid: string; path: string; reason: string }> =
     [];
 
+  // Collect numeric identifier errors instead of throwing immediately
+  const numericIdentifierErrors: Array<{
+    uid: string;
+    referenceTo?: string;
+    type: "content_type" | "global_field";
+  }> = [];
+
   const typeMap: TypeMap = {
     text: { func: type_text, track: true, flag: TypeFlags.BuiltinJS },
     number: { func: type_number, track: true, flag: TypeFlags.BuiltinJS },
@@ -152,6 +160,12 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function name_type(uid: string) {
+    // Check if the UID starts with a number, which would create invalid TypeScript
+    if (isNumericIdentifier(uid)) {
+      // Return a fallback name to continue processing
+      return `InvalidInterface_${uid}`;
+    }
+
     return [options?.naming?.prefix, _.upperFirst(_.camelCase(uid))]
       .filter((v) => v)
       .join("");
@@ -161,14 +175,41 @@ export default function (userOptions: TSGenOptions) {
     contentType: ContentstackTypes.ContentType | ContentstackTypes.GlobalField,
     systemFields = false
   ) {
-    const interface_declaration = [
-      "export interface",
-      name_type(
-        contentType.data_type === "global_field"
-          ? (contentType.reference_to as string)
-          : contentType.uid
-      ),
-    ];
+    // Validate the interface name before creating it
+    let interfaceName: string;
+
+    const isGlobalField = contentType.data_type === "global_field";
+
+    // Check if the content type's own UID starts with a number
+    if (isNumericIdentifier(contentType.uid)) {
+      numericIdentifierErrors.push({
+        uid: contentType.uid,
+        type: "content_type",
+      });
+      // Return a fallback interface declaration to continue processing
+      interfaceName = `InvalidInterface_${contentType.uid}`;
+    } else if (
+      isGlobalField &&
+      contentType.reference_to &&
+      isNumericIdentifier(contentType.reference_to as string)
+    ) {
+      // For global fields, check if the referenced content type has a numeric identifier
+      // This is a global field error because it references an invalid content type
+      numericIdentifierErrors.push({
+        uid: contentType.uid, // The global field's UID
+        type: "global_field",
+        referenceTo: contentType.reference_to as string, // The referenced content type's UID
+      });
+      // Return a fallback interface declaration to continue processing
+      interfaceName = `InvalidInterface_${contentType.reference_to}`;
+    } else {
+      // No numeric identifier issues, generate normal interface name
+      interfaceName = name_type(
+        isGlobalField ? (contentType.reference_to as string) : contentType.uid
+      );
+    }
+
+    const interface_declaration = ["export interface", interfaceName];
     if (systemFields && contentType.schema_type !== "global_field") {
       interface_declaration.push("extends", name_type("SystemFields"));
     }
@@ -569,6 +610,11 @@ export default function (userOptions: TSGenOptions) {
     }
 
     const definition = visit_content_type(contentType);
+
+    // Check for numeric identifier errors and throw them immediately
+    if (numericIdentifierErrors.length > 0) {
+      throwNumericIdentifierValidationError(numericIdentifierErrors);
+    }
 
     // Log summary table of skipped fields and blocks
     if (skippedFields.length > 0 || skippedBlocks.length > 0) {

@@ -129,7 +129,7 @@ describe("generateTS function", () => {
     expect(generatedTS).toMatch(/Dishes/); // Check for whether typeDef of Content type is included
     expect(generatedTS).toMatch(/Seo/); // Check for whether typeDef of Global Fields is included
     expect(generatedTS).toMatch(/export interface SystemFields \{\n/); // Check for whether System Fields are Created
-    expect(generatedTS).toMatch(/extends SystemFields \{\n/); // Check for whether interfaces have extended system fields interface
+    expect(generatedTS).toMatch(/extends SystemFields\s*\{/); // Check for whether interfaces have extended system fields interface
     expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
   });
 });

@@ -57,3 +57,90 @@ export function checkNumericIdentifierExclusion(
   }
   return { shouldExclude: false };
 }
+
+/**
+ * Throws a UID validation error with standardized structure
+ * @param params - Object containing error parameters
+ * @param params.uid - The UID that caused the validation error
+ * @param params.errorCode - The error code for the validation error
+ * @param params.reason - The reason for the validation error
+ * @param params.suggestion - The suggestion to resolve the issue
+ * @param params.context - The context where the error occurred
+ * @param params.referenceTo - Optional reference UID for global field errors
+ * @throws A validation error object
+ */
+export function throwUIDValidationError({
+  uid,
+  errorCode,
+  reason,
+  suggestion,
+  context,
+  referenceTo,
+}: {
+  uid: string;
+  errorCode: string;
+  reason: string;
+  suggestion: string;
+  context: string;
+  referenceTo?: string;
+}): never {
+  const errorMessage =
+    errorCode === "INVALID_GLOBAL_FIELD_REFERENCE"
+      ? `Global field "${uid}" references content type "${referenceTo}" which starts with a number, creating invalid TypeScript interface names.`
+      : `Content type UID "${uid}" starts with a number, which creates invalid TypeScript interface names.`;
+
+  throw {
+    type: "validation",
+    error_code: errorCode,
+    error_message: errorMessage,
+    details: {
+      uid,
+      ...(referenceTo ? { reference_to: referenceTo } : {}),
+      reason,
+      suggestion,
+    },
+    context,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+/**
+ * Creates a validation error in the exact format expected by tests
+ * This maintains backward compatibility while reducing code duplication
+ * @param errorMessage - The error message to display
+ * @returns A validation error object with the expected structure
+ */
+export function createValidationError(errorMessage: string) {
+  return {
+    type: "validation",
+    error_message: errorMessage,
+  };
+}
+
+/**
+ * Creates standardized error details for different types of errors
+ * @param err - The error object to process
+ * @param context - The context where the error occurred
+ * @returns Standardized error details object
+ */
+export function createErrorDetails(
+  err: any,
+  context: string = "generateTSFromContentTypes"
+) {
+  if (err.type === "validation") {
+    // Handle validation errors with proper error codes
+    return {
+      error_message: err.error_message || "Validation error occurred", // Keep for backwards compatibility
+      error_code: err.error_code || "VALIDATION_ERROR", // New property
+      details: err.details || {},
+    };
+  } else {
+    // Handle other types of errors
+    const errorMessage = err.message || "Unknown error occurred";
+    return {
+      error_message: `Type generation failed: ${errorMessage}`, // Keep for backwards compatibility
+      error_code: "TYPE_GENERATION_FAILED", // New property
+      details: {},
+    };
+  }
+}

@@ -11,6 +11,7 @@ import { defaultInterfaces } from "./stack/builtins";
 import { format } from "../format/index";
 import { ContentType } from "../types/schema";
 import { cliux } from "@contentstack/cli-utilities";
+import { createValidationError, createErrorDetails } from "./shared/utils";
 
 export const generateTS = async ({
   token,
@@ -28,11 +29,9 @@ export const generateTS = async ({
 }: GenerateTS) => {
   try {
     if (!token || !tokenType || !apiKey || !environment || !region) {
-      throw {
-        type: "validation",
-        error_message:
-          "Please provide all the required params (token, tokenType, apiKey, environment, region)",
-      };
+      throw createValidationError(
+        "Please provide all the required params (token, tokenType, apiKey, environment, region)"
+      );
     }
 
     if (tokenType === TOKEN_TYPE.DELIVERY) {
@@ -62,11 +61,9 @@ export const generateTS = async ({
           "Please create Content Models to generate type definitions",
           { color: "yellow" }
         );
-        throw {
-          type: "validation",
-          error_message:
-            "There are no Content Types in the Stack, please create Content Models to generate type definitions",
-        };
+        throw createValidationError(
+          "There are no Content Types in the Stack, please create Content Models to generate type definitions"
+        );
       }
 
       let schemas: ContentType[] = [];
@@ -95,43 +92,40 @@ export const generateTS = async ({
     }
   } catch (error: any) {
     if (error.type === "validation") {
-      throw { error_message: error.error_message };
+      // Handle validation errors with proper error codes
+      throw {
+        error_message: error.error_message,
+        error_code: error.error_code || "VALIDATION_ERROR",
+      };
     } else {
       const errorObj = JSON.parse(error.message.replace("Error: ", ""));
       let errorMessage = "Something went wrong";
+      let errorCode = "API_ERROR";
+
       if (errorObj.status) {
         switch (errorObj.status) {
           case 401:
-            cliux.print("Authentication failed", {
-              color: "red",
-              bold: true,
-            });
-            cliux.print("Please check your apiKey, token, and region", {
-              color: "yellow",
-            });
             errorMessage =
               "Unauthorized: The apiKey, token or region is not valid.";
+            errorCode = "AUTHENTICATION_FAILED";
             break;
           case 412:
-            cliux.print("Invalid credentials", { color: "red", bold: true });
-            cliux.print("Please verify your apiKey, token, and region", {
-              color: "yellow",
-            });
             errorMessage =
               "Invalid Credentials: Please check the provided apiKey, token and region.";
+            errorCode = "INVALID_CREDENTIALS";
             break;
           default:
-            cliux.print(`API Error (${errorObj.status})`, {
-              color: "red",
-              bold: true,
-            });
             errorMessage = `${errorMessage}, ${errorObj.error_message}`;
+            errorCode = `API_ERROR_${errorObj.status}`;
         }
       }
       if (errorObj.error_message && !errorObj.status) {
         errorMessage = `${errorMessage}, ${errorObj.error_message}`;
       }
-      throw { error_message: errorMessage };
+      throw {
+        error_message: errorMessage,
+        error_code: errorCode,
+      };
     }
   }
 };
@@ -193,21 +187,19 @@ export const generateTSFromContentTypes = async ({
 
     return output;
   } catch (err: any) {
-    // Enhanced error logging with more context
-    const errorMessage = err.message || "Unknown error occurred";
-    const errorDetails = {
-      error_message: `Type generation failed: ${errorMessage}`,
-      context: "generateTSFromContentTypes",
-      timestamp: new Date().toISOString(),
-      error_type: err.constructor.name,
-    };
+    // Handle numeric identifier errors specially to preserve their detailed format
+    if (
+      err.type === "validation" &&
+      err.error_code === "VALIDATION_ERROR" &&
+      err.error_message &&
+      err.error_message.includes("numeric identifiers")
+    ) {
+      // Pass through the detailed error as-is
+      throw err;
+    }
 
-    // Log detailed error information for debugging
-    cliux.print(`Type generation failed: ${errorMessage}`, {
-      color: "red",
-      bold: true,
-    });
-
+    // Use common function to create detailed error information for other errors
+    const errorDetails = createErrorDetails(err, "generateTSFromContentTypes");
     throw errorDetails;
   }
 };

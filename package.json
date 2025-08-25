@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/types-generator",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "description": "Contentstack type definition generation library",
   "private": false,
   "author": "Contentstack",
@@ -40,13 +40,13 @@
     "husky": "^9.1.7",
     "jest": "^29.7.0",
     "nock": "^13.5.6",
-    "rollup": "^4.46.2",
+    "rollup": "^4.48.0",
     "ts-jest": "^29.4.0",
     "tsup": "^8.5.0",
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@contentstack/cli-utilities": "^1.13.0",
+    "@contentstack/cli-utilities": "^1.13.1",
     "@contentstack/delivery-sdk": "^4.8.0",
     "@gql2ts/from-schema": "^2.0.0-4",
     "async": "^3.2.6",

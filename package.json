@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/types-generator",
-  "version": "3.7.0",
+  "version": "3.7.1",
   "description": "Contentstack type definition generation library",
   "private": false,
   "author": "Contentstack",
@@ -11,7 +11,8 @@
     "prepare": "npm run build",
     "build": "tsup",
     "husky-check": "npx husky && chmod +x .husky/pre-commit",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --testPathPattern=tests"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --testPathPattern=tests",
+    "test:unit:report:json": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --testPathPattern=tests/unit --coverage --coverageReporters=clover --coverageReporters=json --coverageDirectory=coverage"
   },
   "repository": {
     "type": "git",

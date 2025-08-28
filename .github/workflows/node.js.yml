@@ -44,7 +44,7 @@ jobs:
         with:
           name: Jest Unit Test
           path: test-results.json
-          reporter: jest
+          reporter: mocha-json
 
       - name: Coverage Report
         uses: lucassabreu/comment-coverage-clover@main

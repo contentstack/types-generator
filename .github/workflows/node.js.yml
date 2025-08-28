@@ -38,14 +38,6 @@ jobs:
           TOKENTYPE: ${{secrets.TOKENTYPE}}
           BRANCH: ${{secrets.BRANCH}}
 
-      - name: Test Report
-        uses: dorny/test-reporter@v1
-        if: success() || failure()
-        with:
-          name: Jest Unit Test
-          path: test-results.json
-          reporter: mocha-json
-
       - name: Coverage Report
         uses: lucassabreu/comment-coverage-clover@main
         with:

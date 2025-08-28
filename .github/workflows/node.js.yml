@@ -43,8 +43,8 @@ jobs:
         if: success() || failure()
         with:
           name: Jest Unit Test
-          path: coverage/coverage-final.json
-          reporter: jest-json
+          path: test-results.json
+          reporter: jest
 
       - name: Coverage Report
         uses: lucassabreu/comment-coverage-clover@main

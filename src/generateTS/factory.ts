@@ -551,11 +551,8 @@ export default function (userOptions: TSGenOptions) {
 
       return `${types}[]`;
     }
-
-    const baseType =
-      references.length === 1 ? references[0] : references.join(" | ");
-
-    return `${baseType}[]`;
+    const baseUnion = references.join(" | ");
+    return `(${baseUnion})[]`;
   }
 
   function type_reference(field: ContentstackTypes.Field) {

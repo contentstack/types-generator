@@ -40,5 +40,6 @@ jobs:
 
       - name: Coverage Report
         uses: lucassabreu/comment-coverage-clover@main
+        if: github.event_name == 'pull_request'
         with:
           file: coverage/clover.xml

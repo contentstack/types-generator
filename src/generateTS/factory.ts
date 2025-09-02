@@ -546,21 +546,13 @@ export default function (userOptions: TSGenOptions) {
     if (options.includeReferencedEntry) {
       const referencedEntryType = `${options.naming?.prefix || ""}ReferencedEntry`;
 
-      const wrapWithReferencedEntry = (refType: string) =>
-        `(${refType} | ${referencedEntryType})`;
-
-      const types =
-        references.length === 1
-          ? wrapWithReferencedEntry(references[0])
-          : references.map(wrapWithReferencedEntry).join(" | ");
+      const baseUnion = references.join(" | ");
+      const types = `(${baseUnion} | ${referencedEntryType})`;
 
       return `${types}[]`;
     }
-
-    const baseType =
-      references.length === 1 ? references[0] : references.join(" | ");
-
-    return `${baseType}[]`;
+    const baseUnion = references.join(" | ");
+    return `(${baseUnion})[]`;
   }
 
   function type_reference(field: ContentstackTypes.Field) {

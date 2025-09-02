@@ -23,10 +23,11 @@ jobs:
         uses: actions/setup-node@v3.7.0
         with:
           node-version: ${{ matrix.node-version }}
-      - run: | 
+      - run: |
           rm -rf node_modules package-lock.json
           npm i
-      - run: npm test
+      - name: Run tests with coverage
+        run: npm run test:unit:report:json
         env:
           TOKEN: ${{secrets.TOKEN}}
           TOKEN_WITH_NO_CT: ${{secrets.TOKEN_WITH_NO_CT}}
@@ -36,3 +37,9 @@ jobs:
           REGION: ${{secrets.REGION}}
           TOKENTYPE: ${{secrets.TOKENTYPE}}
           BRANCH: ${{secrets.BRANCH}}
+
+      - name: Coverage Report
+        uses: lucassabreu/comment-coverage-clover@main
+        if: github.event_name == 'pull_request'
+        with:
+          file: coverage/clover.xml

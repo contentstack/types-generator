@@ -41,8 +41,8 @@ describe("references", () => {
         _version?: number;
         title: string;
         url: string;
-        single_reference: IReferenceChild[];
-        multiple_reference?: IReferenceChild | IBoolean | IBuiltinExample[];
+        single_reference: (IReferenceChild)[];
+        multiple_reference?: (IReferenceChild | IBoolean | IBuiltinExample)[];
         }"
       `);
     });
@@ -71,7 +71,7 @@ describe("references", () => {
         title: string;
         url: string;
         single_reference: (IReferenceChild | IReferencedEntry)[];
-        multiple_reference?: (IReferenceChild | IReferencedEntry) | (IBoolean | IReferencedEntry) | (IBuiltinExample | IReferencedEntry)[];
+        multiple_reference?: (IReferenceChild | IBoolean | IBuiltinExample | IReferencedEntry)[];
         }"
       `);
     });

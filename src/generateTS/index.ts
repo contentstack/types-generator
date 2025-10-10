@@ -10,7 +10,7 @@ import tsgenFactory from "./factory";
 import { defaultInterfaces } from "./stack/builtins";
 import { format } from "../format/index";
 import { ContentType } from "../types/schema";
-import { cliux } from "@contentstack/cli-utilities";
+import { createLogger } from "../logger";
 import { createValidationError, createErrorDetails } from "./shared/utils";
 
 export const generateTS = async ({
@@ -26,7 +26,9 @@ export const generateTS = async ({
   isEditableTags,
   includeReferencedEntry,
   host,
+  logger: loggerInstance,
 }: GenerateTS) => {
+  const logger = createLogger(loggerInstance);
   try {
     if (!token || !tokenType || !apiKey || !environment || !region) {
       throw createValidationError(
@@ -53,13 +55,9 @@ export const generateTS = async ({
       const { content_types }: any = contentTypes;
 
       if (!content_types.length) {
-        cliux.print("No Content Types found in the Stack", {
-          color: "red",
-          bold: true,
-        });
-        cliux.print(
-          "Please create Content Models to generate type definitions",
-          { color: "yellow" }
+        logger.error("No Content Types found in the Stack");
+        logger.warn(
+          "Please create Content Models to generate type definitions"
         );
         throw createValidationError(
           "There are no Content Types in the Stack, please create Content Models to generate type definitions"
@@ -98,7 +96,7 @@ export const generateTS = async ({
         error_code: error.error_code || "VALIDATION_ERROR",
       };
     } else {
-      const errorObj = JSON.parse(error.message.replace("Error: ", ""));
+      const errorObj = JSON.parse(error?.message?.replace("Error: ", ""));
       let errorMessage = "Something went wrong";
       let errorCode = "API_ERROR";
 
@@ -137,7 +135,9 @@ export const generateTSFromContentTypes = async ({
   systemFields = false,
   isEditableTags = false,
   includeReferencedEntry = false,
+  logger: loggerInstance,
 }: GenerateTSFromContentTypes) => {
+  const logger = createLogger(loggerInstance);
   try {
     const docgen: DocumentationGenerator = includeDocumentation
       ? new JSDocumentationGenerator()
@@ -151,6 +151,7 @@ export const generateTSFromContentTypes = async ({
       systemFields,
       isEditableTags,
       includeReferencedEntry,
+      logger,
     });
     for (const contentType of contentTypes) {
       const tsgenResult = tsgen(contentType);

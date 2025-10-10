@@ -18,7 +18,7 @@ export interface Logger {
  * Basic logger implementation for standalone usage
  * Provides console-based logging with basic formatting
  */
-class BasicLogger implements Logger {
+export class BasicLogger implements Logger {
   private colorMap: Record<string, string> = {
     red: "\x1b[31m",
     green: "\x1b[32m",

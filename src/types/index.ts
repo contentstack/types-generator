@@ -25,12 +25,14 @@ export interface GenerateTSBase extends StackConnectionConfig {
   systemFields?: boolean;
   isEditableTags?: boolean;
   includeReferencedEntry?: boolean;
+  logger?: any;
 }
 
 export type GenerateTS = GenerateTSBase;
 
 export interface GraphQLBase extends StackConnectionConfig {
   namespace?: string;
+  logger?: any;
 }
 
 export interface GenerateTSFromContentTypes {
@@ -40,4 +42,5 @@ export interface GenerateTSFromContentTypes {
   systemFields?: boolean;
   isEditableTags?: boolean;
   includeReferencedEntry?: boolean;
+  logger?: any;
 }

@@ -3,7 +3,7 @@ import NullDocumentationGenerator from "./docgen/nulldoc";
 import * as ContentstackTypes from "../types/schema";
 import * as _ from "lodash";
 import { CSLP_HELPERS } from "./shared/cslp-helpers";
-import { cliux } from "@contentstack/cli-utilities";
+import { Logger } from "../logger";
 import {
   isNumericIdentifier,
   NUMERIC_IDENTIFIER_EXCLUSION_REASON,
@@ -19,6 +19,7 @@ export type TSGenOptions = {
   systemFields?: boolean;
   isEditableTags?: boolean;
   includeReferencedEntry?: boolean;
+  logger?: Logger;
 };
 
 export type TSGenResult = {
@@ -80,6 +81,7 @@ const defaultOptions: TSGenOptions = {
 
 export default function (userOptions: TSGenOptions) {
   const options = Object.assign({}, defaultOptions, userOptions);
+  const logger = options.logger;
   const visitedJSTypes = new Set<string>();
   const visitedCSTypes = new Set<string>();
   const visitedGlobalFields = new Set<string>();
@@ -273,9 +275,8 @@ export default function (userOptions: TSGenOptions) {
         // Log warning for unknown field type instead of failing silently
         const reason = `Unknown field type: ${field.data_type}`;
         skippedFields.push({ uid: field.uid, path: field.uid, reason });
-        cliux.print(
-          `Skipped field "${field.uid}" with unknown type "${field.data_type}": ${reason}`,
-          { color: "yellow" }
+        logger?.warn(
+          `Skipped field "${field.uid}" with unknown type "${field.data_type}": ${reason}`
         );
         type = "Record<string, unknown>"; // Use Record<string, unknown> for balanced type safety
       }
@@ -292,9 +293,8 @@ export default function (userOptions: TSGenOptions) {
     );
     if (exclusionCheck.shouldExclude) {
       skippedFields.push(exclusionCheck.record!);
-      cliux.print(
-        `Skipped global field reference "${field.uid}" to "${field.reference_to}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`,
-        { color: "yellow" }
+      logger?.warn(
+        `Skipped global field reference "${field.uid}" to "${field.reference_to}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`
       );
       return "string"; // Use string as fallback for global field references
     }
@@ -347,9 +347,8 @@ export default function (userOptions: TSGenOptions) {
       );
       if (exclusionCheck.shouldExclude) {
         skippedFields.push(exclusionCheck.record!);
-        cliux.print(
-          `Skipped field "${field.uid}" at path "${fieldPath}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`,
-          { color: "yellow" }
+        logger?.warn(
+          `Skipped field "${field.uid}" at path "${fieldPath}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`
         );
         continue;
       }
@@ -411,9 +410,8 @@ export default function (userOptions: TSGenOptions) {
         );
         if (exclusionCheck.shouldExclude) {
           skippedBlocks.push(exclusionCheck.record!);
-          cliux.print(
-            `Skipped block "${block.uid}" at path "${blockPath}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`,
-            { color: "yellow" }
+          logger?.warn(
+            `Skipped block "${block.uid}" at path "${blockPath}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`
           );
           return null; // Return null to filter out later
         }
@@ -514,11 +512,8 @@ export default function (userOptions: TSGenOptions) {
     );
     if (exclusionCheck.shouldExclude) {
       skippedFields.push(exclusionCheck.record!);
-      cliux.print(
-        `Skipped global field "${field.uid}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`,
-        {
-          color: "yellow",
-        }
+      logger?.warn(
+        `Skipped global field "${field.uid}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`
       );
       return "string"; // Use string as fallback for global fields
     }
@@ -526,9 +521,8 @@ export default function (userOptions: TSGenOptions) {
     if (!field.schema) {
       const reason = "Schema not found for global field";
       skippedFields.push({ uid: field.uid, path: field.uid, reason });
-      cliux.print(
-        `Skipped global field "${field.uid}": ${reason}. Did you forget to include it?`,
-        { color: "yellow" }
+      logger?.warn(
+        `Skipped global field "${field.uid}": ${reason}. Did you forget to include it?`
       );
       return "string"; // Use string as fallback
     }
@@ -564,9 +558,8 @@ export default function (userOptions: TSGenOptions) {
         if (!isNumericIdentifier(v)) {
           references.push(name_type(v));
         } else {
-          cliux.print(
-            `Skipped reference to content type "${v}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`,
-            { color: "yellow" }
+          logger?.warn(
+            `Skipped reference to content type "${v}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`
           );
         }
       });
@@ -575,9 +568,8 @@ export default function (userOptions: TSGenOptions) {
       if (!isNumericIdentifier(field.reference_to)) {
         references.push(name_type(field.reference_to));
       } else {
-        cliux.print(
-          `Skipped reference to content type "${field.reference_to}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`,
-          { color: "yellow" }
+        logger?.warn(
+          `Skipped reference to content type "${field.reference_to}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`
         );
       }
     }
@@ -609,12 +601,9 @@ export default function (userOptions: TSGenOptions) {
     }
 
     // Log summary table of skipped fields and blocks
-    if (skippedFields.length > 0 || skippedBlocks.length > 0) {
-      cliux.print("");
-      cliux.print("Summary of Skipped Items:", {
-        color: "cyan",
-        bold: true,
-      });
+    if (logger && (skippedFields.length > 0 || skippedBlocks.length > 0)) {
+      logger.info("");
+      logger.info("Summary of Skipped Items:");
 
       // Create combined table data for all skipped items
       const allSkippedItems = [
@@ -633,22 +622,22 @@ export default function (userOptions: TSGenOptions) {
       ];
 
       // Display table
-      cliux.table(
-        [
-          { value: "Type" },
-          { value: "Key Name" },
-          { value: "Schema Path" },
-          { value: "Reason" },
-        ],
-        allSkippedItems
-      );
+      if (logger.table) {
+        logger.table(
+          [
+            { value: "Type" },
+            { value: "Key Name" },
+            { value: "Schema Path" },
+            { value: "Reason" },
+          ],
+          allSkippedItems
+        );
+      }
 
       const totalSkipped = skippedFields.length + skippedBlocks.length;
-      cliux.print("", {});
-      cliux.print(`Total skipped items: ${totalSkipped}`, {
-        color: "yellow",
-      });
-      cliux.success(" Generation completed successfully with partial schema.");
+      logger.info("");
+      logger.warn(`Total skipped items: ${totalSkipped}`);
+      logger.success(" Generation completed successfully with partial schema.");
     }
 
     return {

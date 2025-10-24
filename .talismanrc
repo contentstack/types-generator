@@ -3,7 +3,7 @@ fileignoreconfig:
     ignore_detectors:
       - filecontent
   - filename: package-lock.json
-    checksum: 35b758adb3abe2b477af0d3197c05d3e34763cae3507c6d9607fca660f94e337
+    checksum: 57ee816f79e4f41c43091caf1bcfded44ea48f592e3f437d9aee81e5c8156382
   - filename: .husky/pre-commit
     checksum: 5baabd7d2c391648163f9371f0e5e9484f8fb90fa2284cfc378732ec3192c193
   - filename: src/graphqlTS/index.ts

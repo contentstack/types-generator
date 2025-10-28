@@ -15,3 +15,5 @@ export const REGIONS = {
   GCP_EU: "GCP_EU",
   CUSTOM: "CUSTOM",
 };
+
+export { ERROR_MESSAGES, INFO_MESSAGES, WARNING_MESSAGES } from "./messages";

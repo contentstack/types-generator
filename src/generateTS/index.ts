@@ -1,6 +1,6 @@
 import async from "async";
 import { flatMap, flatten } from "lodash";
-import { TOKEN_TYPE } from "../constants";
+import { TOKEN_TYPE, ERROR_MESSAGES } from "../constants";
 import { initializeContentstackSdk } from "../sdk/utils";
 import { GenerateTS, GenerateTSFromContentTypes } from "../types";
 import { DocumentationGenerator } from "./docgen/doc";
@@ -55,13 +55,9 @@ export const generateTS = async ({
       const { content_types }: any = contentTypes;
 
       if (!content_types.length) {
-        logger.error("No Content Types found in the Stack");
-        logger.warn(
-          "Please create Content Models to generate type definitions"
-        );
-        throw createValidationError(
-          "There are no Content Types in the Stack, please create Content Models to generate type definitions"
-        );
+        logger.error(ERROR_MESSAGES.NO_CONTENT_TYPES);
+        logger.warn(ERROR_MESSAGES.CREATE_CONTENT_MODELS);
+        throw createValidationError(ERROR_MESSAGES.NO_CONTENT_TYPES_DETAILED);
       }
 
       let schemas: ContentType[] = [];
@@ -97,23 +93,21 @@ export const generateTS = async ({
       };
     } else {
       const errorObj = JSON.parse(error?.message?.replace("Error: ", ""));
-      let errorMessage = "Something went wrong";
+      let errorMessage = ERROR_MESSAGES.API_ERROR_DEFAULT;
       let errorCode = "API_ERROR";
 
       if (errorObj.status) {
         switch (errorObj.status) {
           case 401:
-            errorMessage =
-              "Unauthorized: The apiKey, token or region is not valid.";
+            errorMessage = ERROR_MESSAGES.UNAUTHORIZED;
             errorCode = "AUTHENTICATION_FAILED";
             break;
           case 412:
-            errorMessage =
-              "Invalid Credentials: Please check the provided apiKey, token and region.";
+            errorMessage = ERROR_MESSAGES.INVALID_CREDENTIALS;
             errorCode = "INVALID_CREDENTIALS";
             break;
           default:
-            errorMessage = `${errorMessage}, ${errorObj.error_message}`;
+            errorMessage = ERROR_MESSAGES.API_ERROR_WITH_STATUS(errorObj.status, errorObj.error_message);
             errorCode = `API_ERROR_${errorObj.status}`;
         }
       }

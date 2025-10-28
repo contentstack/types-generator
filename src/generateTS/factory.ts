@@ -10,6 +10,7 @@ import {
   checkNumericIdentifierExclusion,
   throwNumericIdentifierValidationError,
 } from "./shared/utils";
+import { ERROR_MESSAGES } from "../constants";
 
 export type TSGenOptions = {
   docgen: DocumentationGenerator;
@@ -276,7 +277,7 @@ export default function (userOptions: TSGenOptions) {
         const reason = `Unknown field type: ${field.data_type}`;
         skippedFields.push({ uid: field.uid, path: field.uid, reason });
         logger?.warn(
-          `Skipped field "${field.uid}" with unknown type "${field.data_type}": ${reason}`
+          ERROR_MESSAGES.SKIPPED_FIELD_UNKNOWN_TYPE(field.uid, field.data_type, reason)
         );
         type = "Record<string, unknown>"; // Use Record<string, unknown> for balanced type safety
       }
@@ -294,7 +295,7 @@ export default function (userOptions: TSGenOptions) {
     if (exclusionCheck.shouldExclude) {
       skippedFields.push(exclusionCheck.record!);
       logger?.warn(
-        `Skipped global field reference "${field.uid}" to "${field.reference_to}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`
+        ERROR_MESSAGES.SKIPPED_GLOBAL_FIELD_REFERENCE(field.uid, field.reference_to, NUMERIC_IDENTIFIER_EXCLUSION_REASON)
       );
       return "string"; // Use string as fallback for global field references
     }
@@ -348,7 +349,7 @@ export default function (userOptions: TSGenOptions) {
       if (exclusionCheck.shouldExclude) {
         skippedFields.push(exclusionCheck.record!);
         logger?.warn(
-          `Skipped field "${field.uid}" at path "${fieldPath}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`
+          ERROR_MESSAGES.SKIPPED_FIELD_AT_PATH(field.uid, fieldPath, NUMERIC_IDENTIFIER_EXCLUSION_REASON)
         );
         continue;
       }
@@ -411,7 +412,7 @@ export default function (userOptions: TSGenOptions) {
         if (exclusionCheck.shouldExclude) {
           skippedBlocks.push(exclusionCheck.record!);
           logger?.warn(
-            `Skipped block "${block.uid}" at path "${blockPath}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`
+            ERROR_MESSAGES.SKIPPED_BLOCK_AT_PATH(block.uid, blockPath, NUMERIC_IDENTIFIER_EXCLUSION_REASON)
           );
           return null; // Return null to filter out later
         }
@@ -513,7 +514,7 @@ export default function (userOptions: TSGenOptions) {
     if (exclusionCheck.shouldExclude) {
       skippedFields.push(exclusionCheck.record!);
       logger?.warn(
-        `Skipped global field "${field.uid}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`
+        ERROR_MESSAGES.SKIPPED_GLOBAL_FIELD(field.uid, NUMERIC_IDENTIFIER_EXCLUSION_REASON)
       );
       return "string"; // Use string as fallback for global fields
     }
@@ -522,7 +523,7 @@ export default function (userOptions: TSGenOptions) {
       const reason = "Schema not found for global field";
       skippedFields.push({ uid: field.uid, path: field.uid, reason });
       logger?.warn(
-        `Skipped global field "${field.uid}": ${reason}. Did you forget to include it?`
+        ERROR_MESSAGES.SKIPPED_GLOBAL_FIELD_NO_SCHEMA(field.uid, reason)
       );
       return "string"; // Use string as fallback
     }
@@ -559,7 +560,7 @@ export default function (userOptions: TSGenOptions) {
           references.push(name_type(v));
         } else {
           logger?.warn(
-            `Skipped reference to content type "${v}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`
+            ERROR_MESSAGES.SKIPPED_REFERENCE(v, NUMERIC_IDENTIFIER_EXCLUSION_REASON)
           );
         }
       });
@@ -569,7 +570,7 @@ export default function (userOptions: TSGenOptions) {
         references.push(name_type(field.reference_to));
       } else {
         logger?.warn(
-          `Skipped reference to content type "${field.reference_to}": ${NUMERIC_IDENTIFIER_EXCLUSION_REASON}`
+          ERROR_MESSAGES.SKIPPED_REFERENCE(field.reference_to, NUMERIC_IDENTIFIER_EXCLUSION_REASON)
         );
       }
     }
@@ -603,7 +604,7 @@ export default function (userOptions: TSGenOptions) {
     // Log summary table of skipped fields and blocks
     if (logger && (skippedFields.length > 0 || skippedBlocks.length > 0)) {
       logger.info("");
-      logger.info("Summary of Skipped Items:");
+      logger.info(ERROR_MESSAGES.SUMMARY_HEADER);
 
       // Create combined table data for all skipped items
       const allSkippedItems = [
@@ -636,8 +637,8 @@ export default function (userOptions: TSGenOptions) {
 
       const totalSkipped = skippedFields.length + skippedBlocks.length;
       logger.info("");
-      logger.warn(`Total skipped items: ${totalSkipped}`);
-      logger.success(" Generation completed successfully with partial schema.");
+      logger.warn(ERROR_MESSAGES.TOTAL_SKIPPED_ITEMS(totalSkipped));
+      logger.success(ERROR_MESSAGES.GENERATION_COMPLETED_PARTIAL);
     }
 
     return {

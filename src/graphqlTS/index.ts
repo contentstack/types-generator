@@ -3,6 +3,7 @@ import { GraphQLBase } from "../types";
 import { introspectionQuery } from "./queries";
 import axios from "axios";
 import { createLogger } from "../logger";
+import { ERROR_MESSAGES } from "../constants";
 
 type RegionUrlMap = {
   [prop: string]: string;
@@ -31,8 +32,8 @@ export async function graphqlTS({
   const logger = createLogger(loggerInstance);
   try {
     if (!token || !apiKey || !environment || !region) {
-      logger.error("Missing required parameters");
-      logger.warn("Required: token, apiKey, environment, region");
+      logger.error(ERROR_MESSAGES.MISSING_REQUIRED_PARAMS);
+      logger.warn(ERROR_MESSAGES.REQUIRED_PARAMS_LIST);
       throw {
         type: "validation",
         error_message:
@@ -61,14 +62,12 @@ export async function graphqlTS({
     }
 
     if (!GRAPHQL_REGION_URL_MAPPING[region] && !host) {
-      logger.error(`Unsupported region: ${region}`);
-      logger.warn(
-        "Supported regions: US, EU, AU, AZURE_NA, AZURE_EU, GCP_NA, GCP_EU"
-      );
-      logger.warn("Or provide a custom host");
+      logger.error(ERROR_MESSAGES.UNSUPPORTED_REGION(region));
+      logger.warn(ERROR_MESSAGES.SUPPORTED_REGIONS);
+      logger.warn(ERROR_MESSAGES.CUSTOM_HOST_OPTION);
       throw {
         type: "validation",
-        error_message: `GraphQL content delivery api unavailable for '${region}' region and no custom host provided`,
+        error_message: ERROR_MESSAGES.GRAPHQL_API_UNAVAILABLE(region),
       };
     }
 
@@ -92,8 +91,7 @@ export async function graphqlTS({
 
     if (error.response?.status === 412) {
       throw {
-        error_message:
-          "Unauthorized: The apiKey, token or environment is not valid.",
+        error_message: ERROR_MESSAGES.INVALID_CREDENTIALS_GRAPHQL,
       };
     } else {
       let details = "";
@@ -120,9 +118,7 @@ export async function graphqlTS({
 
       throw {
         error_message:
-          details ||
-          errorMessage ||
-          "An error occurred while processing GraphQL schema",
+          details || errorMessage || ERROR_MESSAGES.GRAPHQL_SCHEMA_ERROR,
       };
     }
   }

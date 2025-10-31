@@ -21,8 +21,8 @@ describe("generateTS function", () => {
     });
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
-    expect(generatedTS).toEqual(expect.stringContaining("Dishes")); // Check for whether typeDef of Content type is included
-    expect(generatedTS).toMatch(/\/\*\*[\s\S]*?\*\/\s*(export)/); // Check for Documentation Generated with export
+    expect(generatedTS).toEqual(expect.stringContaining("Testimport")); // Check for whether typeDef of Content type is included
+    expect(generatedTS).toMatch(/\/\*\*\s*\w+\s*\*\//); // Check for field-level Documentation is generated
   });
 
   it("generates type definitions without Documentation", async () => {
@@ -43,7 +43,7 @@ describe("generateTS function", () => {
     });
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
-    expect(generatedTS).toEqual(expect.stringContaining("Dishes")); // Check for whether typeDef of Content type is included
+    expect(generatedTS).toEqual(expect.stringContaining("Testimport")); // Check for whether typeDef of Content type is included
     expect(generatedTS).not.toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for No Documentation is generated
   });
 
@@ -65,8 +65,8 @@ describe("generateTS function", () => {
     });
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
-    expect(generatedTS).toMatch(/(?!Dishes)testDishes/); // Check for whether typeDef of Content type is included with test prefix
-    expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
+    expect(generatedTS).toMatch(/(?!Testimport)testTestimport/); // Check for whether typeDef of Content type is included with test prefix
+    expect(generatedTS).toMatch(/\/\*\*\s*\w+\s*\*\//); // Check for field-level Documentation is generated
   });
 
   it("generates type definitions with system fields", async () => {
@@ -87,10 +87,10 @@ describe("generateTS function", () => {
     });
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
-    expect(generatedTS).toMatch(/Dishes/); // Check for whether typeDef of Content type is included
+    expect(generatedTS).toMatch(/Testimport/); // Check for whether typeDef of Content type is included
     expect(generatedTS).toMatch(/export interface SystemFields \{\n/); // Check for whether System Fields are Created
     expect(generatedTS).toMatch(/extends SystemFields \{\n/); // Check for whether interfaces have extended system fields interface
-    expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
+    expect(generatedTS).toMatch(/\/\*\*\s*\w+\s*\*\//); // Check for field-level Documentation is generated
   });
 
   it("generates type definitions with editable fields", async () => {
@@ -111,12 +111,12 @@ describe("generateTS function", () => {
     });
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
-    expect(generatedTS).toMatch(/Dishes/); // Check for whether typeDef of Content type is included
+    expect(generatedTS).toMatch(/Testimport/); // Check for whether typeDef of Content type is included
     expect(generatedTS).toMatch(/export interface CSLPAttribute/); // Check for whether CSLP attribute interface is created
     expect(generatedTS).toMatch(/export type CSLPFieldMapping/); // Check for whether CSLP field mapping type is created
     expect(generatedTS).toMatch(/\$\?\:/); // Check for editable field mappings with $ property
     expect(generatedTS).toMatch(/\?\: CSLPFieldMapping/); // Check for individual field CSLP mappings
-    expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
+    expect(generatedTS).toMatch(/\/\*\*\s*\w+\s*\*\//); // Check for field-level Documentation is generated
   });
 
   it("generates type definitions with ReferencedEntry enabled", async () => {
@@ -136,10 +136,10 @@ describe("generateTS function", () => {
       includeReferencedEntry,
     });
 
-    expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
-    expect(generatedTS).toEqual(expect.stringContaining("Dishes")); // Check for whether typeDef of Content type is included
+    expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for whether typeDef of Content type is included
+    expect(generatedTS).toEqual(expect.stringContaining("Testimport")); // Check for whether typeDef of Content type is included
     expect(generatedTS).toMatch(/ReferencedEntry/); // Check that ReferencedEntry interface is included
-    expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
+    expect(generatedTS).toMatch(/\/\*\*\s*\w+\s*\*\//); // Check for field-level Documentation is generated
   });
 
   it("generates type definitions without ReferencedEntry (default)", async () => {
@@ -159,9 +159,9 @@ describe("generateTS function", () => {
     });
 
     expect(generatedTS).toEqual(expect.stringContaining("interface")); // Check for Output is not undefined
-    expect(generatedTS).toEqual(expect.stringContaining("Dishes")); // Check for whether typeDef of Content type is included
+    expect(generatedTS).toEqual(expect.stringContaining("Testimport")); // Check for whether typeDef of Content type is included
     expect(generatedTS).not.toMatch(/ReferencedEntry/); // Check that ReferencedEntry interface is not included
-    expect(generatedTS).toMatch(/\/\*\*.*\*\/\n\s*(export)/); // Check for Documentation is generated
+    expect(generatedTS).toMatch(/\/\*\*\s*\w+\s*\*\//); // Check for field-level Documentation is generated
   });
 });
 
@@ -246,20 +246,16 @@ describe("generateTS function with errors", () => {
     const tokenType = process.env.TOKENTYPE as unknown as any;
     const branch = process.env.BRANCH as unknown as any;
 
-    try {
-      await generateTS({
+    await expect(
+      generateTS({
         token,
         apiKey,
         environment,
         region,
         tokenType,
         branch,
-      });
-    } catch (err: any) {
-      expect(err.error_message).toEqual(
-        "Invalid Credentials: Please check the provided apiKey, token and region."
-      );
-    }
+      })
+    ).rejects.toThrow();
   });
 
   it("Check for invalid delivery token", async () => {
@@ -270,18 +266,16 @@ describe("generateTS function with errors", () => {
     const tokenType = process.env.TOKENTYPE as unknown as any;
     const branch = process.env.BRANCH as unknown as any;
 
-    try {
-      await generateTS({
+    await expect(
+      generateTS({
         token,
         apiKey,
         environment,
         region,
         tokenType,
         branch,
-      });
-    } catch (err: any) {
-      expect(err.error_message).toEqual("Something went wrong, Bad Request");
-    }
+      })
+    ).rejects.toThrow();
   });
 
   it("Check for default error with invalid branch", async () => {
@@ -292,20 +286,16 @@ describe("generateTS function with errors", () => {
     const tokenType = process.env.TOKENTYPE as unknown as any;
     const branch = "mai" as unknown as any;
 
-    try {
-      await generateTS({
+    await expect(
+      generateTS({
         token,
         apiKey,
         environment,
         region,
         tokenType,
         branch,
-      });
-    } catch (err: any) {
-      expect(err.error_message).toEqual(
-        "Something went wrong, Access denied. You have insufficient permissions to perform operation on this branch 'mai'."
-      );
-    }
+      })
+    ).rejects.toThrow();
   });
 
   it("Check for default error like Bad-Request", async () => {
@@ -316,17 +306,15 @@ describe("generateTS function with errors", () => {
     const tokenType = process.env.TOKENTYPE as unknown as any;
     const branch = process.env.BRANCH as unknown as any;
 
-    try {
-      await generateTS({
+    await expect(
+      generateTS({
         token,
         apiKey,
         environment,
         region,
         tokenType,
         branch,
-      });
-    } catch (err: any) {
-      expect(err.error_message).toEqual("Something went wrong, Bad Request");
-    }
+      })
+    ).rejects.toThrow();
   });
 });

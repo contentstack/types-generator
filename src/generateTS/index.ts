@@ -93,7 +93,7 @@ export const generateTS = async ({
       };
     } else {
       const errorObj = JSON.parse(error?.message?.replace("Error: ", ""));
-      let errorMessage = ERROR_MESSAGES.API_ERROR_DEFAULT;
+      let errorMessage: string = ERROR_MESSAGES.API_ERROR_DEFAULT;
       let errorCode = "API_ERROR";
 
       if (errorObj.status) {

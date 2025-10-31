@@ -412,7 +412,7 @@ describe("generateTS function with errors", () => {
       });
     } catch (err: any) {
       expect(err.error_message).toEqual(
-        "Something went wrong, Access denied. You have insufficient permissions to perform operation on this branch 'mai'."
+        "API error occurred. Status: 422. Access denied. You have insufficient permissions to perform operation on this branch 'mai'."
       );
     }
   });

@@ -24,4 +24,6 @@ fileignoreconfig:
     checksum: 10e5139168a951a488760626d8305f379db1a7e5df626feb63ef55409ab76a03
   - filename: src/constants/messages.ts
     checksum: d8e9492f9294725f54711be06cef880993ab91a4ece37cf361c34ac18fc18a7c
+  - filename: tests/integration/graphqlTS/graphqlTS.test.ts
+    checksum: b111cb55740d871a3031bc0214eb445239cd6f62ebbdd922eb34af47f0714a54
 version: "1.0"

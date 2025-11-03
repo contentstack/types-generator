@@ -2,50 +2,51 @@ const testData = require("./numeric-keys.ct");
 
 import NullDocumentationGenerator from "../../../src/generateTS/docgen/nulldoc";
 import tsgenFactory from "../../../src/generateTS/factory";
+import { BasicLogger } from "../../../src/logger";
 
-// Mock cliux to capture output
-jest.mock("@contentstack/cli-utilities", () => ({
-  cliux: {
-    print: jest.fn(),
-    success: jest.fn(),
-    error: jest.fn(),
-    table: jest.fn(),
-  },
-}));
+// Mock console methods to capture output
+const originalConsoleLog = console.log;
+const originalConsoleWarn = console.warn;
+const originalConsoleError = console.error;
+const originalConsoleTable = console.table;
 
-import { cliux } from "@contentstack/cli-utilities";
-
-let printOutput: string[] = [];
-let successOutput: string[] = [];
+let logOutput: string[] = [];
+let warnOutput: string[] = [];
+let errorOutput: string[] = [];
 let tableOutput: any[] = [];
 
 beforeEach(() => {
-  printOutput = [];
-  successOutput = [];
+  logOutput = [];
+  warnOutput = [];
+  errorOutput = [];
   tableOutput = [];
-  (cliux.print as jest.Mock).mockImplementation(
-    (message: string, options?: any) => {
-      printOutput.push(message);
-    }
-  );
-  (cliux.success as jest.Mock).mockImplementation((message: string) => {
-    successOutput.push(message);
+
+  console.log = jest.fn((...args: any[]) => {
+    logOutput.push(args.join(" "));
   });
-  (cliux.table as jest.Mock).mockImplementation(
-    (headers: any, data: any, flags?: any, options?: any) => {
-      tableOutput.push({ headers, data, flags, options });
-    }
-  );
+  console.warn = jest.fn((...args: any[]) => {
+    warnOutput.push(args.join(" "));
+  });
+  console.error = jest.fn((...args: any[]) => {
+    errorOutput.push(args.join(" "));
+  });
+  console.table = jest.fn((data: any) => {
+    tableOutput.push(data);
+  });
 });
 
 afterEach(() => {
-  jest.clearAllMocks();
+  console.log = originalConsoleLog;
+  console.warn = originalConsoleWarn;
+  console.error = originalConsoleError;
+  console.table = originalConsoleTable;
 });
 
 describe("numeric key handling", () => {
   test("should skip fields with numeric UIDs and continue generation", () => {
     const tsgen = tsgenFactory({
       docgen: new NullDocumentationGenerator(),
+      logger: new BasicLogger(),
     });
     const result = tsgen(testData.contentTypeWithNumericKeys);
 
@@ -62,12 +63,14 @@ describe("numeric key handling", () => {
   test("should log warnings for skipped fields", () => {
     const tsgen = tsgenFactory({
       docgen: new NullDocumentationGenerator(),
+      logger: new BasicLogger(),
     });
     tsgen(testData.contentTypeWithNumericKeys);
 
     // Should have 2 warning messages for skipped fields
-    const warningMessages = printOutput.filter((msg) =>
-      msg.includes("Skipped field")
+    // Note: BasicLogger uses console.log with ANSI colors, so we check logOutput instead of warnOutput
+    const warningMessages = logOutput.filter(
+      (msg) => msg && msg.includes("Skipped field")
     );
     expect(warningMessages).toHaveLength(2);
     expect(warningMessages[0]).toContain('Skipped field "123field"');
@@ -83,6 +86,7 @@ describe("numeric key handling", () => {
   test("should include skipped fields in metadata", () => {
     const tsgen = tsgenFactory({
       docgen: new NullDocumentationGenerator(),
+      logger: new BasicLogger(),
     });
     const result = tsgen(testData.contentTypeWithNumericKeys);
 
@@ -103,26 +107,24 @@ describe("numeric key handling", () => {
   test("should log summary at the end", () => {
     const tsgen = tsgenFactory({
       docgen: new NullDocumentationGenerator(),
+      logger: new BasicLogger(),
     });
     tsgen(testData.contentTypeWithNumericKeys);
 
     expect(
-      printOutput.some((log) => log.includes("Summary of Skipped Items"))
+      logOutput.some((log) => log && log.includes("Summary of Skipped Items"))
     ).toBe(true);
     expect(
-      printOutput.some((log) => log.includes("Total skipped items: 2"))
+      logOutput.some((log) => log && log.includes("Total skipped items: 2"))
     ).toBe(true);
     // Check that table was called with correct data
     expect(tableOutput).toHaveLength(1); // One combined table
-    expect(tableOutput[0].headers).toHaveLength(4);
-    expect(tableOutput[0].headers[0].value).toBe("Type");
-    expect(tableOutput[0].headers[1].value).toBe("Key Name");
-    expect(tableOutput[0].headers[2].value).toBe("Schema Path");
-    expect(tableOutput[0].headers[3].value).toBe("Reason");
-    expect(tableOutput[0].data).toHaveLength(2); // 2 skipped fields
+    expect(tableOutput[0]).toHaveLength(2); // 2 skipped fields
     expect(
-      successOutput.some((log) =>
-        log.includes("Generation completed successfully with partial schema")
+      logOutput.some(
+        (log) =>
+          log &&
+          log.includes("Generation completed successfully with partial schema")
       )
     ).toBe(true);
   });
@@ -130,6 +132,7 @@ describe("numeric key handling", () => {
   test("should handle nested numeric keys in groups", () => {
     const tsgen = tsgenFactory({
       docgen: new NullDocumentationGenerator(),
+      logger: new BasicLogger(),
     });
     const result = tsgen(testData.contentTypeWithNestedNumericKeys);
 
@@ -144,6 +147,7 @@ describe("numeric key handling", () => {
   test("should handle numeric keys in modular blocks", () => {
     const tsgen = tsgenFactory({
       docgen: new NullDocumentationGenerator(),
+      logger: new BasicLogger(),
     });
     const result = tsgen(testData.contentTypeWithNumericBlockKeys);
 
@@ -158,6 +162,7 @@ describe("numeric key handling", () => {
   test("should handle mixed valid and invalid keys", () => {
     const tsgen = tsgenFactory({
       docgen: new NullDocumentationGenerator(),
+      logger: new BasicLogger(),
     });
     const result = tsgen(testData.contentTypeWithMixedKeys);
 

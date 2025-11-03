@@ -1,6 +1,6 @@
 import async from "async";
 import { flatMap, flatten } from "lodash";
-import { TOKEN_TYPE } from "../constants";
+import { TOKEN_TYPE, ERROR_MESSAGES } from "../constants";
 import { initializeContentstackSdk } from "../sdk/utils";
 import { GenerateTS, GenerateTSFromContentTypes } from "../types";
 import { DocumentationGenerator } from "./docgen/doc";
@@ -10,7 +10,7 @@ import tsgenFactory from "./factory";
 import { defaultInterfaces } from "./stack/builtins";
 import { format } from "../format/index";
 import { ContentType } from "../types/schema";
-import { cliux } from "@contentstack/cli-utilities";
+import { createLogger } from "../logger";
 import { createValidationError, createErrorDetails } from "./shared/utils";
 
 export const generateTS = async ({
@@ -26,7 +26,9 @@ export const generateTS = async ({
   isEditableTags,
   includeReferencedEntry,
   host,
+  logger: loggerInstance,
 }: GenerateTS) => {
+  const logger = createLogger(loggerInstance);
   try {
     if (!token || !tokenType || !apiKey || !environment || !region) {
       throw createValidationError(
@@ -53,17 +55,9 @@ export const generateTS = async ({
       const { content_types }: any = contentTypes;
 
       if (!content_types.length) {
-        cliux.print("No Content Types found in the Stack", {
-          color: "red",
-          bold: true,
-        });
-        cliux.print(
-          "Please create Content Models to generate type definitions",
-          { color: "yellow" }
-        );
-        throw createValidationError(
-          "There are no Content Types in the Stack, please create Content Models to generate type definitions"
-        );
+        logger.error(ERROR_MESSAGES.NO_CONTENT_TYPES);
+        logger.warn(ERROR_MESSAGES.CREATE_CONTENT_MODELS);
+        throw createValidationError(ERROR_MESSAGES.NO_CONTENT_TYPES_DETAILED);
       }
 
       let schemas: ContentType[] = [];
@@ -98,24 +92,22 @@ export const generateTS = async ({
         error_code: error.error_code || "VALIDATION_ERROR",
       };
     } else {
-      const errorObj = JSON.parse(error.message.replace("Error: ", ""));
-      let errorMessage = "Something went wrong";
+      const errorObj = JSON.parse(error?.message?.replace("Error: ", ""));
+      let errorMessage: string = ERROR_MESSAGES.API_ERROR_DEFAULT;
       let errorCode = "API_ERROR";
 
       if (errorObj.status) {
         switch (errorObj.status) {
           case 401:
-            errorMessage =
-              "Unauthorized: The apiKey, token or region is not valid.";
+            errorMessage = ERROR_MESSAGES.UNAUTHORIZED;
             errorCode = "AUTHENTICATION_FAILED";
             break;
           case 412:
-            errorMessage =
-              "Invalid Credentials: Please check the provided apiKey, token and region.";
+            errorMessage = ERROR_MESSAGES.INVALID_CREDENTIALS;
             errorCode = "INVALID_CREDENTIALS";
             break;
           default:
-            errorMessage = `${errorMessage}, ${errorObj.error_message}`;
+            errorMessage = ERROR_MESSAGES.API_ERROR_WITH_STATUS(errorObj.status, errorObj.error_message);
             errorCode = `API_ERROR_${errorObj.status}`;
         }
       }
@@ -137,7 +129,9 @@ export const generateTSFromContentTypes = async ({
   systemFields = false,
   isEditableTags = false,
   includeReferencedEntry = false,
+  logger: loggerInstance,
 }: GenerateTSFromContentTypes) => {
+  const logger = createLogger(loggerInstance);
   try {
     const docgen: DocumentationGenerator = includeDocumentation
       ? new JSDocumentationGenerator()
@@ -151,6 +145,7 @@ export const generateTSFromContentTypes = async ({
       systemFields,
       isEditableTags,
       includeReferencedEntry,
+      logger,
     });
     for (const contentType of contentTypes) {
       const tsgenResult = tsgen(contentType);

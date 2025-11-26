@@ -65,4 +65,5 @@ export type ContentType = {
   reference_to?: string;
   data_type?: string;
   schema_type?: string;
+  title?: string;
 } & Identifier;

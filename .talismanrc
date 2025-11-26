@@ -28,4 +28,6 @@ fileignoreconfig:
     checksum: b111cb55740d871a3031bc0214eb445239cd6f62ebbdd922eb34af47f0714a54
   - filename: src/generateTS/stack/builtins.ts
     checksum: de5f21a1e1a6e5672231671a275e2e0f97b3eea0f5de4651d827e5afa82dbb86
+  - filename: tests/unit/tsgen/custom-field.test.ts
+    checksum: e76d815eaed0481ed928430548bb1b70c392e13db0a712a1365a179997226795
 version: "1.0"

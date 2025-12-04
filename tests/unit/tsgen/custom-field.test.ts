@@ -21,7 +21,7 @@ describe("JSON RTE", () => {
     {
     _version?: number;
     title: string;
-    custom_key_value_pair?: { value: { key: string; value: string }[] };
+    custom_key_value_pair?: unknown;
     }"
    `);
   });

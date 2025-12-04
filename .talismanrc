@@ -3,7 +3,7 @@ fileignoreconfig:
     ignore_detectors:
       - filecontent
   - filename: package-lock.json
-    checksum: 57ee816f79e4f41c43091caf1bcfded44ea48f592e3f437d9aee81e5c8156382
+    checksum: 06ab85506c97fe9ae2f99461afe8e142c262cc540e240f4f3fc10382bc3cb835
   - filename: .husky/pre-commit
     checksum: 5baabd7d2c391648163f9371f0e5e9484f8fb90fa2284cfc378732ec3192c193
   - filename: src/graphqlTS/index.ts
@@ -26,4 +26,8 @@ fileignoreconfig:
     checksum: d8e9492f9294725f54711be06cef880993ab91a4ece37cf361c34ac18fc18a7c
   - filename: tests/integration/graphqlTS/graphqlTS.test.ts
     checksum: b111cb55740d871a3031bc0214eb445239cd6f62ebbdd922eb34af47f0714a54
+  - filename: src/generateTS/stack/builtins.ts
+    checksum: de5f21a1e1a6e5672231671a275e2e0f97b3eea0f5de4651d827e5afa82dbb86
+  - filename: tests/unit/tsgen/custom-field.test.ts
+    checksum: e76d815eaed0481ed928430548bb1b70c392e13db0a712a1365a179997226795
 version: "1.0"

@@ -277,7 +277,11 @@ export default function (userOptions: TSGenOptions) {
         const reason = `Unknown field type: ${field.data_type}`;
         skippedFields.push({ uid: field.uid, path: field.uid, reason });
         logger?.warn(
-          ERROR_MESSAGES.SKIPPED_FIELD_UNKNOWN_TYPE(field.uid, field.data_type, reason)
+          ERROR_MESSAGES.SKIPPED_FIELD_UNKNOWN_TYPE(
+            field.uid,
+            field.data_type,
+            reason
+          )
         );
         type = "Record<string, unknown>"; // Use Record<string, unknown> for balanced type safety
       }
@@ -295,7 +299,11 @@ export default function (userOptions: TSGenOptions) {
     if (exclusionCheck.shouldExclude) {
       skippedFields.push(exclusionCheck.record!);
       logger?.warn(
-        ERROR_MESSAGES.SKIPPED_GLOBAL_FIELD_REFERENCE(field.uid, field.reference_to, NUMERIC_IDENTIFIER_EXCLUSION_REASON)
+        ERROR_MESSAGES.SKIPPED_GLOBAL_FIELD_REFERENCE(
+          field.uid,
+          field.reference_to,
+          NUMERIC_IDENTIFIER_EXCLUSION_REASON
+        )
       );
       return "string"; // Use string as fallback for global field references
     }
@@ -349,7 +357,11 @@ export default function (userOptions: TSGenOptions) {
       if (exclusionCheck.shouldExclude) {
         skippedFields.push(exclusionCheck.record!);
         logger?.warn(
-          ERROR_MESSAGES.SKIPPED_FIELD_AT_PATH(field.uid, fieldPath, NUMERIC_IDENTIFIER_EXCLUSION_REASON)
+          ERROR_MESSAGES.SKIPPED_FIELD_AT_PATH(
+            field.uid,
+            fieldPath,
+            NUMERIC_IDENTIFIER_EXCLUSION_REASON
+          )
         );
         continue;
       }
@@ -412,7 +424,11 @@ export default function (userOptions: TSGenOptions) {
         if (exclusionCheck.shouldExclude) {
           skippedBlocks.push(exclusionCheck.record!);
           logger?.warn(
-            ERROR_MESSAGES.SKIPPED_BLOCK_AT_PATH(block.uid, blockPath, NUMERIC_IDENTIFIER_EXCLUSION_REASON)
+            ERROR_MESSAGES.SKIPPED_BLOCK_AT_PATH(
+              block.uid,
+              blockPath,
+              NUMERIC_IDENTIFIER_EXCLUSION_REASON
+            )
           );
           return null; // Return null to filter out later
         }
@@ -433,6 +449,12 @@ export default function (userOptions: TSGenOptions) {
 
     // If all blocks were skipped, return a more specific fallback type
     if (modularBlockDefinitions.length === 0) {
+      if (options.systemFields) {
+        const modularBlocksType = `${options.naming?.prefix || ""}ModularBlocksExtension`;
+        return field.multiple
+          ? `${modularBlocksType}<Record<string, unknown>>[]`
+          : `${modularBlocksType}<Record<string, unknown>>`;
+      }
       return field.multiple
         ? "Record<string, unknown>[]"
         : "Record<string, unknown>";
@@ -445,6 +467,13 @@ export default function (userOptions: TSGenOptions) {
       const existingInterfaceName =
         blockInterfacesKeyToName[modularBlockSignature];
       if (existingInterfaceName) {
+        // Wrap with ModularBlocks type to add _metadata support only when systemFields is enabled
+        if (options.systemFields) {
+          const modularBlocksType = `${options.naming?.prefix || ""}ModularBlocksExtension`;
+          return field.multiple
+            ? `${modularBlocksType}<${existingInterfaceName}>[]`
+            : `${modularBlocksType}<${existingInterfaceName}>`;
+        }
         return field.multiple
           ? `${existingInterfaceName}[]`
           : existingInterfaceName;
@@ -468,6 +497,14 @@ export default function (userOptions: TSGenOptions) {
     modularBlockInterfaces.add(modularBlockInterfaceDefinition);
     cachedModularBlocks[modularBlockInterfaceName] = modularBlockSignature;
     blockInterfacesKeyToName[modularBlockSignature] = modularBlockInterfaceName;
+
+    // Wrap with ModularBlocks type to add _metadata support only when systemFields is enabled
+    if (options.systemFields) {
+      const modularBlocksType = `${options.naming?.prefix || ""}ModularBlocksExtension`;
+      return field.multiple
+        ? `${modularBlocksType}<${modularBlockInterfaceName}>[]`
+        : `${modularBlocksType}<${modularBlockInterfaceName}>`;
+    }
     return field.multiple
       ? `${modularBlockInterfaceName}[]`
       : modularBlockInterfaceName;
@@ -514,7 +551,10 @@ export default function (userOptions: TSGenOptions) {
     if (exclusionCheck.shouldExclude) {
       skippedFields.push(exclusionCheck.record!);
       logger?.warn(
-        ERROR_MESSAGES.SKIPPED_GLOBAL_FIELD(field.uid, NUMERIC_IDENTIFIER_EXCLUSION_REASON)
+        ERROR_MESSAGES.SKIPPED_GLOBAL_FIELD(
+          field.uid,
+          NUMERIC_IDENTIFIER_EXCLUSION_REASON
+        )
       );
       return "string"; // Use string as fallback for global fields
     }
@@ -560,7 +600,10 @@ export default function (userOptions: TSGenOptions) {
           references.push(name_type(v));
         } else {
           logger?.warn(
-            ERROR_MESSAGES.SKIPPED_REFERENCE(v, NUMERIC_IDENTIFIER_EXCLUSION_REASON)
+            ERROR_MESSAGES.SKIPPED_REFERENCE(
+              v,
+              NUMERIC_IDENTIFIER_EXCLUSION_REASON
+            )
           );
         }
       });
@@ -570,7 +613,10 @@ export default function (userOptions: TSGenOptions) {
         references.push(name_type(field.reference_to));
       } else {
         logger?.warn(
-          ERROR_MESSAGES.SKIPPED_REFERENCE(field.reference_to, NUMERIC_IDENTIFIER_EXCLUSION_REASON)
+          ERROR_MESSAGES.SKIPPED_REFERENCE(
+            field.reference_to,
+            NUMERIC_IDENTIFIER_EXCLUSION_REASON
+          )
         );
       }
     }
@@ -669,7 +715,7 @@ export default function (userOptions: TSGenOptions) {
   function type_json_rte(field: ContentstackTypes.Field) {
     let json_rte;
     if (field.config && field.field_metadata?.extension) {
-      json_rte = `{ value: { key: string; value: string }[] }`;
+      json_rte = `unknown`;
     } else {
       json_rte = `{
       type: string;

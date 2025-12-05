@@ -17,8 +17,9 @@ export const defaultInterfaces = (
 
   // Conditionally include ReferencedEntry interface
   if (includeReferencedEntry) {
+    const extendsClause = systemFields ? ` extends ${prefix}SystemFields` : "";
     defaultInterfaces.push(
-      `export interface ${prefix}ReferencedEntry {
+      `export interface ${prefix}ReferencedEntry${extendsClause} {
             uid: string;
             _content_type_uid: string;
         }`
@@ -122,6 +123,11 @@ export const defaultInterfaces = (
             locale?: string;
             publish_details?: ${prefix}PublishDetails;
             title?: string;
+        }`
+    );
+    defaultInterfaces.push(
+      `export type ${prefix}ModularBlocksExtension<T> = {
+            [P in keyof T]?: T[P] & { _metadata?: { uid?: string } };
         }`
     );
     return defaultInterfaces;

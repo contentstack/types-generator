@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/types-generator",
-  "version": "3.9.0",
+  "version": "3.9.1",
   "description": "Contentstack type definition generation library",
   "private": false,
   "author": "Contentstack",
@@ -31,10 +31,10 @@
   },
   "homepage": "https://github.com/contentstack/types-generator",
   "devDependencies": {
-    "@types/async": "^3.2.24",
+    "@types/async": "^3.2.25",
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.16",
-    "@types/node": "^20.17.17",
+    "@types/node": "^20.19.27",
     "axios-mock-adapter": "^1.22.0",
     "cross-env": "^7.0.3",
     "dotenv": "^16.6.1",
@@ -42,18 +42,18 @@
     "jest": "^29.7.0",
     "jest-json-reporter": "^1.2.2",
     "nock": "^13.5.6",
-    "rollup": "^4.53.3",
-    "ts-jest": "^29.4.0",
+    "rollup": "^4.54.0",
+    "ts-jest": "^29.4.6",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@contentstack/delivery-sdk": "^4.10.3",
+    "@contentstack/delivery-sdk": "^4.10.5",
     "@gql2ts/from-schema": "^2.0.0-4",
     "async": "^3.2.6",
     "axios": "^1.13.2",
     "lodash": "^4.17.21",
-    "prettier": "^3.6.2"
+    "prettier": "^3.7.4"
   },
   "files": [
     "dist",

@@ -1,0 +1,38 @@
+---
+description: Branches, build/test commands, PR and release workflow for types-generator
+alwaysApply: false
+globs:
+  - package.json
+  - package-lock.json
+  - .github/workflows/**/*
+  - jest.config.js
+  - tsup.config.ts
+  - AGENTS.md
+---
+
+# Development workflow
+
+For deeper detail, see **[skills/testing](../../skills/testing/SKILL.md)** (commands, env, fixtures) and **[skills/code-review](../../skills/code-review/SKILL.md)** (PR expectations). In chat you can also @-mention those skill folders if your workspace exposes them.
+
+## Branches
+
+- **CI (Node.js workflow)** runs on **push** and **pull_request** for branches **`master`** and **`development`** (see `.github/workflows/node.js.yml`).
+- **Release / publish** runs on **push** to **`main`** (see `.github/workflows/release.yml`), using Node **22.x**, autotag, npm publish, and GitHub release.
+
+**Maintainer note:** Default branch naming differs between CI (`master`/`development`) and release (`main`). Align branch protection and contributor docs when convenient—no change required for local development if your fork uses the upstream defaults.
+
+## Local commands
+
+- **Build:** `npm run build` (tsup; `prepare` also runs build).
+- **Test (all under `tests/`):** `npm test` (sets `NODE_OPTIONS=--experimental-vm-modules`).
+- **Unit tests + coverage (CI):** `npm run test:unit:report:json` (targets `tests/unit`, coverage and JSON artifacts).
+
+## Pull requests
+
+- Ensure **`npm run build`** and **`npm test`** pass before requesting review.
+- CI runs **`test:unit:report:json`** with secrets for integration-related env vars; PRs from forks may not have secrets—coordinate with maintainers if integration jobs fail only on secrets.
+
+## Releases
+
+- Version in **`package.json`** is the source of truth for the published package.
+- Publishing is automated from **`main`** via the release workflow (tag prefix `v`, npm publish, GitHub release). Bump version on the branch that merges to `main` per team process.

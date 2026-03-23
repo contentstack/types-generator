@@ -4,4 +4,14 @@ fileignoreconfig:
       - filecontent
   - filename: package-lock.json
     checksum: d392a5bf70cad2cb90afaf284410f580e359afe4f1a0a970a6f6061aee7c821c
+  - filename: .cursor/rules/testing.mdc
+    checksum: a3768ed70d1fa61e73d1838efbc3066859dd5dfce3fbefe40fb6c23800679a43
+  - filename: skills/README.md
+    checksum: ae09bf77a43f81f76a06f23ae2b2cbb1e81c490a66cf1b4e7df4e7142e22b5f5
+  - filename: AGENTS.md
+    checksum: 6ff4b2c6957f75f85f6afd188cc09af21ac9c90f05f87e4198674302b74bb021
+  - filename: skills/testing/SKILL.md
+    checksum: 858b4a830e74a0e90fe2f1097b4480a5eed513cdd88ba2646087399423ddee00
+  - filename: skills/typescript-types-generator/SKILL.md
+    checksum: aaa97f6eb31a66221ceedc7e5e965a9b13d33358a350dbfb3034014ece0c3e6c
 version: "1.0"

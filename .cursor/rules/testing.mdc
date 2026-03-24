@@ -1,0 +1,18 @@
+---
+description: Jest tests, layout, and env for types-generator
+globs:
+  - tests/**
+  - jest.config.js
+---
+
+# Testing (`@contentstack/types-generator`)
+
+- **Runner:** **Jest** with **ts-jest** ([jest.config.js](jest.config.js)). **`setupFiles: ["dotenv/config"]`** loads environment variables for tests.
+- **Match:** `**/?(*.)+(spec|test).+(ts|tsx)` and `test/**/*.test.ts`.
+- **Layout:**
+  - **`tests/unit/`** — fast, isolated tests (including `tests/unit/tsgen/` with **`.ct.js`** content-type fixtures paired with **`.test.ts`** files).
+  - **`tests/integration/`** — live stack / API tests (e.g. `generateTS`, `graphqlTS`); require real credentials.
+- **Commands:**
+  - `npm test` — all tests under `tests` (via `--testPathPattern=tests`).
+  - `npm run test:unit:report:json` — unit coverage + reports for CI.
+- **Integration env:** Typically **`TOKEN`**, **`APIKEY`**, **`ENVIRONMENT`**, **`REGION`**, **`TOKENTYPE`**, **`BRANCH`**. Integration tests may load **`.env`** from the package root path (see test files). CI sets additional secrets such as **`TOKEN_WITH_NO_CT`** / **`APIKEY_WITH_NO_CT`** where needed.

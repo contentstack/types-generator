@@ -1,0 +1,25 @@
+---
+description: Contentstack Delivery (CDA) SDK and GraphQL usage in types-generator
+globs:
+  - src/sdk/**
+  - src/generateTS/**
+  - src/graphqlTS/**
+---
+
+# Contentstack Delivery and GraphQL (this repo)
+
+Scope: **SDK-facing library code only** (no separate `samples/` tree). This package is **not** a CMA (Management) client.
+
+## Delivery / CDA
+
+- **Token type:** Only **`TOKEN_TYPE.DELIVERY`** is defined ([`src/constants/index.ts`](src/constants/index.ts)). `generateTS` validates `tokenType` and uses the **Delivery SDK** for content types and global fields.
+- **SDK entry:** [`initializeContentstackSdk`](src/sdk/utils.ts) wraps **`@contentstack/delivery-sdk`** (`Contentstack.stack` with `deliveryToken`, `environment`, `region` or `host`, optional `branch`).
+- **Regions:** Map string constants in **`REGIONS`** to **`Region`** enum; **custom** regions require **`host`** (see `isCustomRegion` branch in [`src/sdk/utils.ts`](src/sdk/utils.ts)).
+- **Errors:** Validation failures often use **`{ type: "validation", error_message: string }`** or helpers from [`generateTS/shared/utils`](src/generateTS/shared/utils.ts). Preserve stable `type` / message shapes for callers.
+
+## GraphQL
+
+- **Transport:** **`graphqlTS`** uses **`axios`** POST to region-specific GraphQL URLs or to **`https://${host}/...`** when `host` is set ([`src/graphqlTS/index.ts`](src/graphqlTS/index.ts)).
+- **Schema:** Introspection query + **`@gql2ts/from-schema`** (`schemaToInterfaces`, `generateNamespace`). Align URL and headers (`access_token`, `branch`) with Contentstack GraphQL documentation for the target region.
+
+When unsure, prefer official **Content Delivery API** / **GraphQL** docs—not Management API patterns.

@@ -52,7 +52,7 @@
     "@gql2ts/from-schema": "^2.0.0-4",
     "async": "^3.2.6",
     "axios": "^1.13.6",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "prettier": "^3.8.1"
   },
   "files": [

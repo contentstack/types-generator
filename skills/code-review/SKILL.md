@@ -5,8 +5,6 @@ description: PR review checklist for @contentstack/types-generator (API docs, co
 
 # Code review skill (`@contentstack/types-generator`)
 
-Expanded checklist aligned with [`.cursor/rules/code-review.mdc`](../../.cursor/rules/code-review.mdc).
-
 ## Documentation and API surface
 
 - Public exports from [`src/index.ts`](../../src/index.ts) should stay coherent and documented (JSDoc on exported functions where the package documents behavior).

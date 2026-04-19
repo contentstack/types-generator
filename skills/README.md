@@ -1,11 +1,16 @@
-# Skills for `@contentstack/types-generator`
+# Skills – @contentstack/types-generator
 
-Short index of deeper guidance (use alongside [AGENTS.md](../AGENTS.md) and [`.cursor/rules/`](../.cursor/rules/README.md)).
+Source of truth for detailed guidance. Read [AGENTS.md](../AGENTS.md) first, then open the skill that matches your task.
 
-| Skill | When to use |
+## When to use which skill
+
+| Skill folder | Use when |
 | --- | --- |
-| [code-review](code-review/SKILL.md) | Preparing or reviewing a PR: API docs, compatibility, errors, security, tests, Delivery vs Management terminology. |
-| [testing](testing/SKILL.md) | Running Jest, unit vs integration layout, `.env` and CI secrets, content-type fixtures. |
-| [typescript-types-generator](typescript-types-generator/SKILL.md) | Understanding `generateTS` vs `graphqlTS`, main modules, and where to change behavior. |
+| [dev-workflow](dev-workflow/SKILL.md) | Branches, CI, build/test, PR and release |
+| [typescript-types-generator](typescript-types-generator/SKILL.md) | `generateTS` / `graphqlTS`, Delivery SDK, GraphQL transport |
+| [testing](testing/SKILL.md) | Jest, unit vs integration, `.env`, fixtures |
+| [code-review](code-review/SKILL.md) | PR review: API surface, CDA/GraphQL terminology, semver |
 
-There is no separate **framework** skill: HTTP/GraphQL details are covered in [contentstack-delivery-cda.mdc](../.cursor/rules/contentstack-delivery-cda.mdc) and the typescript skill.
+There is no separate **framework** skill: HTTP and Delivery/GraphQL details are covered in [typescript-types-generator](typescript-types-generator/SKILL.md).
+
+Each folder contains `SKILL.md` with YAML frontmatter (`name`, `description`).

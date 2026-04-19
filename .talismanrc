@@ -3,15 +3,17 @@ fileignoreconfig:
     ignore_detectors:
       - filecontent
   - filename: package-lock.json
-    checksum: d392a5bf70cad2cb90afaf284410f580e359afe4f1a0a970a6f6061aee7c821c
-  - filename: .cursor/rules/testing.mdc
-    checksum: a3768ed70d1fa61e73d1838efbc3066859dd5dfce3fbefe40fb6c23800679a43
-  - filename: skills/README.md
-    checksum: ae09bf77a43f81f76a06f23ae2b2cbb1e81c490a66cf1b4e7df4e7142e22b5f5
+    checksum: 6a45ae66e7c4c62a43e40cfec58ab3c8fff37f04b02339e8019dd1ac503da995
   - filename: AGENTS.md
-    checksum: 6ff4b2c6957f75f85f6afd188cc09af21ac9c90f05f87e4198674302b74bb021
+    checksum: 93ded6952359760204f6235b0a29de9e4f594323326971a5cae0ee07ee9a822e
+  - filename: skills/README.md
+    checksum: 33e44991db811244b3ea9abd4be5eaafada3c9e6a7f3f55542aaf1be480d19a2
+  - filename: skills/dev-workflow/SKILL.md
+    checksum: f5b4a18948f0cec6c8a391d946670313fce7e998268677f9be12241c09e9558f
   - filename: skills/testing/SKILL.md
-    checksum: 858b4a830e74a0e90fe2f1097b4480a5eed513cdd88ba2646087399423ddee00
+    checksum: 5acca5b3e5a6871237b9775f855e81f01b300d591c3b5d6677d79426021e5c7b
   - filename: skills/typescript-types-generator/SKILL.md
-    checksum: aaa97f6eb31a66221ceedc7e5e965a9b13d33358a350dbfb3034014ece0c3e6c
+    checksum: 141c31039cdec5f1b0ba689a979292103e84da6e4862e878ee2e1384e3ea6fcd
+  - filename: skills/code-review/SKILL.md
+    checksum: 1b65b3ed25618cfc453b167d1b149348c0900f4721da3b24c8d847b7b1885f61
 version: "1.0"

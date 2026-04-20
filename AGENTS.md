@@ -1,49 +1,50 @@
-# `@contentstack/types-generator`
+# @contentstack/types-generator – Agent guide
 
-**Purpose:** Library for generating TypeScript type definitions from Contentstack stack content types (via the Delivery SDK) and from GraphQL schema (introspection over the Contentstack GraphQL endpoint).
+**Universal entry point** for contributors and AI agents. Detailed conventions live in **`skills/*/SKILL.md`**.
 
-- **Repository:** [github.com/contentstack/types-generator](https://github.com/contentstack/types-generator)
-- **Homepage:** [https://github.com/contentstack/types-generator](https://github.com/contentstack/types-generator)
+## What this repo is
 
-## Tech stack
+| Field | Detail |
+| --- | --- |
+| **Name:** | [contentstack/types-generator](https://github.com/contentstack/types-generator) |
+| **Purpose:** | Library that generates TypeScript types from Contentstack stack content types (Delivery SDK) and from GraphQL schema (introspection). |
+| **Out of scope (if any):** | **Management API (CMA)** client behavior—this package targets **CDA** and **GraphQL** only. |
+
+## Tech stack (at a glance)
 
 | Area | Details |
 | --- | --- |
-| Language | TypeScript **5.9** (`strict` in [tsconfig.json](tsconfig.json)) |
-| Runtime | Node (CI on **18.x** and **20.x**; release workflow uses **22.x**) |
-| Build | **tsup** → `dist/` ([tsup.config.ts](tsup.config.ts)): entries `index` ([src/index.ts](src/index.ts)), `web` ([src/web.ts](src/web.ts)) |
-| Tests | **Jest** + **ts-jest** ([jest.config.js](jest.config.js)); `dotenv/config` in setup |
-| Main dependencies | `@contentstack/delivery-sdk`, `axios`, `@gql2ts/from-schema`, `lodash`, `async`, `prettier` |
+| **Language** | TypeScript **5.9** (`strict` in [tsconfig.json](tsconfig.json)) |
+| **Build** | **tsup** → `dist/` ([tsup.config.ts](tsup.config.ts)); entries include [src/index.ts](src/index.ts), [src/web.ts](src/web.ts) |
+| **Tests** | Jest + ts-jest ([jest.config.js](jest.config.js)); `dotenv/config` in setup |
+| **Lint / coverage** | No ESLint script; rely on TypeScript strictness and project conventions |
+| **Other** | `@contentstack/delivery-sdk`, `axios`, `@gql2ts/from-schema`, `lodash`, `async`, `prettier` |
 
-This package targets **Content Delivery (CDA)** and **GraphQL** only—not the Management API (CMA).
+## Commands (quick reference)
 
-## Public API and source layout
-
-- **Package entry:** `main` / `module` / `types` point to `./dist/*` (see [package.json](package.json)).
-- **Exports:** `generateTS`, `graphqlTS`, and related symbols from [src/index.ts](src/index.ts) (re-exports from [src/generateTS/](src/generateTS/) and [src/graphqlTS/](src/graphqlTS/)).
-- **Key paths:** [src/sdk/](src/sdk/) (Delivery SDK wiring), [src/types/](src/types/), [src/format/](src/format/), [src/logger/](src/logger/), [src/constants/](src/constants/).
-
-## Common commands
-
-| Command | Purpose |
+| Command type | Command |
 | --- | --- |
-| `npm run build` | Run `tsup` (also runs on `npm run prepare`) |
-| `npm test` | Jest with `--testPathPattern=tests` and `NODE_OPTIONS=--experimental-vm-modules` |
-| `npm run test:unit:report:json` | Unit tests under `tests/unit` with coverage and JSON reports (used in CI) |
+| **Build** | `npm run build` |
+| **Test** | `npm test` |
+| **Lint** | _(not configured)_ |
 
-There is **no ESLint** script in this package; rely on TypeScript strictness and project conventions.
+CI: [.github/workflows/node.js.yml](.github/workflows/node.js.yml); release: [.github/workflows/release.yml](.github/workflows/release.yml).
 
 ## Credentials and integration tests
 
-Integration tests need a live stack. Set a **`.env`** at the repo root (see integration tests under `tests/integration/`) or export variables in your shell. Typical names:
+Set a **`.env`** at the repo root or export variables (see `tests/integration/`). Typical names: `TOKEN`, `APIKEY`, `ENVIRONMENT`, `REGION`, `TOKENTYPE`, `BRANCH`. CI injects secrets including `TOKEN_WITH_NO_CT` and `APIKEY_WITH_NO_CT` where needed.
 
-`TOKEN`, `APIKEY`, `ENVIRONMENT`, `REGION`, `TOKENTYPE`, `BRANCH`
+## Where the documentation lives: skills
 
-CI injects these from GitHub Actions secrets (see [.github/workflows/node.js.yml](.github/workflows/node.js.yml)), including `TOKEN_WITH_NO_CT` and `APIKEY_WITH_NO_CT` where tests require them.
+| Skill | Path | What it covers |
+| --- | --- | --- |
+| Development workflow | [skills/dev-workflow/SKILL.md](skills/dev-workflow/SKILL.md) | Branches, CI, build/test, PRs, releases |
+| TypeScript types generator | [skills/typescript-types-generator/SKILL.md](skills/typescript-types-generator/SKILL.md) | `generateTS` vs `graphqlTS`, SDK and GraphQL behavior |
+| Testing | [skills/testing/SKILL.md](skills/testing/SKILL.md) | Jest layout, `.env`, fixtures |
+| Code review | [skills/code-review/SKILL.md](skills/code-review/SKILL.md) | PR checklist, terminology, semver |
 
----
+An index with “when to use” hints is in [skills/README.md](skills/README.md).
 
-## AI guidance index
+## Using Cursor (optional)
 
-- [Cursor rules (overview)](.cursor/rules/README.md) — when each rule applies and how to reference it.
-- [Skills index](skills/README.md) — deeper checklists and package mental model.
+If you use **Cursor**, [.cursor/rules/README.md](.cursor/rules/README.md) only points to **`AGENTS.md`**—same docs as everyone else.

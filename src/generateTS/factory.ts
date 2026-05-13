@@ -12,6 +12,18 @@ import {
 } from "./shared/utils";
 import { ERROR_MESSAGES } from "../constants";
 
+export function hasPrefixedNaming(prefix: string | undefined): boolean {
+  return typeof prefix === "string" && prefix.trim().length > 0;
+}
+
+export function composePrefixedInterfaceName(
+  uid: string,
+  prefix: string,
+): string {
+  const trimmed = prefix.trim();
+  return trimmed + _.upperFirst(_.camelCase(uid));
+}
+
 export type TSGenOptions = {
   docgen: DocumentationGenerator;
   naming?: {
@@ -98,6 +110,11 @@ export default function (userOptions: TSGenOptions) {
   const skippedBlocks: Array<{ uid: string; path: string; reason: string }> =
     [];
 
+  const trimmedNamingPrefix =
+    typeof options.naming?.prefix === "string"
+      ? options.naming.prefix.trim()
+      : "";
+
   // Collect numeric identifier errors instead of throwing immediately
   const numericIdentifierErrors: Array<{
     uid: string;
@@ -138,7 +155,7 @@ export default function (userOptions: TSGenOptions) {
   function track_dependency(
     field: ContentstackTypes.Field,
     type: string,
-    flag: TypeFlags
+    flag: TypeFlags,
   ) {
     if (flag === TypeFlags.BuiltinJS) {
       visitedJSTypes.add(type);
@@ -163,53 +180,43 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function name_type(uid: string) {
-    // Check if the UID starts with a number, which would create invalid TypeScript
+    if (trimmedNamingPrefix) {
+      return composePrefixedInterfaceName(uid, trimmedNamingPrefix);
+    }
     if (isNumericIdentifier(uid)) {
-      // Return a fallback name to continue processing
       return `InvalidInterface_${uid}`;
     }
-
-    return [options?.naming?.prefix, _.upperFirst(_.camelCase(uid))]
-      .filter((v) => v)
-      .join("");
+    return composePrefixedInterfaceName(uid, "");
   }
 
   function define_interface(
     contentType: ContentstackTypes.ContentType | ContentstackTypes.GlobalField,
-    systemFields = false
+    systemFields = false,
   ) {
-    // Validate the interface name before creating it
+    const isGlobalField = contentType.data_type === "global_field";
+    const nameSourceUid =
+      isGlobalField && contentType.reference_to
+        ? (contentType.reference_to as string)
+        : contentType.uid;
+
     let interfaceName: string;
 
-    const isGlobalField = contentType.data_type === "global_field";
-
-    // Check if the content type's own UID starts with a number
-    if (isNumericIdentifier(contentType.uid)) {
-      numericIdentifierErrors.push({
-        uid: contentType.uid,
-        type: "content_type",
-      });
-      // Return a fallback interface declaration to continue processing
-      interfaceName = `InvalidInterface_${contentType.uid}`;
-    } else if (
-      isGlobalField &&
-      contentType.reference_to &&
-      isNumericIdentifier(contentType.reference_to as string)
-    ) {
-      // For global fields, check if the referenced content type has a numeric identifier
-      // This is a global field error because it references an invalid content type
-      numericIdentifierErrors.push({
-        uid: contentType.uid, // The global field's UID
-        type: "global_field",
-        referenceTo: contentType.reference_to as string, // The referenced content type's UID
-      });
-      // Return a fallback interface declaration to continue processing
-      interfaceName = `InvalidInterface_${contentType.reference_to}`;
+    if (!trimmedNamingPrefix && isNumericIdentifier(nameSourceUid)) {
+      if (isGlobalField && contentType.reference_to) {
+        numericIdentifierErrors.push({
+          uid: contentType.uid,
+          type: "global_field",
+          referenceTo: contentType.reference_to as string,
+        });
+      } else {
+        numericIdentifierErrors.push({
+          uid: contentType.uid,
+          type: "content_type",
+        });
+      }
+      interfaceName = `InvalidInterface_${nameSourceUid}`;
     } else {
-      // No numeric identifier issues, generate normal interface name
-      interfaceName = name_type(
-        isGlobalField ? (contentType.reference_to as string) : contentType.uid
-      );
+      interfaceName = name_type(nameSourceUid);
     }
 
     const interface_declaration = ["export interface", interfaceName];
@@ -280,8 +287,8 @@ export default function (userOptions: TSGenOptions) {
           ERROR_MESSAGES.SKIPPED_FIELD_UNKNOWN_TYPE(
             field.uid,
             field.data_type,
-            reason
-          )
+            reason,
+          ),
         );
         type = "Record<string, unknown>"; // Use Record<string, unknown> for balanced type safety
       }
@@ -291,21 +298,20 @@ export default function (userOptions: TSGenOptions) {
   }
 
   const handleGlobalField = (field: ContentstackTypes.Field): string => {
-    // Skip global field references with numeric UIDs
-    const exclusionCheck = checkNumericIdentifierExclusion(
-      field.reference_to,
-      field.uid
-    );
-    if (exclusionCheck.shouldExclude) {
+    if (!trimmedNamingPrefix && isNumericIdentifier(field.reference_to)) {
+      const exclusionCheck = checkNumericIdentifierExclusion(
+        field.reference_to,
+        field.uid,
+      );
       skippedFields.push(exclusionCheck.record!);
       logger?.warn(
         ERROR_MESSAGES.SKIPPED_GLOBAL_FIELD_REFERENCE(
           field.uid,
           field.reference_to,
-          NUMERIC_IDENTIFIER_EXCLUSION_REASON
-        )
+          NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+        ),
       );
-      return "string"; // Use string as fallback for global field references
+      return "string";
     }
 
     const referenceName = name_type(field.reference_to);
@@ -352,7 +358,7 @@ export default function (userOptions: TSGenOptions) {
       const fieldPath = path ? `${path}.${field.uid}` : field.uid;
       const exclusionCheck = checkNumericIdentifierExclusion(
         field.uid,
-        fieldPath
+        fieldPath,
       );
       if (exclusionCheck.shouldExclude) {
         skippedFields.push(exclusionCheck.record!);
@@ -360,8 +366,8 @@ export default function (userOptions: TSGenOptions) {
           ERROR_MESSAGES.SKIPPED_FIELD_AT_PATH(
             field.uid,
             fieldPath,
-            NUMERIC_IDENTIFIER_EXCLUSION_REASON
-          )
+            NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+          ),
         );
         continue;
       }
@@ -380,7 +386,7 @@ export default function (userOptions: TSGenOptions) {
     // If editableTags is enabled, add the $ field
     if (options.isEditableTags) {
       const fieldComment = options.docgen.field(
-        "CSLP mapping for editable fields"
+        "CSLP mapping for editable fields",
       );
       const lines = fieldComment
         ? [fieldComment, CSLP_HELPERS.createMappingBlock(dollarKeys)]
@@ -392,7 +398,7 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function visit_content_type(
-    contentType: ContentstackTypes.ContentType | ContentstackTypes.GlobalField
+    contentType: ContentstackTypes.ContentType | ContentstackTypes.GlobalField,
   ) {
     modularBlockInterfaces.clear();
     const contentTypeInterface = [
@@ -419,7 +425,7 @@ export default function (userOptions: TSGenOptions) {
         const blockPath = `${field.uid}.blocks.${block.uid}`;
         const exclusionCheck = checkNumericIdentifierExclusion(
           block.uid,
-          blockPath
+          blockPath,
         );
         if (exclusionCheck.shouldExclude) {
           skippedBlocks.push(exclusionCheck.record!);
@@ -427,8 +433,8 @@ export default function (userOptions: TSGenOptions) {
             ERROR_MESSAGES.SKIPPED_BLOCK_AT_PATH(
               block.uid,
               blockPath,
-              NUMERIC_IDENTIFIER_EXCLUSION_REASON
-            )
+              NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+            ),
           );
           return null; // Return null to filter out later
         }
@@ -437,7 +443,7 @@ export default function (userOptions: TSGenOptions) {
           ? name_type(block.reference_to)
           : visit_fields(
               block.schema || [],
-              `${field.uid}.blocks.${block.uid}`
+              `${field.uid}.blocks.${block.uid}`,
             );
 
         const blockSchemaDefinition = block.reference_to
@@ -450,7 +456,7 @@ export default function (userOptions: TSGenOptions) {
     // If all blocks were skipped, return a more specific fallback type
     if (modularBlockDefinitions.length === 0) {
       if (options.systemFields) {
-        const modularBlocksType = `${options.naming?.prefix || ""}ModularBlocksExtension`;
+        const modularBlocksType = `${trimmedNamingPrefix}ModularBlocksExtension`;
         return field.multiple
           ? `${modularBlocksType}<Record<string, unknown>>[]`
           : `${modularBlocksType}<Record<string, unknown>>`;
@@ -469,7 +475,7 @@ export default function (userOptions: TSGenOptions) {
       if (existingInterfaceName) {
         // Wrap with ModularBlocks type to add _metadata support only when systemFields is enabled
         if (options.systemFields) {
-          const modularBlocksType = `${options.naming?.prefix || ""}ModularBlocksExtension`;
+          const modularBlocksType = `${trimmedNamingPrefix}ModularBlocksExtension`;
           return field.multiple
             ? `${modularBlocksType}<${existingInterfaceName}>[]`
             : `${modularBlocksType}<${existingInterfaceName}>`;
@@ -488,7 +494,7 @@ export default function (userOptions: TSGenOptions) {
     }
 
     const modularBlockInterfaceDefinition = [
-      `export interface ${modularBlockInterfaceName}${options.systemFields ? ` extends ${options.naming?.prefix || ""}SystemFields` : ""} {`,
+      `export interface ${modularBlockInterfaceName}${options.systemFields ? ` extends ${trimmedNamingPrefix}SystemFields` : ""} {`,
       modularBlockDefinitions.join("\n"),
       "}",
     ].join("\n");
@@ -500,7 +506,7 @@ export default function (userOptions: TSGenOptions) {
 
     // Wrap with ModularBlocks type to add _metadata support only when systemFields is enabled
     if (options.systemFields) {
-      const modularBlocksType = `${options.naming?.prefix || ""}ModularBlocksExtension`;
+      const modularBlocksType = `${trimmedNamingPrefix}ModularBlocksExtension`;
       return field.multiple
         ? `${modularBlocksType}<${modularBlockInterfaceName}>[]`
         : `${modularBlocksType}<${modularBlockInterfaceName}>`;
@@ -529,7 +535,7 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function type_link() {
-    return `${options.naming?.prefix}Link`;
+    return `${trimmedNamingPrefix}Link`;
   }
 
   function type_file(field: ContentstackTypes.Field): string {
@@ -539,22 +545,22 @@ export default function (userOptions: TSGenOptions) {
     }
 
     // Default behavior with prefix support for other file-related fields
-    return `${options.naming?.prefix}File`;
+    return `${trimmedNamingPrefix}File`;
   }
 
   function type_global_field(field: ContentstackTypes.GlobalField) {
     // Skip global fields with numeric UIDs
     const exclusionCheck = checkNumericIdentifierExclusion(
       field.uid,
-      field.uid
+      field.uid,
     );
     if (exclusionCheck.shouldExclude) {
       skippedFields.push(exclusionCheck.record!);
       logger?.warn(
         ERROR_MESSAGES.SKIPPED_GLOBAL_FIELD(
           field.uid,
-          NUMERIC_IDENTIFIER_EXCLUSION_REASON
-        )
+          NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+        ),
       );
       return "string"; // Use string as fallback for global fields
     }
@@ -563,7 +569,7 @@ export default function (userOptions: TSGenOptions) {
       const reason = "Schema not found for global field";
       skippedFields.push({ uid: field.uid, path: field.uid, reason });
       logger?.warn(
-        ERROR_MESSAGES.SKIPPED_GLOBAL_FIELD_NO_SCHEMA(field.uid, reason)
+        ERROR_MESSAGES.SKIPPED_GLOBAL_FIELD_NO_SCHEMA(field.uid, reason),
       );
       return "string"; // Use string as fallback
     }
@@ -579,7 +585,7 @@ export default function (userOptions: TSGenOptions) {
 
     // Handle reference types with or without ReferencedEntry interface
     if (options.includeReferencedEntry) {
-      const referencedEntryType = `${options.naming?.prefix || ""}ReferencedEntry`;
+      const referencedEntryType = `${trimmedNamingPrefix}ReferencedEntry`;
 
       const baseUnion = references.join(" | ");
       const types = `(${baseUnion} | ${referencedEntryType})`;
@@ -595,28 +601,27 @@ export default function (userOptions: TSGenOptions) {
 
     if (Array.isArray(field.reference_to)) {
       field.reference_to.forEach((v) => {
-        // Skip references to content types with numeric names
-        if (!isNumericIdentifier(v)) {
+        if (trimmedNamingPrefix || !isNumericIdentifier(v)) {
           references.push(name_type(v));
         } else {
           logger?.warn(
             ERROR_MESSAGES.SKIPPED_REFERENCE(
               v,
-              NUMERIC_IDENTIFIER_EXCLUSION_REASON
-            )
+              NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+            ),
           );
         }
       });
     } else {
-      // Skip references to content types with numeric names
-      if (!isNumericIdentifier(field.reference_to)) {
-        references.push(name_type(field.reference_to));
+      const v = field.reference_to;
+      if (trimmedNamingPrefix || !isNumericIdentifier(v)) {
+        references.push(name_type(v));
       } else {
         logger?.warn(
           ERROR_MESSAGES.SKIPPED_REFERENCE(
-            field.reference_to,
-            NUMERIC_IDENTIFIER_EXCLUSION_REASON
-          )
+            v,
+            NUMERIC_IDENTIFIER_EXCLUSION_REASON,
+          ),
         );
       }
     }
@@ -625,7 +630,7 @@ export default function (userOptions: TSGenOptions) {
   }
 
   return function (
-    contentType: ContentstackTypes.ContentType
+    contentType: ContentstackTypes.ContentType,
   ): TSGenResult | any {
     if (contentType.schema_type === "global_field") {
       const name = name_type(contentType.uid);
@@ -677,7 +682,7 @@ export default function (userOptions: TSGenOptions) {
             { value: "Schema Path" },
             { value: "Reason" },
           ],
-          allSkippedItems
+          allSkippedItems,
         );
       }
 
@@ -709,7 +714,7 @@ export default function (userOptions: TSGenOptions) {
   };
 
   function type_taxonomy() {
-    return `${options?.naming?.prefix}Taxonomy | ${options?.naming?.prefix}TaxonomyEntry`;
+    return `${trimmedNamingPrefix}Taxonomy | ${trimmedNamingPrefix}TaxonomyEntry`;
   }
 
   function type_json_rte(field: ContentstackTypes.Field) {

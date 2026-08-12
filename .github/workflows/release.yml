@@ -64,13 +64,6 @@ jobs:
         with:
           token: ${{ secrets.TYPES_GENERATOR_AUTOMATION }}
           strategy: upgrade
-      - name: Release to GitHub Packages
-        if: steps.update_tag.outputs.tagname
-        uses: JS-DevTools/npm-publish@v2.2.0
-        with:
-          token: ${{ secrets.PKG_TOKEN }}
-          registry: https://npm.pkg.github.com
-          strategy: upgrade
       - name: GitHub Release
         if: steps.update_tag.outputs.tagname
         id: github-release

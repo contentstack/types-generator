@@ -1,9 +1,10 @@
 fileignoreconfig:
-  - filename: .github/workflows/secrets-scan.yml
-    ignore_detectors:
-      - filecontent
-  - filename: package-lock.json
-    checksum: 3b78b6e76e2556306c4878601299bcecae5c5a73da5d1482a6d99a171c902aa7
-  - filename: tests/unit/graphqlTS/graphqlTS.test.ts
-    checksum: 5fb89f41b83f027ce2287e30d147ef89546f478ef7f4cdb338a77601154733c7
-version: "1.0"
+
+- filename: .github/workflows/secrets-scan.yml
+  ignore_detectors:
+  - filecontent
+- filename: package-lock.json
+  checksum: fd7e5167e77cfae98c912750c21319631f4885a0de50ef9292056e6172619ff4
+- filename: tests/unit/graphqlTS/graphqlTS.test.ts
+  checksum: 5fb89f41b83f027ce2287e30d147ef89546f478ef7f4cdb338a77601154733c7
+  version: "1.0"

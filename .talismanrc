@@ -4,4 +4,6 @@ fileignoreconfig:
       - filecontent
   - filename: package-lock.json
     checksum: 986cfacb6ad1f551551feac19d2479747b244cc8b2fdfa1292600954f5ee63b3
+  - filename: tests/unit/graphqlTS/graphqlTS.test.ts
+    checksum: 5fb89f41b83f027ce2287e30d147ef89546f478ef7f4cdb338a77601154733c7
 version: "1.0"

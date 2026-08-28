@@ -114,7 +114,12 @@ export async function graphqlTS({
 
       // Safely access the error message with proper null checks
       const errorMessage =
-        error.response?.data?.errors?.[0]?.extensions?.errors?.[0]?.message;
+        error.response?.data?.errors?.[0]?.extensions?.errors?.[0]?.message ||
+        error.response?.data?.errors?.[0]?.message ||
+        error.response?.data?.error_message ||
+        (error.response?.status
+          ? `Received HTTP ${error.response.status} from ${error.config?.url}`
+          : undefined);
 
       throw {
         error_message:

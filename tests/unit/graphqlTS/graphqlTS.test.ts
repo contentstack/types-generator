@@ -209,6 +209,64 @@ describe("graphqlTS function with errors", () => {
       expect(err.error_message).toEqual("The queried branch 'mai' is invalid.");
     }
   });
+
+  // Regression: an error response that isn't shaped like a GraphQL error used to
+  // collapse into the generic GRAPHQL_SCHEMA_ERROR, leaving callers with nothing
+  // to diagnose. Each of these asserts on rejection so a missing throw fails.
+  it("reports the status and URL when the body is not JSON at all", async () => {
+    const apiKey = "my-api-key";
+    const environment = "development";
+
+    nock("https://cdn.contentstack.io")
+      .post(`/stacks/${apiKey}?environment=${environment}`)
+      .reply(403, "<html><body>403 Forbidden</body></html>", {
+        "content-type": "text/html",
+      });
+
+    await expect(
+      graphqlTS({
+        token: "my-token",
+        apiKey,
+        environment,
+        region: "US",
+        host: "cdn.contentstack.io",
+      })
+    ).rejects.toMatchObject({
+      error_message: `Received HTTP 403 from https://cdn.contentstack.io/stacks/${apiKey}`,
+    });
+  });
+
+  it("surfaces a top-level GraphQL error message with no extensions", async () => {
+    const apiKey = "my-api-key";
+    const environment = "development";
+    const region = "US";
+
+    nock(GRAPHQL_REGION_URL_MAPPING[region])
+      .post(`/${apiKey}?environment=${environment}`)
+      .reply(400, { errors: [{ message: "Syntax Error: Unexpected <EOF>." }] });
+
+    await expect(
+      graphqlTS({ token: "my-token", apiKey, environment, region })
+    ).rejects.toMatchObject({
+      error_message: "Syntax Error: Unexpected <EOF>.",
+    });
+  });
+
+  it("surfaces a Contentstack REST-style error_message body", async () => {
+    const apiKey = "my-api-key";
+    const environment = "development";
+    const region = "US";
+
+    nock(GRAPHQL_REGION_URL_MAPPING[region])
+      .post(`/${apiKey}?environment=${environment}`)
+      .reply(422, { error_message: "The environment is not valid." });
+
+    await expect(
+      graphqlTS({ token: "my-token", apiKey, environment, region })
+    ).rejects.toMatchObject({
+      error_message: "The environment is not valid.",
+    });
+  });
 });
 
 afterAll(() => {

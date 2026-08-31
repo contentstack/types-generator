@@ -40,6 +40,8 @@ export const ERROR_MESSAGES = {
     `Skipped global field "${uid}": ${reason}`,
   SKIPPED_GLOBAL_FIELD_NO_SCHEMA: (uid: string, reason: string) =>
     `Skipped global field "${uid}": ${reason}. Did you forget to include it?`,
+  RENAMED_BLOCK_INTERFACE: (from: string, to: string) =>
+    `Renamed modular block interface "${from}" to "${to}": that name is already used by another generated interface.`,
   SKIPPED_REFERENCE: (reference: string, reason: string) =>
     `Skipped reference to content type "${reference}": ${reason}`,
   

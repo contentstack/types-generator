@@ -1,9 +1,8 @@
 name: Publish package to NPM and Git registry
 
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -12,14 +11,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.x"
+          node-version: '24'
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Build
         run: |
           rm -rf dist
@@ -37,54 +34,32 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.x"
+          node-version: '24'
+          registry-url: https://registry.npmjs.org/
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Download dist
         uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
-      - name: Display dirs
-        run: ls -R
-      - uses: Klemensas/action-autotag@1.2.3
-        id: update_tag
-        env:
-          GITHUB_TOKEN: "${{ secrets.PKG_TOKEN }}"
-        with:
-          tag_prefix: "v"
-      - name: Release
-        if: steps.update_tag.outputs.tagname
-        id: release-plugin
-        uses: JS-DevTools/npm-publish@v2.2.0
-        with:
-          token: ${{ secrets.TYPES_GENERATOR_AUTOMATION }}
-          strategy: upgrade
-      # setup-node writes an .npmrc pointing at GitHub Packages, so the scoped
-      # publish below resolves there instead of npmjs.
+      - name: Update npm
+        run: npm install -g npm@latest
+      - name: Publish to npm
+        run: npm publish --access public
       - name: Setup Node.js for GitHub Packages
-        if: steps.update_tag.outputs.tagname
         uses: actions/setup-node@v4
         with:
-          node-version: "22.x"
+          node-version: '24'
           registry-url: https://npm.pkg.github.com/
       - name: Release to GitHub Packages
-        if: steps.update_tag.outputs.tagname
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.PKG_TOKEN }}
-      - name: GitHub Release
-        if: steps.update_tag.outputs.tagname
-        id: github-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.PKG_TOKEN }}
-          VERSION: ${{ steps.release-plugin.outputs.version }}
-        run: gh release create v"$VERSION" --title "Release $VERSION" --generate-notes

@@ -42,7 +42,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          registry-url: https://registry.npmjs.org/
       - name: Install dependencies
         run: npm ci
       - name: Download dist
@@ -54,6 +53,8 @@ jobs:
         run: npm install -g npm@latest
       - name: Publish to npm
         run: npm publish --access public
+        env:
+          npm_config_registry: https://registry.npmjs.org/
       - name: Setup Node.js for GitHub Packages
         uses: actions/setup-node@v4
         with:

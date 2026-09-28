@@ -11,6 +11,7 @@ import {
   throwNumericIdentifierValidationError,
 } from "./shared/utils";
 import { ERROR_MESSAGES } from "../constants";
+import { defaultInterfaces } from "./stack/builtins";
 
 export function hasPrefixedNaming(prefix: string | undefined): boolean {
   return typeof prefix === "string" && prefix.trim().length > 0;
@@ -24,6 +25,55 @@ export function composePrefixedInterfaceName(
   return trimmed + _.upperFirst(_.camelCase(uid));
 }
 
+/**
+ * Every interface/type name that stack/builtins.ts will actually emit for this run, read
+ * from that module rather than restated here — a hand-copied list silently drifts as
+ * builtins are added, and a name missing from it collides in the generated output with
+ * no warning.
+ *
+ * The emission flags must be passed through accurately rather than all-enabled. Reserving
+ * a name that is not emitted is not harmless: the block that wanted it gets renamed, and
+ * it also consumes the shared suffix counter, shifting the suffix of every later
+ * collision in the batch. Both would rename interfaces that compile today.
+ *
+ * The JSON RTE flag is passed as true deliberately. The only name it adds is the JSON
+ * rich-text node interface, which a UID can never produce: a name is the upper-cased
+ * camel case of its UID, and that cannot yield an all-caps acronym prefix. The two
+ * live-preview helper names are unreachable for the same reason, so reserving any of
+ * the three can never rename anything.
+ */
+function collectBuiltinInterfaceNames(
+  prefix: string,
+  systemFields: boolean,
+  isEditableTags: boolean,
+  includeReferencedEntry: boolean,
+): string[] {
+  const declarations = defaultInterfaces(
+    prefix,
+    systemFields,
+    isEditableTags,
+    true,
+    includeReferencedEntry,
+  ).join("\n");
+
+  // Deliberately an exec loop rather than matchAll: tsconfig targets es2017, and
+  // String.prototype.matchAll is es2020. It runs fine on Node, but it does not type-check.
+  const names: string[] = [];
+  const pattern = /(?:interface|type)\s+(\w+)/g;
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(declarations)) !== null) {
+    names.push(match[1]);
+  }
+  return names;
+}
+export function interfaceNameForUid(uid: string, prefix: string): string {
+  const trimmed = typeof prefix === "string" ? prefix.trim() : "";
+  if (!trimmed && isNumericIdentifier(uid)) {
+    return `InvalidInterface_${uid}`;
+  }
+  return composePrefixedInterfaceName(uid, trimmed);
+}
+
 export type TSGenOptions = {
   docgen: DocumentationGenerator;
   naming?: {
@@ -33,6 +83,8 @@ export type TSGenOptions = {
   isEditableTags?: boolean;
   includeReferencedEntry?: boolean;
   logger?: Logger;
+  /** Interface names already claimed by the batch — see generateTSFromContentTypes. */
+  reservedNames?: string[];
 };
 
 export type TSGenResult = {
@@ -57,10 +109,6 @@ export type TSGenResult = {
 
 type GlobalFieldCache = {
   [prop: string]: { definition: string };
-};
-
-type ModularBlockCache = {
-  [prop: string]: string;
 };
 
 enum TypeFlags {
@@ -100,11 +148,9 @@ export default function (userOptions: TSGenOptions) {
   const visitedGlobalFields = new Set<string>();
   const visitedContentTypes = new Set<string>();
   const cachedGlobalFields: GlobalFieldCache = {};
-  const cachedModularBlocks: ModularBlockCache = {};
   const modularBlockInterfaces = new Set<string>();
   const uniqueBlockInterfaces = new Set<string>();
   const blockInterfacesKeyToName: { [key: string]: string } = {};
-  let counter = 1;
   const skippedFields: Array<{ uid: string; path: string; reason: string }> =
     [];
   const skippedBlocks: Array<{ uid: string; path: string; reason: string }> =
@@ -114,6 +160,40 @@ export default function (userOptions: TSGenOptions) {
     typeof options.naming?.prefix === "string"
       ? options.naming.prefix.trim()
       : "";
+
+  // Every interface name already claimed: the builtins, plus every top-level content
+  // type and global field in this batch (seeded by generateTSFromContentTypes, which
+  // knows the whole batch — the factory itself only ever sees one content type at a
+  // time). Top-level names are never reallocated; only derived block names are.
+  const usedInterfaceNames = new Set<string>([
+    ...collectBuiltinInterfaceNames(
+      trimmedNamingPrefix,
+      Boolean(options.systemFields),
+      Boolean(options.isEditableTags),
+      Boolean(options.includeReferencedEntry),
+    ),
+    ...(options.reservedNames ?? []),
+  ]);
+
+  // Shared across all block-name collisions, deliberately: this reproduces the numbering
+  // the generator has always produced, so no interface that compiles today is renamed.
+  // A per-name counter would be tidier but would turn an existing `Card2` into `Card1`.
+  let counter = 1;
+
+  function reserveInterfaceName(baseName: string): string {
+    let candidate = baseName;
+    while (usedInterfaceNames.has(candidate)) {
+      candidate = `${candidate}${counter}`;
+      counter++;
+    }
+    if (candidate !== baseName) {
+      // Every other name-mangling path in this file reports itself; a silent rename
+      // leaves the customer with "Cannot find name 'Form'" and nothing to explain it.
+      logger?.warn(ERROR_MESSAGES.RENAMED_BLOCK_INTERFACE(baseName, candidate));
+    }
+    usedInterfaceNames.add(candidate);
+    return candidate;
+  }
 
   // Collect numeric identifier errors instead of throwing immediately
   const numericIdentifierErrors: Array<{
@@ -180,13 +260,7 @@ export default function (userOptions: TSGenOptions) {
   }
 
   function name_type(uid: string) {
-    if (trimmedNamingPrefix) {
-      return composePrefixedInterfaceName(uid, trimmedNamingPrefix);
-    }
-    if (isNumericIdentifier(uid)) {
-      return `InvalidInterface_${uid}`;
-    }
-    return composePrefixedInterfaceName(uid, "");
+    return interfaceNameForUid(uid, trimmedNamingPrefix);
   }
 
   function define_interface(
@@ -488,10 +562,7 @@ export default function (userOptions: TSGenOptions) {
 
     uniqueBlockInterfaces.add(modularBlockSignature);
 
-    while (cachedModularBlocks[modularBlockInterfaceName]) {
-      modularBlockInterfaceName = `${modularBlockInterfaceName}${counter}`;
-      counter++;
-    }
+    modularBlockInterfaceName = reserveInterfaceName(modularBlockInterfaceName);
 
     const modularBlockInterfaceDefinition = [
       `export interface ${modularBlockInterfaceName}${options.systemFields ? ` extends ${trimmedNamingPrefix}SystemFields` : ""} {`,
@@ -501,7 +572,6 @@ export default function (userOptions: TSGenOptions) {
 
     // Store or track the generated block interface for later use
     modularBlockInterfaces.add(modularBlockInterfaceDefinition);
-    cachedModularBlocks[modularBlockInterfaceName] = modularBlockSignature;
     blockInterfacesKeyToName[modularBlockSignature] = modularBlockInterfaceName;
 
     // Wrap with ModularBlocks type to add _metadata support only when systemFields is enabled

@@ -6,7 +6,7 @@ import { GenerateTS, GenerateTSFromContentTypes } from "../types";
 import { DocumentationGenerator } from "./docgen/doc";
 import JSDocumentationGenerator from "./docgen/jsdoc";
 import NullDocumentationGenerator from "./docgen/nulldoc";
-import tsgenFactory from "./factory";
+import tsgenFactory, { interfaceNameForUid } from "./factory";
 import { defaultInterfaces } from "./stack/builtins";
 import { format } from "../format/index";
 import { ContentType } from "../types/schema";
@@ -139,13 +139,28 @@ export const generateTSFromContentTypes = async ({
     const globalFields = new Set();
     const definitions = [];
 
+    // Normalise once, here, so that the builtins, the reserved names and the generated
+    // interfaces all agree on the prefix. They used to disagree: `defaultInterfaces` got
+    // the raw value while the factory trimmed it, so a prefix of `null` emitted
+    // `nullFile` and a prefix of "  CS  " emitted `  CS  File` against a reserved
+    // `CSFile`.
+    const normalizedPrefix = (prefix ?? "").trim();
+
+    // Every top-level interface name in this batch, claimed before generation starts.
+    // Content types are visited one at a time, so without this the factory cannot know
+    // about a content type it has not reached yet (DX-10385).
+    const reservedNames = contentTypes.map((contentType) =>
+      interfaceNameForUid(contentType.uid, normalizedPrefix)
+    );
+
     const tsgen = tsgenFactory({
       docgen,
-      naming: { prefix },
+      naming: { prefix: normalizedPrefix },
       systemFields,
       isEditableTags,
       includeReferencedEntry,
       logger,
+      reservedNames,
     });
     for (const contentType of contentTypes) {
       const tsgenResult = tsgen(contentType);
@@ -169,7 +184,7 @@ export const generateTSFromContentTypes = async ({
     const output = await format(
       [
         defaultInterfaces(
-          prefix,
+          normalizedPrefix,
           systemFields,
           isEditableTags,
           hasJsonField,

@@ -10,6 +10,7 @@
   "scripts": {
     "prepare": "npm run build",
     "build": "tsup",
+    "postpack": "ggshield secret scan archive ./*.tgz",
     "husky-check": "npx husky && chmod +x .husky/pre-commit",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --testPathPattern=tests",
     "test:unit:report:json": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --testPathPattern=tests/unit --coverage --coverageReporters=clover --coverageReporters=json --coverageDirectory=coverage --testResultsProcessor=jest-json-reporter --outputFile=test-results.json"

@@ -18,8 +18,12 @@ jobs:
       - run: npm ci
       - name: Update npm
         run: npm install -g npm@latest
+      - name: Install ggshield
+        run: pipx install ggshield
       - name: Release
         run: npm publish --access public
+        env:
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
   publish-github:
     runs-on: ubuntu-latest
     permissions:
@@ -35,7 +39,10 @@ jobs:
       - run: npm ci
       - name: Update npm
         run: npm install -g npm@latest
+      - name: Install ggshield
+        run: pipx install ggshield
       - name: Release
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
